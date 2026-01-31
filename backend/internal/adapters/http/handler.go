@@ -2,8 +2,10 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"github.com/tinx/pat-quest-editor/backend/internal/domain"
@@ -12,6 +14,26 @@ import (
 
 // maxRequestBodySize limits request body to 10MB to prevent memory exhaustion attacks
 const maxRequestBodySize = 10 * 1024 * 1024
+
+// maxQuestIDLength is the maximum allowed length for quest IDs
+const maxQuestIDLength = 100
+
+// validQuestIDPattern matches allowed quest ID characters: alphanumeric, underscores, colons, hyphens
+var validQuestIDPattern = regexp.MustCompile(`^[a-zA-Z0-9_:\-]+$`)
+
+// validateQuestID checks if a quest ID is valid
+func validateQuestID(questID string) error {
+	if questID == "" {
+		return fmt.Errorf("quest ID cannot be empty")
+	}
+	if len(questID) > maxQuestIDLength {
+		return fmt.Errorf("quest ID exceeds maximum length of %d characters", maxQuestIDLength)
+	}
+	if !validQuestIDPattern.MatchString(questID) {
+		return fmt.Errorf("quest ID contains invalid characters (allowed: alphanumeric, underscore, colon, hyphen)")
+	}
+	return nil
+}
 
 // Handler provides HTTP handlers for the quest editor API.
 type Handler struct {
@@ -68,6 +90,12 @@ func (h *Handler) handleQuest(w http.ResponseWriter, r *http.Request) {
 	questID := strings.TrimPrefix(r.URL.Path, "/api/quests/")
 	if questID == "" {
 		http.Error(w, "quest ID required", http.StatusBadRequest)
+		return
+	}
+
+	// Validate quest ID format
+	if err := validateQuestID(questID); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

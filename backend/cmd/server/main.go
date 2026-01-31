@@ -13,6 +13,23 @@ import (
 	"github.com/tinx/pat-quest-editor/backend/internal/app"
 )
 
+// corsMiddleware adds CORS headers for development mode
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		// Handle preflight requests
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	// Command line flags
 	addr := flag.String("addr", ":8080", "HTTP server address")
@@ -20,13 +37,30 @@ func main() {
 	dataDir := flag.String("data", "../data", "Path to reference data directory")
 	dbPath := flag.String("db", "editor.db", "Path to SQLite database")
 	staticDir := flag.String("static", "../frontend/dist", "Path to frontend static files")
+	devMode := flag.Bool("dev", false, "Enable development mode (CORS headers)")
 	flag.Parse()
 
 	// Resolve paths relative to working directory
-	questsPath, _ := filepath.Abs(*questsDir)
-	dataPath, _ := filepath.Abs(*dataDir)
-	dbPathAbs, _ := filepath.Abs(*dbPath)
-	staticPath, _ := filepath.Abs(*staticDir)
+	questsPath, err := filepath.Abs(*questsDir)
+	if err != nil {
+		log.Printf("Warning: failed to resolve quests path: %v", err)
+		questsPath = *questsDir
+	}
+	dataPath, err := filepath.Abs(*dataDir)
+	if err != nil {
+		log.Printf("Warning: failed to resolve data path: %v", err)
+		dataPath = *dataDir
+	}
+	dbPathAbs, err := filepath.Abs(*dbPath)
+	if err != nil {
+		log.Printf("Warning: failed to resolve database path: %v", err)
+		dbPathAbs = *dbPath
+	}
+	staticPath, err := filepath.Abs(*staticDir)
+	if err != nil {
+		log.Printf("Warning: failed to resolve static path: %v", err)
+		staticPath = *staticDir
+	}
 
 	// Initialize repositories
 	questRepo := filesystem.NewQuestFileRepository(questsPath)
@@ -57,13 +91,20 @@ func main() {
 		log.Printf("Static directory not found: %s (frontend will not be served)", staticPath)
 	}
 
+	// Wrap with CORS middleware in dev mode
+	var finalHandler http.Handler = mux
+	if *devMode {
+		log.Printf("Development mode enabled (CORS headers active)")
+		finalHandler = corsMiddleware(mux)
+	}
+
 	// Start server
 	log.Printf("Starting server on %s", *addr)
 	log.Printf("Quest files: %s", questsPath)
 	log.Printf("Reference data: %s", dataPath)
 	log.Printf("Database: %s", dbPathAbs)
 
-	if err := http.ListenAndServe(*addr, mux); err != nil {
+	if err := http.ListenAndServe(*addr, finalHandler); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
 }

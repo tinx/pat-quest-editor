@@ -87,6 +87,22 @@ function AppContent() {
     const questId = prompt('Enter Quest ID (e.g., PAT_New_Quest):');
     if (!questId) return;
 
+    // Validate quest ID format
+    if (!/^[a-zA-Z0-9_:-]+$/.test(questId)) {
+      alert('Invalid Quest ID. Only alphanumeric characters, underscores, colons, and hyphens are allowed.');
+      return;
+    }
+    if (questId.length > 100) {
+      alert('Quest ID is too long. Maximum 100 characters allowed.');
+      return;
+    }
+
+    // Check if quest already exists
+    if (quests.includes(questId)) {
+      alert(`A quest with ID "${questId}" already exists. Please choose a different ID.`);
+      return;
+    }
+
     const newQuest = {
       QuestTypeVersion: 1,
       QuestVersion: 1,
@@ -104,7 +120,7 @@ function AppContent() {
     setQuest(newQuest);
     setMetadata({ questId, nodePositions: {} });
     setValidation({ valid: true });
-  }, []);
+  }, [quests]);
 
   // Drag start handler for toolbox
   const handleDragStart = useCallback((event, nodeType) => {

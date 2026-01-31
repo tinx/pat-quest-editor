@@ -93,13 +93,13 @@ function flowToQuest(nodes, edges, originalQuest) {
   
   edges.forEach(e => {
     if (e.sourceHandle && e.sourceHandle.startsWith('option-')) {
-      const optIndex = parseInt(e.sourceHandle.split('-')[1]);
+      const optIndex = parseInt(e.sourceHandle.split('-')[1], 10);
       if (!optionEdgeMap[e.source]) optionEdgeMap[e.source] = {};
       if (!optionEdgeMap[e.source][optIndex]) optionEdgeMap[e.source][optIndex] = [];
-      optionEdgeMap[e.source][optIndex].push(parseInt(e.target));
+      optionEdgeMap[e.source][optIndex].push(parseInt(e.target, 10));
     } else {
       if (nodeMap[e.source]) {
-        nodeMap[e.source].push(parseInt(e.target));
+        nodeMap[e.source].push(parseInt(e.target, 10));
       }
     }
   });
@@ -149,7 +149,7 @@ function flowToQuest(nodes, edges, originalQuest) {
 function getMetadata(questId, nodes) {
   const nodePositions = {};
   nodes.forEach(n => {
-    nodePositions[parseInt(n.id)] = { x: n.position.x, y: n.position.y };
+    nodePositions[parseInt(n.id, 10)] = { x: n.position.x, y: n.position.y };
   });
   return { questId, nodePositions };
 }
@@ -301,7 +301,11 @@ export default forwardRef(function Canvas({ quest, metadata, referenceData, onCh
       y: e.clientY,
     });
 
-    const maxId = nodes.reduce((max, n) => Math.max(max, parseInt(n.id) || 0), -1);
+    // Calculate max ID from existing nodes, handling NaN gracefully
+    const maxId = nodes.reduce((max, n) => {
+      const parsed = parseInt(n.id, 10);
+      return Number.isNaN(parsed) ? max : Math.max(max, parsed);
+    }, -1);
     const newId = maxId + 1;
 
     const newNode = {
