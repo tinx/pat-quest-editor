@@ -4,6 +4,7 @@ import TopBar from './components/TopBar';
 import Toolbox from './components/Toolbox';
 import Canvas from './components/Canvas';
 import ValidationPanel from './components/ValidationPanel';
+import QuestPropertiesEditor from './components/QuestPropertiesEditor';
 import { useQuests, useReferenceData } from './hooks/useApi';
 import * as api from './api/client';
 
@@ -19,6 +20,7 @@ function AppContent() {
   const [validation, setValidation] = useState(null);
   const [saving, setSaving] = useState(false);
   const [highlightedNodeId, setHighlightedNodeId] = useState(null);
+  const [showQuestEditor, setShowQuestEditor] = useState(false);
 
   // Load quest when selected
   const loadQuest = useCallback(async (questId) => {
@@ -123,6 +125,22 @@ function AppContent() {
     }
   }, []);
 
+  // Quest properties editor handlers
+  const handleOpenQuestEditor = useCallback(() => {
+    setShowQuestEditor(true);
+  }, []);
+
+  const handleSaveQuestProperties = useCallback(async (updatedQuest) => {
+    setQuest(updatedQuest);
+    // Validate the updated quest
+    try {
+      const result = await api.validateQuest(updatedQuest);
+      setValidation(result);
+    } catch (e) {
+      console.error('Validation failed:', e);
+    }
+  }, []);
+
   return (
     <div style={{ ...styles.app, backgroundColor: theme.canvasBg, color: theme.text }}>
       <TopBar
@@ -136,7 +154,11 @@ function AppContent() {
         onToggleTheme={toggleTheme}
       />
       <div style={styles.main}>
-        <Toolbox onDragStart={handleDragStart} />
+        <Toolbox
+          quest={quest}
+          onDragStart={handleDragStart}
+          onEditQuest={handleOpenQuestEditor}
+        />
         <Canvas
           ref={canvasRef}
           quest={quest}
@@ -151,6 +173,14 @@ function AppContent() {
           onSelectNode={handleSelectNode}
         />
       </div>
+
+      {showQuestEditor && (
+        <QuestPropertiesEditor
+          quest={quest}
+          onSave={handleSaveQuestProperties}
+          onClose={() => setShowQuestEditor(false)}
+        />
+      )}
     </div>
   );
 }

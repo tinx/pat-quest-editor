@@ -8,13 +8,25 @@ const nodeTypes = [
   { type: 'Actions', label: 'Actions', color: '#f44336' },
 ];
 
-export default function Toolbox({ onDragStart }) {
+export default function Toolbox({ quest, onDragStart, onEditQuest }) {
   const { theme } = useTheme();
   const styles = getStyles(theme);
 
+  const questDisplayName = quest?.DisplayName?.['en-US'] || '(Untitled Quest)';
+
   return (
     <div style={styles.container}>
-      <h3 style={styles.title}>Node Types</h3>
+      {quest && (
+        <>
+          <h3 style={styles.title}>Quest</h3>
+          <div style={styles.questCard}>
+            <div style={styles.questName}>{questDisplayName}</div>
+            <button onClick={onEditQuest} style={styles.editBtn}>Edit</button>
+          </div>
+        </>
+      )}
+
+      <h3 style={{ ...styles.title, marginTop: quest ? '20px' : 0 }}>Node Types</h3>
       {nodeTypes.map(node => (
         <div
           key={node.type}
@@ -43,6 +55,29 @@ const getStyles = (theme) => ({
     fontSize: '12px',
     textTransform: 'uppercase',
     marginBottom: '12px',
+  },
+  questCard: {
+    backgroundColor: theme.bgSecondary,
+    borderRadius: '4px',
+    padding: '10px 12px',
+    marginBottom: '6px',
+  },
+  questName: {
+    color: theme.text,
+    fontSize: '13px',
+    fontWeight: '500',
+    marginBottom: '8px',
+    wordBreak: 'break-word',
+  },
+  editBtn: {
+    padding: '4px 10px',
+    backgroundColor: theme.name === 'dark' ? '#4a4a6a' : '#5c6bc0',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '4px',
+    fontSize: '12px',
+    cursor: 'pointer',
+    width: '100%',
   },
   item: {
     display: 'flex',

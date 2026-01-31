@@ -1,7 +1,7 @@
 QuestTypeVersion: 1
 QuestVersion: 1
 QuestID: PAT_Demo_Quest
-QuestType: SideQuest
+QuestType: FactionQuest
 DisplayName:
     en-US: The Demo Quest
     de-DE: Die Demo-Aufgabe
@@ -96,6 +96,9 @@ QuestNodes:
         - QuestStageDescription:
             de-DE: Drumin, der Schmied, hat uns beauftragt dem Schreiner Mellis eine Packung Nägel zu bringen.
             en-US: Drumin, the smith, tasked us with delivering a pack of nails to Mellis, the carpenter.
+        - JournalEntry:
+            de-DE: Du hast Deine Hilfe zugesagt und die Nägel entgegen genommen.
+            en-US: You agreed to help and received the nails.
     - NodeID: 5
       NodeType: Dialog
       NextNodes:
@@ -144,8 +147,17 @@ QuestNodes:
       Actions:
         - FailQuest
         - JournalEntry:
-            de-DE: Leider hast Du die Nägel verloren.
-            en-US: Unfortunately you lost the nails.
+            de-DE: Leider hast Du sie verloren.
+            en-US: Unfortunately you lost them.
+        - FactionStanding:
+            Faction: NPC:Smith
+            Points: -5
+        - FactionStanding:
+            Faction: NPC:Carpenter
+            Points: -3
+        - FactionStanding:
+            Faction: Town
+            Points: -1
     - NodeID: 8
       NodeType: Dialog
       NextNodes:
