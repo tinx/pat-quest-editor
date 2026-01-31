@@ -140,6 +140,7 @@ QuestNodes:
         - 8
       QuestProgressors:
         - NPC:Carpenter
+        - ""
       QuestStageTitle:
         en-US: Deliver nails to Mellis, the carpenter.
         de-DE: Bring Schreiner Mellis Nägel.

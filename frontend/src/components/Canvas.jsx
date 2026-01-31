@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import {
   ReactFlow,
   Background,
@@ -155,7 +155,7 @@ function getMetadata(questId, nodes) {
   return { questId, nodePositions };
 }
 
-export default function Canvas({ quest, metadata, referenceData, onChange }) {
+export default forwardRef(function Canvas({ quest, metadata, referenceData, onChange, highlightedNodeId }, ref) {
   const { theme } = useTheme();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -164,6 +164,24 @@ export default function Canvas({ quest, metadata, referenceData, onChange }) {
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const isInitialLoad = useRef(false);
   const questIdRef = useRef(null);
+
+  // Expose methods to parent via ref
+  useImperativeHandle(ref, () => ({
+    centerOnNode: (nodeId) => {
+      if (reactFlowInstance) {
+        const node = nodes.find(n => n.id === String(nodeId));
+        if (node) {
+          reactFlowInstance.setCenter(node.position.x + 100, node.position.y + 50, { zoom: 1, duration: 500 });
+        }
+      }
+    },
+    openNodeEditor: (nodeId) => {
+      const node = nodes.find(n => n.id === String(nodeId));
+      if (node) {
+        setEditingNode(node);
+      }
+    },
+  }), [reactFlowInstance, nodes]);
 
   // Load quest into canvas (only when quest ID changes)
   useEffect(() => {
@@ -181,6 +199,14 @@ export default function Canvas({ quest, metadata, referenceData, onChange }) {
       setEdges([]);
     }
   }, [quest, metadata, setNodes, setEdges]);
+
+  // Update node highlighting when highlightedNodeId changes
+  useEffect(() => {
+    setNodes(nds => nds.map(n => ({
+      ...n,
+      data: { ...n.data, highlighted: n.id === String(highlightedNodeId) },
+    })));
+  }, [highlightedNodeId, setNodes]);
 
   // Notify parent of changes (but not on initial load)
   const handleNodesChange = useCallback((changes) => {
@@ -228,10 +254,18 @@ export default function Canvas({ quest, metadata, referenceData, onChange }) {
   }, []);
 
   const onNodeSave = useCallback((updatedNode) => {
-    setNodes(nds =>
-      nds.map(n => n.id === updatedNode.id ? updatedNode : n)
-    );
-  }, [setNodes]);
+    setNodes(nds => {
+      const newNodes = nds.map(n => n.id === updatedNode.id ? updatedNode : n);
+      // Notify parent of changes to trigger validation
+      setEdges(currentEdges => {
+        const updatedQuest = flowToQuest(newNodes, currentEdges, quest);
+        const updatedMetadata = getMetadata(quest.QuestID, newNodes);
+        onChange(updatedQuest, updatedMetadata);
+        return currentEdges;
+      });
+      return newNodes;
+    });
+  }, [setNodes, setEdges, quest, onChange]);
 
   const onDragOver = useCallback((e) => {
     e.preventDefault();
@@ -303,7 +337,7 @@ export default function Canvas({ quest, metadata, referenceData, onChange }) {
       )}
     </div>
   );
-}
+})
 
 const styles = {
   container: {

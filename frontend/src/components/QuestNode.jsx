@@ -20,12 +20,13 @@ function QuestNode({ data, selected }) {
   const isDecisionDialog = data.nodeType === 'PlayerDecisionDialog';
   const options = data.options || [];
   const styles = getStyles(theme);
+  const isHighlighted = data.highlighted;
   
   return (
     <div style={{
       ...styles.node,
-      borderColor: selected ? (theme.name === 'dark' ? '#fff' : '#333') : color,
-      boxShadow: selected ? `0 0 10px ${color}` : 'none',
+      borderColor: isHighlighted ? '#ffeb3b' : (selected ? (theme.name === 'dark' ? '#fff' : '#333') : color),
+      boxShadow: isHighlighted ? '0 0 15px #ffeb3b, 0 0 30px #ffeb3b' : (selected ? `0 0 10px ${color}` : 'none'),
       maxWidth: isDecisionDialog ? '280px' : '200px',
     }}>
       <Handle type="target" position={Position.Top} style={styles.handle} />

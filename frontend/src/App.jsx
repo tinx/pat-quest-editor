@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { ThemeProvider, useTheme } from './ThemeContext';
 import TopBar from './components/TopBar';
 import Toolbox from './components/Toolbox';
@@ -11,12 +11,14 @@ function AppContent() {
   const { theme, toggleTheme } = useTheme();
   const { quests, refresh: refreshQuests } = useQuests();
   const referenceData = useReferenceData();
+  const canvasRef = useRef(null);
   
   const [currentQuestId, setCurrentQuestId] = useState(null);
   const [quest, setQuest] = useState(null);
   const [metadata, setMetadata] = useState(null);
   const [validation, setValidation] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [highlightedNodeId, setHighlightedNodeId] = useState(null);
 
   // Load quest when selected
   const loadQuest = useCallback(async (questId) => {
@@ -51,6 +53,12 @@ function AppContent() {
     try {
       const result = await api.validateQuest(updatedQuest);
       setValidation(result);
+      // Clear highlight if the highlighted node no longer has errors
+      setHighlightedNodeId(prev => {
+        if (prev === null) return null;
+        const stillHasError = result.errors?.some(e => e.nodeId === prev);
+        return stillHasError ? prev : null;
+      });
     } catch (e) {
       console.error('Validation failed:', e);
     }
@@ -102,6 +110,18 @@ function AppContent() {
     event.dataTransfer.effectAllowed = 'move';
   }, []);
 
+  // Validation panel handlers
+  const handleHoverNode = useCallback((nodeId) => {
+    setHighlightedNodeId(nodeId);
+  }, []);
+
+  const handleSelectNode = useCallback((nodeId) => {
+    if (canvasRef.current) {
+      canvasRef.current.centerOnNode(nodeId);
+      canvasRef.current.openNodeEditor(nodeId);
+    }
+  }, []);
+
   return (
     <div style={{ ...styles.app, backgroundColor: theme.canvasBg, color: theme.text }}>
       <TopBar
@@ -117,12 +137,18 @@ function AppContent() {
       <div style={styles.main}>
         <Toolbox onDragStart={handleDragStart} />
         <Canvas
+          ref={canvasRef}
           quest={quest}
           metadata={metadata}
           referenceData={referenceData}
           onChange={handleQuestChange}
+          highlightedNodeId={highlightedNodeId}
         />
-        <ValidationPanel validation={validation} />
+        <ValidationPanel
+          validation={validation}
+          onHoverNode={handleHoverNode}
+          onSelectNode={handleSelectNode}
+        />
       </div>
     </div>
   );
