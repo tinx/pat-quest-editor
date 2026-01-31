@@ -327,7 +327,6 @@
 				"oneOf": [
 					{ "$ref": "#/$defs/Action_AcceptQuest" },
 					{ "$ref": "#/$defs/Action_DeclineQuest" },
-					{ "$ref": "#/$defs/Action_PostponeQuest" },
 					{ "$ref": "#/$defs/Action_FailQuest" },
 					{ "$ref": "#/$defs/Action_CompleteQuest" },
 					{ "$ref": "#/$defs/Action_ItemsGained" },
@@ -349,10 +348,6 @@
 		"Action_DeclineQuest": {
 			"type": "string",
 			"const": "DeclineQuest"
-		},
-		"Action_PostponeQuest": {
-			"type": "string",
-			"const": "PostponeQuest"
 		},
 		"Action_FailQuest": {
 			"type": "string",

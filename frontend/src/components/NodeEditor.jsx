@@ -8,13 +8,12 @@ import { useTheme } from '../ThemeContext';
 const optionColors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50'];
 
 // Simple action types (just a string constant)
-const SIMPLE_ACTIONS = ['AcceptQuest', 'DeclineQuest', 'PostponeQuest', 'FailQuest', 'CompleteQuest'];
+const SIMPLE_ACTIONS = ['AcceptQuest', 'DeclineQuest', 'FailQuest', 'CompleteQuest'];
 
 // Action type definitions for the dropdown
 const ACTION_TYPES = [
   { value: 'AcceptQuest', label: 'Accept Quest' },
   { value: 'DeclineQuest', label: 'Decline Quest' },
-  { value: 'PostponeQuest', label: 'Postpone Quest' },
   { value: 'FailQuest', label: 'Fail Quest' },
   { value: 'CompleteQuest', label: 'Complete Quest' },
   { value: 'ItemsGained', label: 'Items Gained' },

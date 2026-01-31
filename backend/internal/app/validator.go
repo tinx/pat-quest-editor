@@ -104,7 +104,6 @@ func (v *QuestValidatorService) validateTerminalNodes(quest *domain.Quest, resul
 		"CompleteQuest": true,
 		"FailQuest":     true,
 		"DeclineQuest":  true,
-		"PostponeQuest": true,
 	}
 
 	for _, node := range quest.QuestNodes {

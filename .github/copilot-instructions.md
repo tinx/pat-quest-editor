@@ -63,7 +63,7 @@ Quests are directed acyclic graphs (DAGs) with multiple possible active states.
 - `Actions` - Executes actions (rewards, quest state changes, stage updates)
 
 ### Terminal Actions
-Action nodes ending a quest flow must contain exactly one of: `CompleteQuest`, `FailQuest`, `DeclineQuest`, `PostponeQuest`. These nodes must not have `NextNodes`.
+Action nodes ending a quest flow must contain exactly one of: `CompleteQuest`, `FailQuest`, `DeclineQuest`. These nodes must not have `NextNodes`.
 
 ### Validation Rules (beyond JSON schema)
 - All non-EntryPoint nodes must have at least one incoming connection

@@ -43,12 +43,6 @@ QuestNodes:
           NextNodes:
             - 10
         - Text:
-            en-US: Not right now.
-            de-DE: Nicht jetzt.
-          DefaultOption: true
-          NextNodes:
-            - 17
-        - Text:
             en-US: I'll send someone to do it.
             de-DE: Ich schicke jemanden der das erledigt.
           Conditions:
@@ -72,10 +66,6 @@ QuestNodes:
                 VariableName: ItemsDelivered
           NextNodes:
             - 15
-    - NodeID: 17
-      NodeType: Actions
-      Actions:
-        - PostponeQuest
     - NodeID: 10
       NodeType: Actions
       NextNodes:

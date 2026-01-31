@@ -18,7 +18,6 @@ in the JSON schema, but must be verified in code.
     - CompleteQuest
     - FailQuest
     - DeclineQuest
-    - PostponeQuest
    Actions nodes with any of these actions must not have a "NextNodes"
    field.
  - Actions nodes can only have one of these actions, never more
@@ -26,7 +25,6 @@ in the JSON schema, but must be verified in code.
     - CompleteQuest
     - FailQuest
     - DeclineQuest
-    - PostponeQuest
  - Flows must never be cyclic. This is a directed acyclic graph.
    No loops allowed.
  - NodeID value must be unique within the quest.

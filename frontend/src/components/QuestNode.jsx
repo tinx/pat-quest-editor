@@ -12,7 +12,7 @@ const nodeColors = {
 
 const optionColors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50'];
 
-const terminalActions = ['CompleteQuest', 'FailQuest', 'DeclineQuest', 'PostponeQuest'];
+const terminalActions = ['CompleteQuest', 'FailQuest', 'DeclineQuest'];
 
 function QuestNode({ data, selected }) {
   const { theme } = useTheme();
