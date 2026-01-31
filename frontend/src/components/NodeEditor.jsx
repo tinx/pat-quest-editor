@@ -7,6 +7,294 @@ import { useTheme } from '../ThemeContext';
 
 const optionColors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50'];
 
+// Simple action types (just a string constant)
+const SIMPLE_ACTIONS = ['AcceptQuest', 'DeclineQuest', 'PostponeQuest', 'FailQuest', 'CompleteQuest'];
+
+// Action type definitions for the dropdown
+const ACTION_TYPES = [
+  { value: 'AcceptQuest', label: 'Accept Quest' },
+  { value: 'DeclineQuest', label: 'Decline Quest' },
+  { value: 'PostponeQuest', label: 'Postpone Quest' },
+  { value: 'FailQuest', label: 'Fail Quest' },
+  { value: 'CompleteQuest', label: 'Complete Quest' },
+  { value: 'ItemsGained', label: 'Items Gained' },
+  { value: 'ItemsLost', label: 'Items Lost' },
+  { value: 'Currency', label: 'Currency' },
+  { value: 'Experience', label: 'Experience' },
+  { value: 'FactionStanding', label: 'Faction Standing' },
+  { value: 'JournalEntry', label: 'Journal Entry' },
+  { value: 'SetVariable', label: 'Set Variable' },
+];
+
+// Helper to get action type name from action object
+const getActionType = (action) => {
+  if (typeof action === 'string') return action;
+  return Object.keys(action)[0];
+};
+
+// Helper to create a new action of a given type
+const createAction = (type) => {
+  if (SIMPLE_ACTIONS.includes(type)) return type;
+  switch (type) {
+    case 'ItemsGained':
+      return { ItemsGained: [{ Type: '', Count: 1 }] };
+    case 'ItemsLost':
+      return { ItemsLost: [{ Type: '', Count: 1 }] };
+    case 'Currency':
+      return { Currency: 0 };
+    case 'Experience':
+      return { Experience: 0 };
+    case 'FactionStanding':
+      return { FactionStanding: { Faction: '', Points: 0 } };
+    case 'JournalEntry':
+      return { JournalEntry: { 'en-US': '', 'de-DE': '' } };
+    case 'SetVariable':
+      return { SetVariable: { VariableName: '', Operation: 'set to', Value: 0 } };
+    default:
+      return type;
+  }
+};
+
+// Actions Editor Component
+function ActionsEditor({ actions, onChange, items, factions, styles }) {
+  const actionList = actions || [];
+
+  const addAction = (type) => {
+    onChange([...actionList, createAction(type)]);
+  };
+
+  const removeAction = (index) => {
+    onChange(actionList.filter((_, i) => i !== index));
+  };
+
+  const updateAction = (index, newAction) => {
+    const updated = [...actionList];
+    updated[index] = newAction;
+    onChange(updated);
+  };
+
+  return (
+    <>
+      <div style={styles.actionsHeader}>
+        <label style={styles.label}>Actions</label>
+        <select
+          onChange={e => { if (e.target.value) { addAction(e.target.value); e.target.value = ''; } }}
+          style={styles.actionTypeSelect}
+          defaultValue=""
+        >
+          <option value="" disabled>+ Add Action...</option>
+          {ACTION_TYPES.map(at => (
+            <option key={at.value} value={at.value}>{at.label}</option>
+          ))}
+        </select>
+      </div>
+
+      {actionList.map((action, i) => {
+        const actionType = getActionType(action);
+        return (
+          <div key={i} style={styles.actionCard}>
+            <div style={styles.actionHeader}>
+              <span style={styles.actionBadge}>{ACTION_TYPES.find(a => a.value === actionType)?.label || actionType}</span>
+              <button onClick={() => removeAction(i)} style={styles.removeBtn}>×</button>
+            </div>
+            
+            <ActionFields
+              action={action}
+              actionType={actionType}
+              onChange={(newAction) => updateAction(i, newAction)}
+              items={items}
+              factions={factions}
+              styles={styles}
+            />
+          </div>
+        );
+      })}
+
+      {actionList.length === 0 && (
+        <div style={styles.noActions}>
+          No actions defined. Use the dropdown above to add actions.
+        </div>
+      )}
+    </>
+  );
+}
+
+// Action-specific field editors
+function ActionFields({ action, actionType, onChange, items, factions, styles }) {
+  if (SIMPLE_ACTIONS.includes(actionType)) {
+    return <div style={styles.simpleAction}>This action has no configurable options.</div>;
+  }
+
+  switch (actionType) {
+    case 'Currency':
+      return (
+        <div style={styles.actionField}>
+          <label style={styles.label}>Amount (positive = gain, negative = lose)</label>
+          <input
+            type="number"
+            value={action.Currency || 0}
+            onChange={e => onChange({ Currency: parseInt(e.target.value) || 0 })}
+            style={styles.input}
+          />
+        </div>
+      );
+
+    case 'Experience':
+      return (
+        <div style={styles.actionField}>
+          <label style={styles.label}>XP Amount</label>
+          <input
+            type="number"
+            value={action.Experience || 0}
+            onChange={e => onChange({ Experience: parseInt(e.target.value) || 0 })}
+            style={styles.input}
+          />
+        </div>
+      );
+
+    case 'FactionStanding':
+      return (
+        <div style={styles.actionField}>
+          <label style={styles.label}>Faction</label>
+          <select
+            value={action.FactionStanding?.Faction || ''}
+            onChange={e => onChange({ FactionStanding: { ...action.FactionStanding, Faction: e.target.value } })}
+            style={styles.select}
+          >
+            <option value="">Select Faction...</option>
+            {factions?.map(f => (
+              <option key={f.FactionID} value={f.FactionID}>{f.DisplayName?.['en-US'] || f.FactionID}</option>
+            ))}
+          </select>
+          <label style={styles.label}>Points (positive = gain, negative = lose)</label>
+          <input
+            type="number"
+            value={action.FactionStanding?.Points || 0}
+            onChange={e => onChange({ FactionStanding: { ...action.FactionStanding, Points: parseInt(e.target.value) || 0 } })}
+            style={styles.input}
+          />
+        </div>
+      );
+
+    case 'JournalEntry':
+      return (
+        <div style={styles.actionField}>
+          <label style={styles.label}>Journal Entry (English)</label>
+          <textarea
+            value={action.JournalEntry?.['en-US'] || ''}
+            onChange={e => onChange({ JournalEntry: { ...action.JournalEntry, 'en-US': e.target.value } })}
+            style={styles.textarea}
+          />
+          <label style={styles.label}>Journal Entry (German)</label>
+          <textarea
+            value={action.JournalEntry?.['de-DE'] || ''}
+            onChange={e => onChange({ JournalEntry: { ...action.JournalEntry, 'de-DE': e.target.value } })}
+            style={styles.textarea}
+          />
+        </div>
+      );
+
+    case 'SetVariable':
+      return (
+        <div style={styles.actionField}>
+          <label style={styles.label}>Variable Name</label>
+          <input
+            type="text"
+            value={action.SetVariable?.VariableName || ''}
+            onChange={e => onChange({ SetVariable: { ...action.SetVariable, VariableName: e.target.value } })}
+            style={styles.input}
+          />
+          <label style={styles.label}>Operation</label>
+          <select
+            value={action.SetVariable?.Operation || 'set to'}
+            onChange={e => onChange({ SetVariable: { ...action.SetVariable, Operation: e.target.value } })}
+            style={styles.select}
+          >
+            <option value="set to">Set to</option>
+            <option value="unset">Unset</option>
+            <option value="increase by">Increase by</option>
+            <option value="decrease by">Decrease by</option>
+          </select>
+          <label style={styles.label}>Value</label>
+          <input
+            type="number"
+            value={action.SetVariable?.Value || 0}
+            onChange={e => onChange({ SetVariable: { ...action.SetVariable, Value: parseInt(e.target.value) || 0 } })}
+            style={styles.input}
+          />
+        </div>
+      );
+
+    case 'ItemsGained':
+    case 'ItemsLost':
+      const itemKey = actionType;
+      const itemList = action[itemKey] || [];
+      return (
+        <div style={styles.actionField}>
+          <div style={styles.itemsHeader}>
+            <label style={styles.label}>Items</label>
+            <button
+              onClick={() => onChange({ [itemKey]: [...itemList, { Type: '', Count: 1 }] })}
+              style={styles.addItemBtn}
+            >+ Add Item</button>
+          </div>
+          {itemList.map((item, idx) => (
+            <div key={idx} style={styles.itemRow}>
+              <select
+                value={item.Type || ''}
+                onChange={e => {
+                  const updated = [...itemList];
+                  updated[idx] = { ...item, Type: e.target.value };
+                  onChange({ [itemKey]: updated });
+                }}
+                style={styles.itemSelect}
+              >
+                <option value="">Select Item...</option>
+                {items?.map(it => (
+                  <option key={it.ItemID} value={it.ItemID}>{it.DisplayName?.['en-US'] || it.ItemID}</option>
+                ))}
+              </select>
+              <input
+                type="number"
+                min="1"
+                value={item.Count || 1}
+                onChange={e => {
+                  const updated = [...itemList];
+                  updated[idx] = { ...item, Count: parseInt(e.target.value) || 1 };
+                  onChange({ [itemKey]: updated });
+                }}
+                style={styles.itemCount}
+                placeholder="Count"
+              />
+              <label style={styles.questItemLabel}>
+                <input
+                  type="checkbox"
+                  checked={item.QuestItem || false}
+                  onChange={e => {
+                    const updated = [...itemList];
+                    updated[idx] = { ...item, QuestItem: e.target.checked || undefined };
+                    onChange({ [itemKey]: updated });
+                  }}
+                />
+                Quest
+              </label>
+              <button
+                onClick={() => onChange({ [itemKey]: itemList.filter((_, i) => i !== idx) })}
+                style={styles.itemRemoveBtn}
+              >×</button>
+            </div>
+          ))}
+          {itemList.length === 0 && (
+            <div style={styles.noItems}>Click "+ Add Item" to add items.</div>
+          )}
+        </div>
+      );
+
+    default:
+      return <div style={styles.simpleAction}>Unknown action type.</div>;
+  }
+}
+
 // Auto-resizing textarea helper
 const autoResize = (e) => {
   e.target.style.height = 'auto';
@@ -449,6 +737,16 @@ export default function NodeEditor({ node, npcs, items, factions, resources, onS
               )}
             </>
           )}
+
+          {data.nodeType === 'Actions' && (
+            <ActionsEditor
+              actions={data.actions}
+              onChange={(actions) => handleChange('actions', actions)}
+              items={items}
+              factions={factions}
+              styles={styles}
+            />
+          )}
         </div>
 
         <div style={styles.footer}>
@@ -726,6 +1024,117 @@ const getStyles = (theme) => ({
     fontStyle: 'italic',
     padding: '12px',
     textAlign: 'center',
+  },
+  // Actions editor styles
+  actionsHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: '8px',
+  },
+  actionTypeSelect: {
+    padding: '6px 12px',
+    backgroundColor: '#4caf50',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '12px',
+  },
+  actionCard: {
+    backgroundColor: theme.bg,
+    borderRadius: '6px',
+    padding: '12px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+    borderLeft: '3px solid #f44336',
+  },
+  actionHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  actionBadge: {
+    padding: '4px 8px',
+    borderRadius: '4px',
+    fontSize: '11px',
+    fontWeight: 'bold',
+    color: '#fff',
+    backgroundColor: '#f44336',
+  },
+  actionField: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+  },
+  simpleAction: {
+    color: theme.textDim,
+    fontSize: '12px',
+    fontStyle: 'italic',
+  },
+  noActions: {
+    color: theme.textDim,
+    fontSize: '12px',
+    fontStyle: 'italic',
+    padding: '12px',
+    textAlign: 'center',
+  },
+  itemsHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  addItemBtn: {
+    padding: '4px 8px',
+    backgroundColor: '#4caf50',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '11px',
+  },
+  itemRow: {
+    display: 'flex',
+    gap: '8px',
+    alignItems: 'center',
+  },
+  itemSelect: {
+    flex: 1,
+    padding: '8px',
+    backgroundColor: theme.inputBg,
+    border: `1px solid ${theme.inputBorder}`,
+    borderRadius: '4px',
+    color: theme.text,
+  },
+  itemCount: {
+    width: '70px',
+    padding: '8px',
+    backgroundColor: theme.inputBg,
+    border: `1px solid ${theme.inputBorder}`,
+    borderRadius: '4px',
+    color: theme.text,
+  },
+  questItemLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+    color: theme.textMuted,
+    fontSize: '11px',
+    whiteSpace: 'nowrap',
+  },
+  itemRemoveBtn: {
+    background: 'none',
+    border: 'none',
+    color: '#f44336',
+    fontSize: '18px',
+    cursor: 'pointer',
+    padding: '0 4px',
+  },
+  noItems: {
+    color: theme.textDim,
+    fontSize: '11px',
+    fontStyle: 'italic',
   },
   footer: {
     display: 'flex',
