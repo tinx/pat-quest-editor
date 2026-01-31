@@ -29,7 +29,7 @@ QuestNodes:
     - NodeID: 2
       NodeType: ConditionWatcher
       NextNodes:
-        - 20
+        - 4
       Conditions:
         - TimePassed: 36h
     - NodeID: 4
@@ -91,8 +91,8 @@ QuestNodes:
               QuestItem: true
               Type: PackOfNails
         - QuestStageTitle:
-            de-DE: Bring Schreiner Mellis Nägel.
-            en-US: Deliver nails to Mellis, the carpenter.
+            de-DE: Ein Botengang für den Schmied
+            en-US: An errand for the blacksmith
         - QuestStageDescription:
             de-DE: Drumin, der Schmied, hat uns beauftragt dem Schreiner Mellis eine Packung Nägel zu bringen.
             en-US: Drumin, the smith, tasked us with delivering a pack of nails to Mellis, the carpenter.
@@ -114,8 +114,8 @@ QuestNodes:
             Faction: NPC:Smith
             Points: -10
         - JournalEntry:
-            de-DE: Du hast die Aufgabe abgelehnt.
-            en-US: You declined to take the task.
+            de-DE: Drumin wollte dass Du dem Schreiner ein paar Nägel bringst. Du hast die Bitte abgelehnt.
+            en-US: Drumin wanted you to deliver nails to the carpenter. You declined to take the task.
     - NodeID: 15
       NodeType: Dialog
       NextNodes:
@@ -131,8 +131,8 @@ QuestNodes:
       Actions:
         - DeclineQuest
         - JournalEntry:
-            de-DE: Ihr wart euch beide einig dass das jemand anders erledigen sollte.
-            en-US: You both agreed that it's better to find someone else to do it.
+            de-DE: Drumin wollte dass Du dem Schreiner ein paar Nägel bringst. Ihr wart euch beide einig dass das jemand anders erledigen sollte.
+            en-US: Drumin wanted you to deliver nails to the carpenter. You both agreed that it's better to find someone else to do it.
     - NodeID: 7
       NodeType: ConditionWatcher
       NextNodes:
@@ -144,8 +144,8 @@ QuestNodes:
       Actions:
         - FailQuest
         - JournalEntry:
-            de-DE: Du hast die Aufgabe übernommen, hast aber dann die Nägel verloren.
-            en-US: You accepted the task, but lost the nails.
+            de-DE: Leider hast Du die Nägel verloren.
+            en-US: Unfortunately you lost the nails.
     - NodeID: 8
       NodeType: Dialog
       NextNodes:
@@ -188,8 +188,8 @@ QuestNodes:
             Value: 1
             VariableName: ItemsDelivered
         - JournalEntry:
-            de-DE: Du hast die Aufgabe übernommen und die Nägel geliefert.
-            en-US: You accepted the task and delivered the nails.
+            de-DE: Du hast die Nägel wie versprochen geliefert.
+            en-US: You delivered the nails as promised.
         - CompleteQuest
     - NodeID: 9
       NodeType: Dialog
@@ -209,8 +209,8 @@ QuestNodes:
             Points: 1
         - Currency: 5
         - JournalEntry:
-            de-DE: Du hast einen Kurier die Lieferung machen lassen statt es selber zu erledigen.
-            en-US: You let a courier make the delivery, rather than doing it yourself.
+            de-DE: Drumin wollte dass Du dem Schreiner ein paar Nägel bringst. Du hast einen Kurier die Lieferung machen lassen statt es selber zu erledigen.
+            en-US: Drumin wanted you to deliver nails to the carpenter. You let a courier make the delivery, rather than doing it yourself.
         - CompleteQuest
     - NodeID: 18
       NodeType: EntryPoint
@@ -219,17 +219,9 @@ QuestNodes:
     - NodeID: 19
       NodeType: ConditionWatcher
       NextNodes:
-        - 20
+        - 4
       Conditions:
         - Variable:
             Comparison: greater than
             Value: 1
             VariableName: Act
-    - NodeID: 20
-      NodeType: Actions
-      NextNodes:
-        - 4
-      Actions:
-        - QuestStageTitle:
-            de-DE: Ein Botengang für den Schmied
-            en-US: An errand for the blacksmith
