@@ -267,6 +267,12 @@ func (h *Handler) handleMetadata(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate quest ID format to prevent injection attacks
+	if err := validateQuestID(questID); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	switch r.Method {
 	case http.MethodGet:
 		metadata, err := h.metadata.GetQuestMetadata(questID)

@@ -3,6 +3,7 @@ package filesystem
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"gopkg.in/yaml.v3"
 
@@ -11,6 +12,7 @@ import (
 
 // ReferenceDataFileRepository implements ReferenceDataRepository using the filesystem.
 type ReferenceDataFileRepository struct {
+	basePath      string
 	itemsPath     string
 	factionsPath  string
 	resourcesPath string
@@ -18,13 +20,38 @@ type ReferenceDataFileRepository struct {
 }
 
 // NewReferenceDataFileRepository creates a new filesystem-based reference data repository.
-func NewReferenceDataFileRepository(dataPath string) *ReferenceDataFileRepository {
-	return &ReferenceDataFileRepository{
-		itemsPath:     dataPath + "/items.yaml",
-		factionsPath:  dataPath + "/factions.yaml",
-		resourcesPath: dataPath + "/resources.yaml",
-		npcsPath:      dataPath + "/npcs.yaml",
+// Returns error if any constructed path would escape the base directory.
+func NewReferenceDataFileRepository(dataPath string) (*ReferenceDataFileRepository, error) {
+	absBase, err := filepath.Abs(dataPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to resolve data path: %w", err)
 	}
+
+	// Construct paths using filepath.Join for safety
+	itemsPath := filepath.Join(absBase, "items.yaml")
+	factionsPath := filepath.Join(absBase, "factions.yaml")
+	resourcesPath := filepath.Join(absBase, "resources.yaml")
+	npcsPath := filepath.Join(absBase, "npcs.yaml")
+
+	// Validate all paths are within base directory
+	for name, path := range map[string]string{
+		"items":     itemsPath,
+		"factions":  factionsPath,
+		"resources": resourcesPath,
+		"npcs":      npcsPath,
+	} {
+		if err := validatePathWithinBase(absBase, path); err != nil {
+			return nil, fmt.Errorf("invalid %s path: %w", name, err)
+		}
+	}
+
+	return &ReferenceDataFileRepository{
+		basePath:      absBase,
+		itemsPath:     itemsPath,
+		factionsPath:  factionsPath,
+		resourcesPath: resourcesPath,
+		npcsPath:      npcsPath,
+	}, nil
 }
 
 // ListItems returns all defined items.

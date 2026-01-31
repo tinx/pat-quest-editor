@@ -2,10 +2,12 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/tinx/pat-quest-editor/backend/internal/adapters/filesystem"
 	httpAdapter "github.com/tinx/pat-quest-editor/backend/internal/adapters/http"
@@ -13,12 +15,34 @@ import (
 	"github.com/tinx/pat-quest-editor/backend/internal/app"
 )
 
-// corsMiddleware adds CORS headers for development mode
+// allowedDevOrigins contains origins allowed in development mode
+var allowedDevOrigins = []string{
+	"http://localhost:5173",  // Vite default
+	"http://localhost:3000",  // Common React dev port
+	"http://127.0.0.1:5173",
+	"http://127.0.0.1:3000",
+}
+
+// corsMiddleware adds CORS headers for development mode (localhost only)
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		origin := r.Header.Get("Origin")
+
+		// Only allow specific localhost origins
+		allowed := false
+		for _, o := range allowedDevOrigins {
+			if origin == o {
+				allowed = true
+				break
+			}
+		}
+
+		if allowed {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+			w.Header().Set("Vary", "Origin")
+		}
 
 		// Handle preflight requests
 		if r.Method == http.MethodOptions {
@@ -28,6 +52,29 @@ func corsMiddleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+// validatePathSafety ensures a path doesn't escape expected boundaries using path traversal
+func validatePathSafety(basePath, targetPath string) error {
+	absBase, err := filepath.Abs(basePath)
+	if err != nil {
+		return fmt.Errorf("failed to resolve base path: %w", err)
+	}
+	absTarget, err := filepath.Abs(targetPath)
+	if err != nil {
+		return fmt.Errorf("failed to resolve target path: %w", err)
+	}
+
+	// Check for path traversal attempts
+	if strings.Contains(targetPath, "..") {
+		return fmt.Errorf("path contains invalid traversal sequence")
+	}
+
+	// Ensure target is within base directory
+	if !strings.HasPrefix(absTarget, absBase+string(filepath.Separator)) && absTarget != absBase {
+		return fmt.Errorf("path escapes base directory")
+	}
+	return nil
 }
 
 func main() {
@@ -56,6 +103,11 @@ func main() {
 		log.Printf("Warning: failed to resolve database path: %v", err)
 		dbPathAbs = *dbPath
 	}
+
+	// Validate database path doesn't contain traversal attempts
+	if strings.Contains(*dbPath, "..") {
+		log.Fatalf("Database path contains invalid traversal sequence: %s", *dbPath)
+	}
 	staticPath, err := filepath.Abs(*staticDir)
 	if err != nil {
 		log.Printf("Warning: failed to resolve static path: %v", err)
@@ -64,7 +116,10 @@ func main() {
 
 	// Initialize repositories
 	questRepo := filesystem.NewQuestFileRepository(questsPath)
-	refDataRepo := filesystem.NewReferenceDataFileRepository(dataPath)
+	refDataRepo, err := filesystem.NewReferenceDataFileRepository(dataPath)
+	if err != nil {
+		log.Fatalf("Failed to initialize reference data repository: %v", err)
+	}
 
 	metadataRepo, err := storage.NewSQLiteMetadataRepository(dbPathAbs)
 	if err != nil {
