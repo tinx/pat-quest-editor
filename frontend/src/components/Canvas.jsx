@@ -215,52 +215,40 @@ export default forwardRef(function Canvas({ quest, metadata, referenceData, onCh
   }, [highlightedNodeId, setNodes]);
 
   // Notify parent of changes (but not on initial load)
+  // Use a shared debounce function to avoid race conditions
+  const notifyChange = useCallback(() => {
+    if (changeTimeoutRef.current) {
+      clearTimeout(changeTimeoutRef.current);
+    }
+    changeTimeoutRef.current = setTimeout(() => {
+      setNodes(currentNodes => {
+        setEdges(currentEdges => {
+          const currentQuest = questRef.current;
+          if (currentQuest) {
+            const updatedQuest = flowToQuest(currentNodes, currentEdges, currentQuest);
+            const updatedMetadata = getMetadata(currentQuest.QuestID, currentNodes);
+            onChange(updatedQuest, updatedMetadata);
+          }
+          return currentEdges;
+        });
+        return currentNodes;
+      });
+    }, 100);
+  }, [onChange, setNodes, setEdges]);
+
   const handleNodesChange = useCallback((changes) => {
     onNodesChange(changes);
     if (!isInitialLoad.current && questRef.current) {
-      // Debounce the onChange to avoid too many updates
-      if (changeTimeoutRef.current) {
-        clearTimeout(changeTimeoutRef.current);
-      }
-      changeTimeoutRef.current = setTimeout(() => {
-        setNodes(currentNodes => {
-          setEdges(currentEdges => {
-            const currentQuest = questRef.current;
-            if (currentQuest) {
-              const updatedQuest = flowToQuest(currentNodes, currentEdges, currentQuest);
-              const updatedMetadata = getMetadata(currentQuest.QuestID, currentNodes);
-              onChange(updatedQuest, updatedMetadata);
-            }
-            return currentEdges;
-          });
-          return currentNodes;
-        });
-      }, 100);
+      notifyChange();
     }
-  }, [onNodesChange, onChange, setNodes, setEdges]);
+  }, [onNodesChange, notifyChange]);
 
   const handleEdgesChange = useCallback((changes) => {
     onEdgesChange(changes);
     if (!isInitialLoad.current && questRef.current) {
-      if (changeTimeoutRef.current) {
-        clearTimeout(changeTimeoutRef.current);
-      }
-      changeTimeoutRef.current = setTimeout(() => {
-        setNodes(currentNodes => {
-          setEdges(currentEdges => {
-            const currentQuest = questRef.current;
-            if (currentQuest) {
-              const updatedQuest = flowToQuest(currentNodes, currentEdges, currentQuest);
-              const updatedMetadata = getMetadata(currentQuest.QuestID, currentNodes);
-              onChange(updatedQuest, updatedMetadata);
-            }
-            return currentEdges;
-          });
-          return currentNodes;
-        });
-      }, 100);
+      notifyChange();
     }
-  }, [onEdgesChange, onChange, setNodes, setEdges]);
+  }, [onEdgesChange, notifyChange]);
 
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)),
@@ -302,10 +290,20 @@ export default forwardRef(function Canvas({ quest, metadata, referenceData, onCh
     });
 
     // Calculate max ID from existing nodes, handling NaN gracefully
+    // Use a reasonable upper bound to prevent overflow issues
+    const MAX_SAFE_NODE_ID = 999999;
     const maxId = nodes.reduce((max, n) => {
       const parsed = parseInt(n.id, 10);
-      return Number.isNaN(parsed) ? max : Math.max(max, parsed);
+      if (Number.isNaN(parsed) || parsed < 0) return max;
+      return Math.max(max, parsed);
     }, -1);
+
+    // Check if we can safely create a new ID
+    if (maxId >= MAX_SAFE_NODE_ID) {
+      console.error('Cannot create more nodes: maximum node ID limit reached');
+      return;
+    }
+
     const newId = maxId + 1;
 
     const newNode = {

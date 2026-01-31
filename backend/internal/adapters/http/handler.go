@@ -132,8 +132,11 @@ func (h *Handler) getQuest(w http.ResponseWriter, r *http.Request, questID strin
 		return
 	}
 
-	// Include metadata in response
-	metadata, _ := h.metadata.GetQuestMetadata(questID)
+	// Include metadata in response (log error but don't fail the request)
+	metadata, err := h.metadata.GetQuestMetadata(questID)
+	if err != nil {
+		log.Printf("Warning: failed to fetch metadata for quest %s: %v", questID, err)
+	}
 
 	response := struct {
 		Quest    *domain.Quest         `json:"quest"`
@@ -198,8 +201,10 @@ func (h *Handler) deleteQuest(w http.ResponseWriter, r *http.Request, questID st
 		return
 	}
 
-	// Also delete metadata
-	h.metadata.DeleteQuestMetadata(questID)
+	// Also delete metadata (log error but don't fail - quest is already deleted)
+	if err := h.metadata.DeleteQuestMetadata(questID); err != nil {
+		log.Printf("Warning: failed to delete metadata for quest %s: %v", questID, err)
+	}
 
 	w.WriteHeader(http.StatusNoContent)
 }

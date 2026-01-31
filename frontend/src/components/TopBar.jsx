@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTheme } from '../ThemeContext';
 
-export default function TopBar({ questId, quests, onSelect, onNew, onSave, validation, saving, onToggleTheme }) {
+export default function TopBar({ questId, quests, onSelect, onNew, onSave, validation, saving, saveError, onToggleTheme }) {
   const { theme, themeName } = useTheme();
   const [search, setSearch] = useState('');
 
@@ -51,6 +51,11 @@ export default function TopBar({ questId, quests, onSelect, onNew, onSave, valid
 
       <div style={styles.center}>
         {questId && <span style={styles.questName}>{questId}</span>}
+        {saveError && (
+          <span style={styles.errorMessage} title={saveError}>
+            ⚠ {saveError.length > 40 ? saveError.substring(0, 40) + '...' : saveError}
+          </span>
+        )}
       </div>
 
       <div style={styles.right}>
@@ -91,6 +96,10 @@ const getStyles = (theme) => ({
   center: {
     flex: 1,
     textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '2px',
   },
   right: {
     display: 'flex',
@@ -156,6 +165,14 @@ const getStyles = (theme) => ({
   questName: {
     color: theme.textMuted,
     fontSize: '14px',
+  },
+  errorMessage: {
+    color: '#f44336',
+    fontSize: '11px',
+    maxWidth: '300px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
   status: {
     fontSize: '20px',
