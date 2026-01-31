@@ -5,8 +5,6 @@ const nodeTypes = [
   { type: 'ConditionWatcher', label: 'Condition', color: '#2196f3' },
   { type: 'Dialog', label: 'Dialog', color: '#9c27b0' },
   { type: 'PlayerDecisionDialog', label: 'Decision', color: '#e91e63' },
-  { type: 'QuestProgress', label: 'Progress', color: '#ff9800' },
-  { type: 'QuestAvailable', label: 'Available', color: '#00bcd4' },
   { type: 'Actions', label: 'Actions', color: '#f44336' },
 ];
 

@@ -49,9 +49,7 @@
 					{ "$ref": "#/$defs/QN_ConditionWatcher" },
 					{ "$ref": "#/$defs/QN_Actions" },
 					{ "$ref": "#/$defs/QN_Dialog" },
-					{ "$ref": "#/$defs/QN_PlayerDecisionDialog" },
-					{ "$ref": "#/$defs/QN_QuestProgress" },
-					{ "$ref": "#/$defs/QN_QuestAvailable" }
+					{ "$ref": "#/$defs/QN_PlayerDecisionDialog" }
 				]
 			}
 		}
@@ -184,35 +182,6 @@
 				}
 			},
 			"required": [ "NodeType", "ConversationPartner", "Messages" ]
-		},
-		"QN_QuestProgress": {
-			"$ref": "#/$defs/QuestNodeSubschema",
-			"properties": {
-				"NodeType": {
-					"type": "string",
-					"const": "QuestProgress"
-				},
-				"QuestStageTitle": {
-					"$ref": "#/$defs/i18nString"
-				},
-				"QuestStageDescription": {
-					"$ref": "#/$defs/i18nString"
-				}
-			},
-			"required": [ "NodeType", "QuestStageTitle", "QuestStageDescription" ]
-		},
-		"QN_QuestAvailable": {
-			"$ref": "#/$defs/QuestNodeSubschema",
-			"properties": {
-				"NodeType": {
-					"type": "string",
-					"const": "QuestAvailable"
-				},
-				"QuestStageTitle": {
-					"$ref": "#/$defs/i18nString"
-				}
-			},
-			"required": [ "NodeType", "QuestStageTitle" ]
 		},
 		"QN_Actions": {
 			"$ref": "#/$defs/QuestNodeSubschema",

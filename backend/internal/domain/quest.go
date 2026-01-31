@@ -31,8 +31,6 @@ type QuestNode struct {
 	Options             []DialogOption       `yaml:"Options,omitempty" json:"Options,omitempty"`
 	Messages            []DialogMessage      `yaml:"Messages,omitempty" json:"Messages,omitempty"`
 	Actions             []Action             `yaml:"Actions,omitempty" json:"Actions,omitempty"`
-	QuestStageTitle     *I18nString          `yaml:"QuestStageTitle,omitempty" json:"QuestStageTitle,omitempty"`
-	QuestStageDescription *I18nString        `yaml:"QuestStageDescription,omitempty" json:"QuestStageDescription,omitempty"`
 }
 
 // Condition represents a condition that can be checked.

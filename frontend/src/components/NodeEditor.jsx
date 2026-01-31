@@ -708,44 +708,6 @@ export default function NodeEditor({ node, npcs, items, factions, resources, onS
             </>
           )}
 
-          {(data.nodeType === 'QuestProgress' || data.nodeType === 'QuestAvailable') && (
-            <>
-              <label style={styles.label}>Stage Title (English)</label>
-              <input
-                type="text"
-                value={data.questStageTitle?.['en-US'] || ''}
-                onChange={e => handleI18nChange('questStageTitle', 'en-US', e.target.value)}
-                style={styles.input}
-              />
-
-              <label style={styles.label}>Stage Title (German)</label>
-              <input
-                type="text"
-                value={data.questStageTitle?.['de-DE'] || ''}
-                onChange={e => handleI18nChange('questStageTitle', 'de-DE', e.target.value)}
-                style={styles.input}
-              />
-            </>
-          )}
-
-          {data.nodeType === 'QuestProgress' && (
-            <>
-              <label style={styles.label}>Stage Description (English)</label>
-              <textarea
-                value={data.questStageDescription?.['en-US'] || ''}
-                onChange={e => handleI18nChange('questStageDescription', 'en-US', e.target.value)}
-                style={styles.textarea}
-              />
-
-              <label style={styles.label}>Stage Description (German)</label>
-              <textarea
-                value={data.questStageDescription?.['de-DE'] || ''}
-                onChange={e => handleI18nChange('questStageDescription', 'de-DE', e.target.value)}
-                style={styles.textarea}
-              />
-            </>
-          )}
-
           {data.nodeType === 'Actions' && (
             <ActionsEditor
               actions={data.actions}

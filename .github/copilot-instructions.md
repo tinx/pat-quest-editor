@@ -60,9 +60,7 @@ Quests are directed acyclic graphs (DAGs) with multiple possible active states.
 - `EntryPoint` - Quest start points (only type allowed without incoming connections)
 - `ConditionWatcher` - Waits for conditions to be met
 - `Dialog` / `PlayerDecisionDialog` - NPC conversations with optional player choices
-- `QuestProgress` - Tracks quest stage completion
-- `QuestAvailable` - Marks quest as available to player
-- `Actions` - Executes actions (rewards, quest state changes)
+- `Actions` - Executes actions (rewards, quest state changes, stage updates)
 
 ### Terminal Actions
 Action nodes ending a quest flow must contain exactly one of: `CompleteQuest`, `FailQuest`, `DeclineQuest`, `PostponeQuest`. These nodes must not have `NextNodes`.

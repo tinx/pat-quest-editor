@@ -7,8 +7,6 @@ const nodeColors = {
   ConditionWatcher: '#2196f3',
   Dialog: '#9c27b0',
   PlayerDecisionDialog: '#e91e63',
-  QuestProgress: '#ff9800',
-  QuestAvailable: '#00bcd4',
   Actions: '#f44336',
 };
 
@@ -87,18 +85,6 @@ function QuestNode({ data, selected }) {
         {data.nodeType === 'ConditionWatcher' && data.conditions?.length > 0 && (
           <div style={styles.conditions}>
             {data.conditions.length} condition(s)
-          </div>
-        )}
-        
-        {data.nodeType === 'QuestProgress' && data.questStageTitle && (
-          <div style={styles.label}>
-            {data.questStageTitle['en-US'] || 'Stage'}
-          </div>
-        )}
-        
-        {data.nodeType === 'QuestAvailable' && data.questStageTitle && (
-          <div style={styles.label}>
-            {data.questStageTitle['en-US'] || 'Available'}
           </div>
         )}
         
