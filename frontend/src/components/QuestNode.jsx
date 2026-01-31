@@ -84,7 +84,11 @@ function QuestNode({ data, selected }) {
         
         {data.nodeType === 'ConditionWatcher' && data.conditions?.length > 0 && (
           <div style={styles.conditions}>
-            {data.conditions.length} condition(s)
+            {data.conditions.map((c, i) => (
+              <div key={i} style={styles.condition}>
+                {Object.keys(c)[0]}
+              </div>
+            ))}
           </div>
         )}
         
@@ -189,7 +193,14 @@ const getStyles = (theme) => ({
     fontStyle: 'italic',
   },
   conditions: {
-    color: theme.textMuted,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2px',
+  },
+  condition: {
+    backgroundColor: theme.bg,
+    padding: '2px 6px',
+    borderRadius: '3px',
     fontSize: '10px',
   },
   actions: {
