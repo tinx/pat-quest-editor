@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import ConditionEditor from './ConditionEditor';
 
 const optionColors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50'];
 
@@ -33,6 +34,14 @@ export default function NodeEditor({ node, npcs, items, factions, resources, onS
       } else {
         options[index] = { ...options[index], [field]: value };
       }
+      return { ...prev, options };
+    });
+  };
+
+  const handleOptionConditionsChange = (index, conditions) => {
+    setData(prev => {
+      const options = [...(prev.options || [])];
+      options[index] = { ...options[index], Conditions: conditions?.length ? conditions : undefined };
       return { ...prev, options };
     });
   };
@@ -165,6 +174,16 @@ export default function NodeEditor({ node, npcs, items, factions, resources, onS
                       Connected to: Node {opt.NextNodes.join(', ')}
                     </div>
                   )}
+
+                  <ConditionEditor
+                    conditions={opt.Conditions}
+                    onChange={(conds) => handleOptionConditionsChange(i, conds)}
+                    items={items}
+                    factions={factions}
+                    resources={resources}
+                    collapsible={true}
+                    defaultExpanded={false}
+                  />
                 </div>
               ))}
 
@@ -173,6 +192,22 @@ export default function NodeEditor({ node, npcs, items, factions, resources, onS
                   No options defined. Click "+ Add Option" to create dialog choices.
                 </div>
               )}
+            </>
+          )}
+
+          {data.nodeType === 'ConditionWatcher' && (
+            <>
+              <label style={styles.label}>Conditions</label>
+              <ConditionEditor
+                conditions={data.conditions}
+                onChange={(conds) => handleChange('conditions', conds?.length ? conds : undefined)}
+                items={items}
+                factions={factions}
+                resources={resources}
+                showConditionsRequired={true}
+                conditionsRequired={data.conditionsRequired}
+                onConditionsRequiredChange={(val) => handleChange('conditionsRequired', val)}
+              />
             </>
           )}
 
