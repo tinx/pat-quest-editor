@@ -2,12 +2,16 @@ package http
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strings"
 
 	"github.com/tinx/pat-quest-editor/backend/internal/domain"
 	"github.com/tinx/pat-quest-editor/backend/internal/ports"
 )
+
+// maxRequestBodySize limits request body to 10MB to prevent memory exhaustion attacks
+const maxRequestBodySize = 10 * 1024 * 1024
 
 // Handler provides HTTP handlers for the quest editor API.
 type Handler struct {
@@ -119,6 +123,7 @@ func (h *Handler) saveQuest(w http.ResponseWriter, r *http.Request, questID stri
 		Metadata *domain.QuestMetadata `json:"metadata,omitempty"`
 	}
 
+	r.Body = http.MaxBytesReader(w, r.Body, maxRequestBodySize)
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		http.Error(w, "invalid JSON: "+err.Error(), http.StatusBadRequest)
 		return
@@ -143,7 +148,7 @@ func (h *Handler) saveQuest(w http.ResponseWriter, r *http.Request, questID stri
 	if request.Metadata != nil {
 		request.Metadata.QuestID = questID
 		if err := h.metadata.SaveQuestMetadata(request.Metadata); err != nil {
-			// Log but don't fail the request
+			log.Printf("Warning: failed to save metadata for quest %s: %v", questID, err)
 		}
 	}
 
@@ -240,6 +245,7 @@ func (h *Handler) handleMetadata(w http.ResponseWriter, r *http.Request) {
 
 	case http.MethodPut:
 		var metadata domain.QuestMetadata
+		r.Body = http.MaxBytesReader(w, r.Body, maxRequestBodySize)
 		if err := json.NewDecoder(r.Body).Decode(&metadata); err != nil {
 			http.Error(w, "invalid JSON: "+err.Error(), http.StatusBadRequest)
 			return
@@ -263,6 +269,7 @@ func (h *Handler) handleValidate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var quest domain.Quest
+	r.Body = http.MaxBytesReader(w, r.Body, maxRequestBodySize)
 	if err := json.NewDecoder(r.Body).Decode(&quest); err != nil {
 		http.Error(w, "invalid JSON: "+err.Error(), http.StatusBadRequest)
 		return

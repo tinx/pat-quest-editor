@@ -163,6 +163,13 @@ export default forwardRef(function Canvas({ quest, metadata, referenceData, onCh
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const isInitialLoad = useRef(false);
   const questIdRef = useRef(null);
+  const questRef = useRef(quest);
+  const changeTimeoutRef = useRef(null);
+
+  // Keep questRef in sync with latest quest prop
+  useEffect(() => {
+    questRef.current = quest;
+  }, [quest]);
 
   // Expose methods to parent via ref
   useImperativeHandle(ref, () => ({
@@ -210,38 +217,50 @@ export default forwardRef(function Canvas({ quest, metadata, referenceData, onCh
   // Notify parent of changes (but not on initial load)
   const handleNodesChange = useCallback((changes) => {
     onNodesChange(changes);
-    if (!isInitialLoad.current && quest) {
+    if (!isInitialLoad.current && questRef.current) {
       // Debounce the onChange to avoid too many updates
-      setTimeout(() => {
+      if (changeTimeoutRef.current) {
+        clearTimeout(changeTimeoutRef.current);
+      }
+      changeTimeoutRef.current = setTimeout(() => {
         setNodes(currentNodes => {
           setEdges(currentEdges => {
-            const updatedQuest = flowToQuest(currentNodes, currentEdges, quest);
-            const updatedMetadata = getMetadata(quest.QuestID, currentNodes);
-            onChange(updatedQuest, updatedMetadata);
+            const currentQuest = questRef.current;
+            if (currentQuest) {
+              const updatedQuest = flowToQuest(currentNodes, currentEdges, currentQuest);
+              const updatedMetadata = getMetadata(currentQuest.QuestID, currentNodes);
+              onChange(updatedQuest, updatedMetadata);
+            }
             return currentEdges;
           });
           return currentNodes;
         });
       }, 100);
     }
-  }, [onNodesChange, quest, onChange, setNodes, setEdges]);
+  }, [onNodesChange, onChange, setNodes, setEdges]);
 
   const handleEdgesChange = useCallback((changes) => {
     onEdgesChange(changes);
-    if (!isInitialLoad.current && quest) {
-      setTimeout(() => {
+    if (!isInitialLoad.current && questRef.current) {
+      if (changeTimeoutRef.current) {
+        clearTimeout(changeTimeoutRef.current);
+      }
+      changeTimeoutRef.current = setTimeout(() => {
         setNodes(currentNodes => {
           setEdges(currentEdges => {
-            const updatedQuest = flowToQuest(currentNodes, currentEdges, quest);
-            const updatedMetadata = getMetadata(quest.QuestID, currentNodes);
-            onChange(updatedQuest, updatedMetadata);
+            const currentQuest = questRef.current;
+            if (currentQuest) {
+              const updatedQuest = flowToQuest(currentNodes, currentEdges, currentQuest);
+              const updatedMetadata = getMetadata(currentQuest.QuestID, currentNodes);
+              onChange(updatedQuest, updatedMetadata);
+            }
             return currentEdges;
           });
           return currentNodes;
         });
       }, 100);
     }
-  }, [onEdgesChange, quest, onChange, setNodes, setEdges]);
+  }, [onEdgesChange, onChange, setNodes, setEdges]);
 
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)),

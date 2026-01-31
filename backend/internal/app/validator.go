@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/tinx/pat-quest-editor/backend/internal/domain"
 	"github.com/tinx/pat-quest-editor/backend/internal/ports"
@@ -206,10 +207,22 @@ func (v *QuestValidatorService) validateNoCycles(quest *domain.Quest, result *do
 
 func (v *QuestValidatorService) validateReferences(quest *domain.Quest, result *domain.ValidationResult) {
 	// Load reference data
-	npcs, _ := v.refData.ListNPCs()
-	items, _ := v.refData.ListItems()
-	factions, _ := v.refData.ListFactions()
-	resources, _ := v.refData.ListResources()
+	npcs, err := v.refData.ListNPCs()
+	if err != nil {
+		log.Printf("Warning: failed to load NPCs for validation: %v", err)
+	}
+	items, err := v.refData.ListItems()
+	if err != nil {
+		log.Printf("Warning: failed to load items for validation: %v", err)
+	}
+	factions, err := v.refData.ListFactions()
+	if err != nil {
+		log.Printf("Warning: failed to load factions for validation: %v", err)
+	}
+	resources, err := v.refData.ListResources()
+	if err != nil {
+		log.Printf("Warning: failed to load resources for validation: %v", err)
+	}
 
 	npcIDs := make(map[string]bool)
 	for _, npc := range npcs {

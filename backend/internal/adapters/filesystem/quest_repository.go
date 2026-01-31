@@ -65,6 +65,11 @@ func (r *QuestFileRepository) Save(quest *domain.Quest) error {
 		path = filepath.Join(r.basePath, filename)
 	}
 
+	// Validate path is within base directory to prevent path traversal
+	if err := validatePathWithinBase(r.basePath, path); err != nil {
+		return fmt.Errorf("invalid quest path: %w", err)
+	}
+
 	data, err := yaml.Marshal(quest)
 	if err != nil {
 		return fmt.Errorf("failed to marshal quest: %w", err)
@@ -82,6 +87,10 @@ func (r *QuestFileRepository) Delete(questID string) error {
 	path, err := r.findQuestFile(questID)
 	if err != nil {
 		return err
+	}
+	// Validate path is within base directory to prevent path traversal
+	if err := validatePathWithinBase(r.basePath, path); err != nil {
+		return fmt.Errorf("invalid quest path: %w", err)
 	}
 	return os.Remove(path)
 }
@@ -150,6 +159,25 @@ func sanitizeFilename(s string) string {
 		"/", "_",
 		"\\", "_",
 		" ", "_",
+		"..", "_",
 	)
 	return replacer.Replace(s)
+}
+
+// validatePathWithinBase ensures the resolved path is within the base directory,
+// preventing path traversal attacks.
+func validatePathWithinBase(basePath, targetPath string) error {
+	absBase, err := filepath.Abs(basePath)
+	if err != nil {
+		return fmt.Errorf("failed to resolve base path: %w", err)
+	}
+	absTarget, err := filepath.Abs(targetPath)
+	if err != nil {
+		return fmt.Errorf("failed to resolve target path: %w", err)
+	}
+	// Ensure target is within base (prefix check with separator to avoid partial matches)
+	if !strings.HasPrefix(absTarget, absBase+string(filepath.Separator)) && absTarget != absBase {
+		return fmt.Errorf("path traversal detected: path escapes base directory")
+	}
+	return nil
 }
