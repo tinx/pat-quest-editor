@@ -701,42 +701,6 @@ export default function NodeEditor({ node, npcs, items, factions, resources, onS
                 onChange={e => handleI18nChange('questStageDescription', 'de-DE', e.target.value)}
                 style={styles.textarea}
               />
-
-              <div style={styles.progressorsHeader}>
-                <label style={styles.label}>Quest Progressors (NPCs that advance this quest)</label>
-                <button onClick={() => handleChange('questProgressors', [...(data.questProgressors || []), ''])} style={styles.addBtn}>+ Add</button>
-              </div>
-
-              {(data.questProgressors || []).map((progressor, i) => (
-                <div key={i} style={styles.progressorRow}>
-                  <select
-                    value={progressor}
-                    onChange={e => {
-                      const updated = [...data.questProgressors];
-                      updated[i] = e.target.value;
-                      handleChange('questProgressors', updated);
-                    }}
-                    style={styles.progressorSelect}
-                  >
-                    <option value="">Select NPC...</option>
-                    {npcs?.map(npc => (
-                      <option key={npc.NPCID} value={npc.NPCID}>
-                        {npc.DisplayName?.['en-US'] || npc.NPCID}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    onClick={() => handleChange('questProgressors', data.questProgressors.filter((_, idx) => idx !== i))}
-                    style={styles.progressorRemoveBtn}
-                  >×</button>
-                </div>
-              ))}
-
-              {(!data.questProgressors || data.questProgressors.length === 0) && (
-                <div style={styles.noProgressors}>
-                  No quest progressors defined. Add NPCs that can advance this quest stage.
-                </div>
-              )}
             </>
           )}
 
@@ -984,43 +948,6 @@ const getStyles = (theme) => ({
     flexShrink: 0,
   },
   noMessages: {
-    color: theme.textDim,
-    fontSize: '12px',
-    fontStyle: 'italic',
-    padding: '12px',
-    textAlign: 'center',
-  },
-  // QuestProgressors styles
-  progressorsHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: '16px',
-    paddingTop: '16px',
-    borderTop: `1px solid ${theme.border}`,
-  },
-  progressorRow: {
-    display: 'flex',
-    gap: '8px',
-    alignItems: 'center',
-  },
-  progressorSelect: {
-    flex: 1,
-    padding: '8px',
-    backgroundColor: theme.inputBg,
-    border: `1px solid ${theme.inputBorder}`,
-    borderRadius: '4px',
-    color: theme.text,
-  },
-  progressorRemoveBtn: {
-    background: 'none',
-    border: 'none',
-    color: '#f44336',
-    fontSize: '20px',
-    cursor: 'pointer',
-    padding: '0 4px',
-  },
-  noProgressors: {
     color: theme.textDim,
     fontSize: '12px',
     fontStyle: 'italic',

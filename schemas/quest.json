@@ -192,13 +192,6 @@
 					"type": "string",
 					"const": "QuestProgress"
 				},
-				"QuestProgressors": {
-					"type": "array",
-					"items": {
-						"type": "string"
-					},
-					"minItems": 1
-				},
 				"QuestStageTitle": {
 					"$ref": "#/$defs/i18nString"
 				},
@@ -206,7 +199,7 @@
 					"$ref": "#/$defs/i18nString"
 				}
 			},
-			"required": [ "NodeType", "QuestProgressors", "QuestStageTitle", "QuestStageDescription" ]
+			"required": [ "NodeType", "QuestStageTitle", "QuestStageDescription" ]
 		},
 		"QN_QuestAvailable": {
 			"$ref": "#/$defs/QuestNodeSubschema",

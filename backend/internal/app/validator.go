@@ -246,14 +246,5 @@ func (v *QuestValidatorService) validateReferences(quest *domain.Quest, result *
 				result.AddNodeError(node.NodeID, "unknown speaker in message: "+msg.Speaker)
 			}
 		}
-
-		// Check quest progressors
-		for i, progressor := range node.QuestProgressors {
-			if progressor == "" {
-				result.AddNodeError(node.NodeID, fmt.Sprintf("quest progressor %d is empty", i+1))
-			} else if !npcIDs[progressor] {
-				result.AddNodeError(node.NodeID, "unknown quest progressor: "+progressor)
-			}
-		}
 	}
 }
