@@ -52,3 +52,13 @@
 .react-flow__attribution {
   display: none;
 }
+
+/* Edge selection styling */
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke-width: 4 !important;
+  filter: drop-shadow(0 0 4px currentColor);
+}
+
+.react-flow__edge.selected markerEnd {
+  transform: scale(1.2);
+}

@@ -62,6 +62,7 @@ function questToFlow(quest, metadata) {
             target: String(nextId),
             animated: true,
             style: { stroke: optionColors[i % optionColors.length], strokeWidth: 2 },
+            interactionWidth: 20,
           });
         });
       });
