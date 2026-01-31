@@ -1,0 +1,522 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://potions-and-tinctures.com/schemas/quest.json",
+	"title": "Potions and Tinctures Quest",
+	"description": "A record describing a quest in the Potions and Tinctures game",
+
+	"type": "object",
+	"properties": {
+		"QuestTypeVersion": {
+			"description": "Version number of the data record specification",
+			"type": "integer",
+			"minimum": 1
+		},
+		"QuestVersion": {
+			"description": "Version number of this quest definition",
+			"type": "integer",
+			"minimum": 1
+		},
+		"QuestID": {
+			"description": "A unique identifier of this particular quest",
+			"type": "string",
+			"pattern": "^[A-Z][A-Za-z0-9\\.\\-_:]*$"
+		},
+		"QuestType": {
+			"description": "Defines which kind of quest this is",
+			"type": "string",
+			"enum": [ "SideQuest", "MainQuest", "CompanionQuest", "FactionQuest", "DistrictQuest", "MasteryQuest" ]
+		},
+		"DisplayName": {
+			"description": "How this quest will be called in the journal",
+			"$ref": "#/$defs/i18nString"
+		},
+		"JournalEntry": {
+			"description": "Text describing this quest in the journal, past tense.",
+			"$ref": "#/$defs/i18nString"
+		},
+		"Repeatable": {
+			"description": "Defines in which ways this quest can be done again.",
+			"type": "string",
+			"pattern": "^(never|daily|weekly|always)$"
+		},
+		"QuestNodes": {
+			"description": "List of quest nodes defining the state machine",
+			"type": "array",
+			"minItems": 1,
+			"items": {
+				"oneOf": [
+					{ "$ref": "#/$defs/QN_EntryPoint" },
+					{ "$ref": "#/$defs/QN_ConditionWatcher" },
+					{ "$ref": "#/$defs/QN_Actions" },
+					{ "$ref": "#/$defs/QN_Dialog" },
+					{ "$ref": "#/$defs/QN_PlayerDecisionDialog" },
+					{ "$ref": "#/$defs/QN_QuestProgress" },
+					{ "$ref": "#/$defs/QN_QuestAvailable" }
+				]
+			}
+		}
+	},
+	"required": [ "QuestTypeVersion", "QuestVersion", "QuestID", "QuestType", "DisplayName", "JournalEntry", "QuestNodes"],
+	"$defs": {
+		"i18nString": {
+			"type": "object",
+			"properties": {
+				"en-US": {
+					"type": "string"
+				},
+				"de-DE": {
+				       "type": "string"
+				}
+			},
+			"required": [ "en-US", "de-DE" ]
+		},
+		"QuestNodeSubschema": {
+			"type": "object",
+			"properties": {
+				"NodeID": {
+					"type": "integer",
+					"minimum": 0
+				},
+				"NextNodes": {
+					"type": "array",
+					"minItems": 1,
+					"uniqueItems": true,
+					"items": {
+						"type": "integer",
+						"minimum": 0
+					}
+				}
+			},
+			"required": [ "NodeID" ]
+		},
+		"QN_EntryPoint": {
+			"$ref": "#/$defs/QuestNodeSubschema",
+			"properties": {
+				"NodeType": {
+					"type": "string",
+					"const": "EntryPoint"
+				}
+			},
+			"required": [ "NodeType" ]
+		},
+		"QN_ConditionWatcher": {
+			"$ref": "#/$defs/QuestNodeSubschema",
+			"properties": {
+				"NodeType": {
+					"type": "string",
+					"const": "ConditionWatcher"
+				},
+				"Conditions": {
+					"$ref": "#/$defs/Conditions"
+				},
+				"ConditionsRequired": {
+					"type": "string",
+					"pattern": "^(all|[1-9][0-9]*)$"
+				}
+			},
+			"required": [ "NodeType", "Conditions" ]
+		},
+		"QN_PlayerDecisionDialog": {
+			"$ref": "#/$defs/QuestNodeSubschema",
+			"properties": {
+				"NodeType": {
+					"type": "string",
+					"const": "PlayerDecisionDialog"
+				},
+				"ConversationPartner": {
+					"type": "string"
+				},
+				"Speaker": {
+					"type": "string"
+				},
+				"Text": {
+					"$ref": "#/$defs/i18nString"
+				},
+				"Options": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"Text": {
+								"$ref": "#/$defs/i18nString"
+							},
+							"DefaultOption": {
+								"type": "boolean"
+							},
+							"Conditions": {
+								"$ref": "#/$defs/Conditions"
+							},
+							"NextNodes": {
+							}
+						},
+						"required": [ "Text" ]
+					},
+					"minItems": 2
+				}
+			},
+			"required": [ "NodeType", "ConversationPartner", "Speaker", "Text", "Options" ]
+		},
+		"QN_Dialog": {
+			"properties": {
+				"NodeType": {
+					"type": "string",
+					"const": "Dialog"
+				},
+				"ConversationPartner": {
+					"type": "string"
+				},
+				"Messages": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"Speaker": {
+								"type": "string"
+							},
+							"Text": {
+								"$ref": "#/$defs/i18nString"
+							}
+						},
+						"required": [ "Speaker", "Text" ]
+					},
+					"minItems" :1
+				}
+			},
+			"required": [ "NodeType", "ConversationPartner", "Messages" ]
+		},
+		"QN_QuestProgress": {
+			"$ref": "#/$defs/QuestNodeSubschema",
+			"properties": {
+				"QuestProgressors": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"minItems": 1
+				},
+				"QuestStageTitle": {
+					"$ref": "#/$defs/i18nString"
+				},
+				"QuestStageDescription": {
+					"$ref": "#/$defs/i18nString"
+				}
+			},
+			"required": [ "QuestProgressors", "QuestStageTitle", "QuestStageDescription" ]
+		},
+		"QN_QuestAvailable": {
+			"$ref": "#/$defs/QuestNodeSubschema",
+			"properties": {
+				"NodeType": {
+					"type": "string",
+					"const": "QuestAvailable"
+				},
+				"QuestStageTitle": {
+					"$ref": "#/$defs/i18nString"
+				}
+			},
+			"required": [ "NodeType", "QuestStageTitle" ]
+		},
+		"QN_Actions": {
+			"$ref": "#/$defs/QuestNodeSubschema",
+			"properties": {
+				"NodeType": {
+					"type": "string",
+					"const": "Actions"
+				},
+				"Actions": {
+					"$ref": "#/$defs/Actions"
+				}
+			},
+			"required": [ "NodeType", "Actions" ]
+		},
+		"Conditions": {
+			"type": "array",
+			"minItems": 1,
+			"uniqueItems": true,
+			"items": {
+				"oneOf": [
+					{ "$ref": "#/$defs/Cond_QuestCompleted" },
+					{ "$ref": "#/$defs/Cond_ResourceAvailable" },
+					{ "$ref": "#/$defs/Cond_FactionStanding" },
+					{ "$ref": "#/$defs/Cond_TimePassed" },
+					{ "$ref": "#/$defs/Cond_ItemLost" },
+					{ "$ref": "#/$defs/Cond_Inventory" },
+					{ "$ref": "#/$defs/Cond_Variable" }
+				]
+			}
+		},
+		"Cond_QuestCompleted": {
+			"type": "object",
+			"properties": {
+				"QuestCompleted": {
+					"type": "string",
+					"pattern": "^[A-Z][A-Za-z0-9\\.\\-_:]*$"
+				}
+			},
+			"required": [ "QuestCompleted" ]
+		},
+		"Cond_ResourceAvailable": {
+			"type": "object",
+			"properties": {
+				"ResourceAvailable": {
+					"type": "string",
+					"enum": [ "Coal", "IronOre" ]
+				}
+			},
+			"required": [ "ResourceAvailable" ]
+		},
+		"Cond_FactionStanding": {
+			"type": "object",
+			"properties": {
+				"FactionStanding": {
+					"type": "object",
+					"properties": {
+						"Faction": {
+							"type": "string"
+						},
+						"MinimumLevel": {
+							"type": "integer",
+							"minimum": 1
+						},
+						"MaximumLevel": {
+							"type": "integer",
+							"minimum": 2
+						}
+					}
+				},
+				"required": [ "Faction" ]
+			},
+			"required": [ "FactionStanding" ]
+		},
+		"Cond_TimePassed": {
+			"type": "object",
+			"properties": {
+				"TimePassed": {
+					"type": "string",
+					"pattern": "^[1-9][0-9]*[hdwMy]$"
+				}
+			},
+			"required": [ "TimePassed" ]
+		},
+		"Cond_ItemLost": {
+			"type": "object",
+			"properties": {
+				"ItemLost": {
+					"type": "string"
+				}
+			},
+			"required": [ "ItemLost" ]
+		},
+		"Cond_Inventory": {
+			"type": "object",
+			"properties": {
+				"Inventory": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"Type": {
+								"type": "string"
+							},
+							"MinCount": {
+								"type": "integer",
+								"minimum": 1
+							},
+							"QuestItem": {
+								"type": "boolean"
+							}
+						},
+						"required": [ "Type" ]
+					},
+					"minItems": 1
+				}
+			},
+			"required": [ "Inventory" ]
+		},
+		"Cond_Variable": {
+			"type": "object",
+			"properties": {
+				"Variable": {
+					"type": "object",
+					"properties": {
+						"VariableName": {
+							"type": "string",
+							"pattern": "^[A-Za-z0-9\\.\\-_ \\(\\):]*$"
+						},
+						"Comparison": {
+							"type": "string",
+							"enum": [ "equal", "not equal", "greater than", "smaller than" ]
+						},
+						"Value": {
+							"type": "integer"
+						}
+					},
+					"required": [ "VariableName", "Comparison", "Value" ]
+				}
+			},
+			"required": [ "Variable" ]
+		},
+		"Actions": {
+			"type": "array",
+			"minItems": 1,
+			"uniqueItems": true,
+			"items": {
+				"oneOf": [
+					{ "$ref": "#/$defs/Action_AcceptQuest" },
+					{ "$ref": "#/$defs/Action_DeclineQuest" },
+					{ "$ref": "#/$defs/Action_PostponeQuest" },
+					{ "$ref": "#/$defs/Action_FailQuest" },
+					{ "$ref": "#/$defs/Action_CompleteQuest" },
+					{ "$ref": "#/$defs/Action_ItemsGained" },
+					{ "$ref": "#/$defs/Action_ItemsLost" },
+					{ "$ref": "#/$defs/Action_FactionStanding" },
+					{ "$ref": "#/$defs/Action_Currency" },
+					{ "$ref": "#/$defs/Action_Experience" },
+					{ "$ref": "#/$defs/Action_JournalEntry" },
+					{ "$ref": "#/$defs/Action_SetVariable" }
+				]
+			}
+		},
+		"Action_AcceptQuest": {
+			"type": "string",
+			"const": "AcceptQuest"
+		},
+		"Action_DeclineQuest": {
+			"type": "string",
+			"const": "DeclineQuest"
+		},
+		"Action_PostponeQuest": {
+			"type": "string",
+			"const": "PostponeQuest"
+		},
+		"Action_FailQuest": {
+			"type": "string",
+			"const": "FailQuest"
+		},
+		"Action_CompleteQuest": {
+			"type": "string",
+			"const": "CompleteQuest"
+		},
+		"Action_ItemsGained": {
+			"type": "object",
+			"properties": {
+				"ItemsGained": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"Type": {
+								"type": "string"
+							},
+							"Count": {
+								"type": "integer",
+								"minimum": 1
+							},
+							"QuestItem": {
+								"type": "boolean"
+							}
+						},
+						"required": [ "Type", "Count" ]
+					},
+					"minItems": 1
+				}
+			},
+			"required": [ "ItemsGained" ]
+		},
+		"Action_ItemsLost": {
+			"type": "object",
+			"properties": {
+				"ItemsLost": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"Type": {
+								"type": "string"
+							},
+							"Count": {
+								"type": "integer",
+								"minimum": 1
+							},
+							"QuestItem": {
+								"type": "boolean"
+							}
+						},
+						"required": [ "Type", "Count" ]
+					},
+					"minItems": 1
+				}
+			},
+			"required": [ "ItemsLost" ]
+		},
+		"Action_FactionStanding": {
+			"type": "object",
+			"properties": {
+				"FactionStanding": {
+					"type": "object",
+					"properties": {
+						"Faction": {
+							"type": "string"
+						},
+						"Points": {
+							"type": "integer"
+						}
+					},
+					"required": [ "Faction", "Points" ]
+				}
+			},
+			"required": [ "FactionStanding" ]
+		},
+		"Action_Currency": {
+			"type": "object",
+			"properties": {
+				"Currency": {
+					"type": "integer"
+				}
+			},
+			"required": [ "Currency" ]
+		},
+		"Action_Experience": {
+			"type": "object",
+			"properties": {
+				"Experience": {
+					"type": "integer"
+				}
+			},
+			"required": [ "Experience" ]
+		},
+		"Action_JournalEntry": {
+			"type": "object",
+			"properties": {
+				"JournalEntry": {
+					"$ref": "#/$defs/i18nString"
+				}
+			},
+			"required": [ "JournalEntry" ]
+		},
+		"Action_SetVariable": {
+			"type": "object",
+			"properties": {
+				"SetVariable": {
+					"type": "object",
+					"properties": {
+						"VariableName": {
+							"type": "string",
+							"pattern": "^[A-Za-z0-9\\.\\-_ \\(\\):]*$"
+						},
+						"Operation": {
+							"type": "string",
+							"enum": [ "set to", "unset", "increase by", "decrease by" ]
+						},
+						"Value": {
+							"type": "integer"
+						}
+					},
+					"required": [ "VariableName", "Operation", "Value" ]
+				}
+			},
+			"required": [ "SetVariable" ]
+		}
+	}
+}
+

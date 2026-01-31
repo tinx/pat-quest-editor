@@ -1,0 +1,232 @@
+QuestTypeVersion: 1
+QuestVersion: 1
+QuestID: 'PAT_Demo_Quest'
+QuestType: SideQuest
+DisplayName:
+  en-US: 'The Demo Quest'
+  de-DE: 'Die Demo-Aufgabe'
+JournalEntry:
+  en-US: 'Drumin needed a pack of nails delivered to Mellis.'
+  de-DE: 'Drumin wollte eine Packung Nägel an Mellis liefern lassen.'
+Repeatable: never
+QuestNodes:
+  - NodeID: 0
+    NodeType: EntryPoint
+    NextNodes: [ 1 ]
+  - NodeID: 1
+    NodeType: ConditionWatcher
+    Conditions:
+      - QuestCompleted: 'PAT_Tutorial:Navigation'
+      - ResourceAvailable: 'Coal'
+      - ResourceAvailable: 'IronOre'
+      - FactionStanding:
+          Faction: 'NPC:Smith'
+          MinimumLevel: 5
+    ConditionsRequired: 'all' # vs. e.g. '1' or '3'
+    NextNodes: [ 2 ]
+  - NodeID: 2
+    NodeType: ConditionWatcher
+    Conditions:
+      - TimePassed: '36h'
+    NextNodes: [ 3 ]
+  - NodeID: 3
+    NodeType: QuestAvailable
+    QuestStageTitle:
+      en-US: 'An errand for the blacksmith'
+      de-DE: 'Ein Botengang für den Schmied'
+    NextNodes: [ 4 ]
+  - NodeID: 4
+    NodeType: PlayerDecisionDialog
+    ConversationPartner: 'NPC:Smith'
+    Speaker: 'NPC:Smith'
+    Text:
+      en-US: >-
+        Now that we have coal and iron again, I can finally start working
+        on all the orders that have piled up. For starters, I've made
+        some nails for Mellis. Can you deliver them for me?
+      de-DE: >-
+        Endlich gibt es wieder Kohle und Eisen. Jetzt kann ich alle
+        Bestellungen abarbeiten die sich angesammelt haben. Für den
+        Anfang habe ich Nägel für Mellis hergestellt. Kannst Du sie
+        für mich ausliefern?
+    Options:
+      - Text:
+          en-US: "Sure! I'll start right away!"
+          de-DE: "Klar! Bin schon unterwegs!"
+        NextNodes: [ 10 ]
+      - Text:
+          en-US: 'Not right now.'
+          de-DE: 'Nicht jetzt.'
+        DefaultOption: true
+        NextNodes: [ 16 ]
+      - Text:
+          en-US: "I'll send someone to do it."
+          de-DE: 'Ich schicke jemanden der das erledigt.'
+        Conditions:
+          - FactionStanding:
+              Faction: 'Org:CourierGuild'
+              MinimumLevel: 10
+        NextNodes: [ 9 ]
+      - Text:
+          en-US: 'Find someone else.'
+          de-DE: 'Such Dir jemand anderen.'
+        NextNodes: [ 5 ]
+      - Text:
+          en-US: 'Not again!'
+          de-DE: 'Nicht schon wieder!'
+        Conditions:
+          - Variable:
+              VariableName: 'ItemsDelivered'
+              Comparison: 'greater than'
+              Value: 10
+        NextNodes: [ 15 ]
+  - NodeID: 16
+    NodeType: Actions
+    Actions:
+      - PostponeQuest
+  - NodeID: 10
+    NodeType: Actions
+    Actions:
+      - AcceptQuest
+      - ItemsGained:
+        - Type: 'PackOfNails'
+          Count: 1
+          QuestItem: true
+    NextNodes: [ 6 ]
+  - NodeID: 5
+    NodeType: Dialog
+    ConversationPartner: 'NPC:Smith'
+    Messages:
+      - Speaker: 'NPC:Smith'
+        Text:
+          en-US: >-
+            I see. Well, I'm sure you have more important things to
+            do than helping an old smith, eh? Never mind then.
+          de-DE: >-
+            Verstehe. Du hast ja bestimmt auch wichtigeres zu tun als
+            einem alten Schmied zu helfen, oder? Passt schon.
+    NextNodes: [ 11 ]
+  - NodeID: 11
+    NodeType: Actions
+    Actions:
+      - DeclineQuest
+      - FactionStanding:
+          Faction: 'NPC:Smith'
+          Points: -10
+      - JournalEntry:
+          en-US: 'You declined to take the task.'
+          de-DE: 'Du hast die Aufgabe abgelehnt.'
+  - NodeID: 15
+    NodeType: Dialog
+    ConversationPartner: 'NPC:Smith'
+    Messages:
+      - Speaker: 'NPC:Smith'
+        Text:
+          en-US: >-
+            Ha! I understand you have become quite the courier,
+            haven't you? Don't worry, I'll find someone else.
+          de-DE: >-
+            Ha! Ich hörte Du bist schon ein echter Profi-Kurier,
+            was? Keine Sorge, ich find' schon jemanden.
+    NextNodes: [ 16 ]
+  - NodeID: 16
+    NodeType: Actions
+    Actions:
+      - DeclineQuest
+      - JournalEntry:
+          en-US: "You both agreed that it's better to find someone else to do it."
+          de-DE: 'Ihr wart euch beide einig dass das jemand anders erledigen sollte.'
+  - NodeID: 6
+    NodeType: QuestProgess
+    QuestProgressors:
+      - 'NPC:Carpenter'
+    QuestStageTitle:
+      en-US: 'Deliver nails to Mellis, the carpenter.'
+      de-DE: 'Bring Schreiner Mellis Nägel.'
+    QuestStageDescription:
+      en-US: >-
+        Drumin, the smith, tasked us with delivering a pack of nails to Mellis,
+        the carpenter.
+      de-DE: >-
+        Drumin, der Schmied, hat uns beauftragt dem Schreiner Mellis eine
+        Packung Nägel zu bringen.
+    NextNodes: [ 7, 8 ]
+  - NodeID: 7
+    NodeType: ConditionWatcher
+    Conditions:
+      - ItemLost: 'PackOfNails'
+    NextNodes: [ 12 ]
+  - NodeID: 12
+    NodeType: Actions
+    Actions:
+      - FailQuest
+      - JournalEntry:
+          en-US: 'You accepted the task, but lost the nails.'
+          de-DE: 'Du hast die Aufgabe übernommen, hast aber dann die Nägel verloren.'
+  - NodeID: 8
+    NodeType: Dialog
+    ConversationPartner: 'NPC:Carpenter'
+    Conditions: # if the conditions are not met, the quest dialog is not available
+      - Inventory:
+          - Type: 'PackOfNails'
+            MinCount: 1
+            QuestItem: true
+    Messages:
+      - Speaker: 'NPC:Carpenter'
+        Text:
+          en-US: >-
+            Drumin made the nails! Excellent. Now I can finish the loom
+            that Sandres ordered. She'll be happy to hear it. Thank
+            you for the delivery, ${PC_NAME}.
+          de-DE: >-
+            Drumin hat die Nägel gemacht! Sehr gut. Jetzt kann ich den
+            Webstuhl fertig machen den Sandres bestellt hat. Das wird
+            sie sicher sehr freuen. Vielen Dank für die Lieferung,
+            ${PC_NAME}.
+    NextNodes: [ 13 ]
+  - NodeID: 13
+    NodeType: Actions
+    Actions:
+      - ItemsLost:
+        - Type: 'PackOfNails'
+          Count: 1
+          QuestItem: true
+      - FactionStanding:
+          Faction: 'NPC:Smith'
+          Points: 5
+      - FactionStanding:
+          Faction: 'NPC:Carpenter'
+          Points: 3
+      - FactionStanding:
+          Faction: 'Town'
+          Points: 1
+      - Currency: 5
+      - Experience: 10
+      - SetVariable:
+          VariableName: 'ItemsDelivered'
+          Operation: 'increase by'
+          Value: 1
+      - JournalEntry:
+          en-US: 'You accepted the task and delivered the nails.'
+          de-DE: 'Du hast die Aufgabe übernommen und die Nägel geliefert.'
+      - CompleteQuest
+  - NodeID: 9
+    NodeType: Dialog
+    ConversationPartner: 'NPC:Smith'
+    Messages:
+      - Speaker: 'NPC:Smith'
+        Text:
+          en-US: Mh. Thank you. Here, take these coins for your troubles.
+          de-DE: Hm. Danke. Hier, ein paar Münzen für Deine Mühen.
+    NextNodes: [ 14 ]
+  - NodeID: 14
+    NodeType: Actions
+    Actions:
+      - FactionStanding:
+          Faction: 'NPC:Smith'
+          Points: 1
+      - Currency: 5
+      - JournalEntry:
+          en-US: 'You let a courier make the delivery, rather than doing it yourself.'
+          de-DE: 'Du hast einen Kurier die Lieferung machen lassen statt es selber zu erledigen.'
+      - CompleteQuest
