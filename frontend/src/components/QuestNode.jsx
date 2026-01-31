@@ -11,14 +11,19 @@ const nodeColors = {
   Actions: '#f44336',
 };
 
+const optionColors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50'];
+
 function QuestNode({ data, selected }) {
   const color = nodeColors[data.nodeType] || '#666';
+  const isDecisionDialog = data.nodeType === 'PlayerDecisionDialog';
+  const options = data.options || [];
   
   return (
     <div style={{
       ...styles.node,
       borderColor: selected ? '#fff' : color,
       boxShadow: selected ? `0 0 10px ${color}` : 'none',
+      maxWidth: isDecisionDialog ? '280px' : '200px',
     }}>
       <Handle type="target" position={Position.Top} style={styles.handle} />
       
@@ -36,14 +41,42 @@ function QuestNode({ data, selected }) {
           <div style={styles.label}>{data.conversationPartner}</div>
         )}
         
-        {data.nodeType === 'PlayerDecisionDialog' && (
+        {isDecisionDialog && (
           <>
             {data.speaker && <div style={styles.label}>{data.speaker}</div>}
-            {data.options?.length > 0 && (
-              <div style={styles.options}>
-                {data.options.length} option(s)
-              </div>
+            {data.text?.['en-US'] && (
+              <div style={styles.dialogText}>"{data.text['en-US'].substring(0, 50)}..."</div>
             )}
+            <div style={styles.optionsList}>
+              {options.map((opt, i) => (
+                <div key={i} style={styles.optionRow}>
+                  <span 
+                    style={{
+                      ...styles.optionDot,
+                      backgroundColor: optionColors[i % optionColors.length],
+                    }}
+                  />
+                  <span style={styles.optionText}>
+                    {opt.Text?.['en-US']?.substring(0, 30) || `Option ${i + 1}`}
+                    {opt.Text?.['en-US']?.length > 30 ? '...' : ''}
+                  </span>
+                  <Handle
+                    type="source"
+                    position={Position.Right}
+                    id={`option-${i}`}
+                    style={{
+                      ...styles.optionHandle,
+                      backgroundColor: optionColors[i % optionColors.length],
+                      top: 'auto',
+                      right: '-6px',
+                    }}
+                  />
+                </div>
+              ))}
+              {options.length === 0 && (
+                <div style={styles.noOptions}>No options defined</div>
+              )}
+            </div>
           </>
         )}
         
@@ -76,7 +109,10 @@ function QuestNode({ data, selected }) {
         )}
       </div>
       
-      <Handle type="source" position={Position.Bottom} style={styles.handle} />
+      {/* Only show bottom handle for non-decision dialogs */}
+      {!isDecisionDialog && (
+        <Handle type="source" position={Position.Bottom} style={styles.handle} />
+      )}
     </div>
   );
 }
@@ -115,10 +151,52 @@ const styles = {
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   },
-  options: {
+  dialogText: {
     color: '#888',
     fontSize: '10px',
+    fontStyle: 'italic',
     marginTop: '4px',
+    marginBottom: '8px',
+  },
+  optionsList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+    marginTop: '4px',
+  },
+  optionRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    position: 'relative',
+    backgroundColor: '#1a1a2e',
+    padding: '4px 8px',
+    borderRadius: '4px',
+    paddingRight: '16px',
+  },
+  optionDot: {
+    width: '8px',
+    height: '8px',
+    borderRadius: '50%',
+    flexShrink: 0,
+  },
+  optionText: {
+    fontSize: '10px',
+    color: '#ccc',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    flex: 1,
+  },
+  optionHandle: {
+    width: '10px',
+    height: '10px',
+    position: 'absolute',
+  },
+  noOptions: {
+    color: '#666',
+    fontSize: '10px',
+    fontStyle: 'italic',
   },
   conditions: {
     color: '#888',

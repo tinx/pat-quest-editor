@@ -47,28 +47,35 @@ function questToFlow(quest, metadata) {
     };
   });
 
+  const optionColors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50'];
+
   const edges = [];
   (quest?.QuestNodes || []).forEach(qn => {
-    (qn.NextNodes || []).forEach(nextId => {
-      edges.push({
-        id: `${qn.NodeID}-${nextId}`,
-        source: String(qn.NodeID),
-        target: String(nextId),
-        animated: true,
+    // For PlayerDecisionDialog, edges come from options only
+    if (qn.NodeType === 'PlayerDecisionDialog') {
+      (qn.Options || []).forEach((opt, i) => {
+        (opt.NextNodes || []).forEach(nextId => {
+          edges.push({
+            id: `${qn.NodeID}-opt${i}-${nextId}`,
+            source: String(qn.NodeID),
+            sourceHandle: `option-${i}`,
+            target: String(nextId),
+            animated: true,
+            style: { stroke: optionColors[i % optionColors.length], strokeWidth: 2 },
+          });
+        });
       });
-    });
-    // Also handle dialog options
-    (qn.Options || []).forEach((opt, i) => {
-      (opt.NextNodes || []).forEach(nextId => {
+    } else {
+      // Regular nodes use top-level NextNodes
+      (qn.NextNodes || []).forEach(nextId => {
         edges.push({
-          id: `${qn.NodeID}-opt${i}-${nextId}`,
+          id: `${qn.NodeID}-${nextId}`,
           source: String(qn.NodeID),
           target: String(nextId),
           animated: true,
-          style: { stroke: '#e91e63' },
         });
       });
-    });
+    }
   });
 
   return { nodes, edges };
@@ -76,11 +83,23 @@ function questToFlow(quest, metadata) {
 
 // Convert React Flow nodes/edges back to quest data
 function flowToQuest(nodes, edges, originalQuest) {
+  // Build map of regular edges (no sourceHandle)
   const nodeMap = {};
   nodes.forEach(n => { nodeMap[n.id] = []; });
+  
+  // Build map of option edges (with sourceHandle like "option-0")
+  const optionEdgeMap = {}; // nodeId -> { optionIndex -> [targets] }
+  
   edges.forEach(e => {
-    if (nodeMap[e.source]) {
-      nodeMap[e.source].push(parseInt(e.target));
+    if (e.sourceHandle && e.sourceHandle.startsWith('option-')) {
+      const optIndex = parseInt(e.sourceHandle.split('-')[1]);
+      if (!optionEdgeMap[e.source]) optionEdgeMap[e.source] = {};
+      if (!optionEdgeMap[e.source][optIndex]) optionEdgeMap[e.source][optIndex] = [];
+      optionEdgeMap[e.source][optIndex].push(parseInt(e.target));
+    } else {
+      if (nodeMap[e.source]) {
+        nodeMap[e.source].push(parseInt(e.target));
+      }
     }
   });
 
@@ -93,18 +112,17 @@ function flowToQuest(nodes, edges, originalQuest) {
 
     // PlayerDecisionDialog: NextNodes go in options, not top-level
     if (d.nodeType === 'PlayerDecisionDialog') {
-      // Don't set top-level NextNodes for PlayerDecisionDialog
-      if (d.options?.length) {
-        // Distribute edges to options (simplified: all edges go to first option without NextNodes)
-        const edgeTargets = nodeMap[n.id] || [];
-        const options = d.options.map((opt, i) => {
-          // Keep existing NextNodes if present, otherwise leave empty for user to set
-          return { ...opt };
-        });
-        node.Options = options;
-      }
+      const options = (d.options || []).map((opt, i) => {
+        const optEdges = optionEdgeMap[n.id]?.[i] || [];
+        return {
+          ...opt,
+          NextNodes: optEdges.length > 0 ? optEdges : opt.NextNodes,
+        };
+      });
+      if (options.length > 0) node.Options = options;
     } else {
       if (nodeMap[n.id]?.length > 0) node.NextNodes = nodeMap[n.id];
+      if (d.options?.length) node.Options = d.options;
     }
 
     if (d.conditions?.length) node.Conditions = d.conditions;
@@ -112,7 +130,6 @@ function flowToQuest(nodes, edges, originalQuest) {
     if (d.conversationPartner) node.ConversationPartner = d.conversationPartner;
     if (d.speaker) node.Speaker = d.speaker;
     if (d.text) node.Text = d.text;
-    if (d.nodeType !== 'PlayerDecisionDialog' && d.options?.length) node.Options = d.options;
     if (d.messages?.length) node.Messages = d.messages;
     if (d.actions?.length) node.Actions = d.actions;
     if (d.questProgressors?.length) node.QuestProgressors = d.questProgressors;
