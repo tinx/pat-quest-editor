@@ -13,7 +13,6 @@ type Quest struct {
 	QuestID          string       `yaml:"QuestID" json:"QuestID"`
 	QuestType        string       `yaml:"QuestType" json:"QuestType"`
 	DisplayName      I18nString   `yaml:"DisplayName" json:"DisplayName"`
-	JournalEntry     I18nString   `yaml:"JournalEntry" json:"JournalEntry"`
 	Repeatable       string       `yaml:"Repeatable" json:"Repeatable"`
 	QuestNodes       []QuestNode  `yaml:"QuestNodes" json:"QuestNodes"`
 }

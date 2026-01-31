@@ -5,9 +5,6 @@ QuestType: FactionQuest
 DisplayName:
     en-US: The Demo Quest
     de-DE: Die Demo-Aufgabe
-JournalEntry:
-    en-US: Drumin needed a pack of nails delivered to Mellis.
-    de-DE: Drumin wollte eine Packung Nägel an Mellis liefern lassen.
 Repeatable: never
 QuestNodes:
     - NodeID: 0

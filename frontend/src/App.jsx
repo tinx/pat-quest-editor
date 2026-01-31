@@ -93,7 +93,6 @@ function AppContent() {
       QuestID: questId,
       QuestType: 'SideQuest',
       DisplayName: { 'en-US': 'New Quest', 'de-DE': 'Neue Aufgabe' },
-      JournalEntry: { 'en-US': '', 'de-DE': '' },
       Repeatable: 'never',
       QuestNodes: [
         { NodeID: 0, NodeType: 'EntryPoint', NextNodes: [1] },

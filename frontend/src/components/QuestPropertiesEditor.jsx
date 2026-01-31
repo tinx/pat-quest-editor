@@ -27,7 +27,6 @@ export default function QuestPropertiesEditor({ quest, onSave, onClose }) {
         QuestID: quest.QuestID || '',
         QuestType: quest.QuestType || 'SideQuest',
         DisplayName: quest.DisplayName || { 'en-US': '', 'de-DE': '' },
-        JournalEntry: quest.JournalEntry || { 'en-US': '', 'de-DE': '' },
         Repeatable: quest.Repeatable || 'never',
       });
     }
@@ -49,7 +48,6 @@ export default function QuestPropertiesEditor({ quest, onSave, onClose }) {
       ...quest,
       QuestType: data.QuestType,
       DisplayName: data.DisplayName,
-      JournalEntry: data.JournalEntry,
       Repeatable: data.Repeatable,
     };
     onSave(updatedQuest);
@@ -102,22 +100,6 @@ export default function QuestPropertiesEditor({ quest, onSave, onClose }) {
             onChange={e => handleI18nChange('DisplayName', 'de-DE', e.target.value)}
             style={styles.input}
             placeholder="Quest name in German..."
-          />
-
-          <label style={styles.label}>Journal Entry (English)</label>
-          <textarea
-            value={data.JournalEntry?.['en-US'] || ''}
-            onChange={e => handleI18nChange('JournalEntry', 'en-US', e.target.value)}
-            style={styles.textarea}
-            placeholder="Past-tense description in English..."
-          />
-
-          <label style={styles.label}>Journal Entry (German)</label>
-          <textarea
-            value={data.JournalEntry?.['de-DE'] || ''}
-            onChange={e => handleI18nChange('JournalEntry', 'de-DE', e.target.value)}
-            style={styles.textarea}
-            placeholder="Past-tense description in German..."
           />
 
           <label style={styles.label}>Repeatable</label>

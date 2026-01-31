@@ -30,10 +30,6 @@
 			"description": "How this quest will be called in the journal",
 			"$ref": "#/$defs/i18nString"
 		},
-		"JournalEntry": {
-			"description": "Text describing this quest in the journal, past tense.",
-			"$ref": "#/$defs/i18nString"
-		},
 		"Repeatable": {
 			"description": "Defines in which ways this quest can be done again.",
 			"type": "string",
@@ -54,7 +50,7 @@
 			}
 		}
 	},
-	"required": [ "QuestTypeVersion", "QuestVersion", "QuestID", "QuestType", "DisplayName", "JournalEntry", "QuestNodes"],
+	"required": [ "QuestTypeVersion", "QuestVersion", "QuestID", "QuestType", "DisplayName", "QuestNodes"],
 	"$defs": {
 		"i18nString": {
 			"type": "object",
