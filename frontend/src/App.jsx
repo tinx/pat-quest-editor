@@ -53,11 +53,12 @@ function AppContent() {
     try {
       const result = await api.validateQuest(updatedQuest);
       setValidation(result);
-      // Clear highlight if the highlighted node no longer has errors
+      // Clear highlight if the highlighted node no longer has errors or warnings
       setHighlightedNodeId(prev => {
         if (prev === null) return null;
         const stillHasError = result.errors?.some(e => e.nodeId === prev);
-        return stillHasError ? prev : null;
+        const stillHasWarning = result.warnings?.some(w => w.nodeId === prev);
+        return (stillHasError || stillHasWarning) ? prev : null;
       });
     } catch (e) {
       console.error('Validation failed:', e);

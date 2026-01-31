@@ -486,7 +486,9 @@ export default function NodeEditor({ node, npcs, items, factions, resources, onS
   };
 
   const handleSave = () => {
-    onSave({ ...node, data });
+    // Remove transient UI state (highlighted) before saving
+    const { highlighted, ...cleanData } = data;
+    onSave({ ...node, data: cleanData });
     onClose();
   };
 
