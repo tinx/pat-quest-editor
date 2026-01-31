@@ -6,65 +6,83 @@ import ConditionEditor from './ConditionEditor';
 import { useTheme } from '../ThemeContext';
 
 const optionColors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50'];
-const messageColors = ['#ff7043', '#ffca28', '#66bb6a', '#42a5f5', '#ab47bc', '#26a69a', '#ec407a', '#7e57c2'];
 
-// Sortable message card component
+// Auto-resizing textarea helper
+const autoResize = (e) => {
+  e.target.style.height = 'auto';
+  e.target.style.height = e.target.scrollHeight + 'px';
+};
+
+// Sortable message card component styled like a chat messenger
 function SortableMessageCard({ id, index, message, npcs, styles, onRemove, onChange }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
-  const style = {
-    ...styles.messageCard,
+  // Support both PascalCase (from file) and camelCase (newly created)
+  const speaker = message.Speaker ?? message.speaker ?? '';
+  const text = message.Text ?? message.text ?? {};
+  const isPlayer = speaker === 'Player';
+
+  const bubbleStyle = {
+    ...styles.messageBubble,
+    ...(isPlayer ? styles.playerBubble : styles.npcBubble),
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
 
-  // Support both PascalCase (from file) and camelCase (newly created)
-  const speaker = message.Speaker ?? message.speaker ?? '';
-  const text = message.Text ?? message.text ?? {};
+  const speakerDisplayName = isPlayer 
+    ? 'Player' 
+    : (npcs?.find(n => n.NPCID === speaker)?.DisplayName?.['en-US'] || speaker || 'Unknown');
+
+  const handleTextChange = (e, lang) => {
+    autoResize(e);
+    onChange(index, 'Text', lang, e.target.value);
+  };
 
   return (
-    <div ref={setNodeRef} style={style}>
-      <div style={styles.messageHeader}>
-        <div style={styles.dragHandleWrapper}>
-          <span {...attributes} {...listeners} style={styles.dragHandle}>⋮⋮</span>
-          <span style={{ ...styles.messageBadge, backgroundColor: messageColors[index % messageColors.length] }}>
-            {index + 1}
-          </span>
+    <div ref={setNodeRef} style={{ ...styles.messageRow, justifyContent: isPlayer ? 'flex-end' : 'flex-start' }}>
+      {!isPlayer && (
+        <span {...attributes} {...listeners} style={styles.dragHandle}>⋮⋮</span>
+      )}
+      <div style={bubbleStyle}>
+        <div style={styles.bubbleHeader}>
+          <select
+            value={speaker}
+            onChange={e => onChange(index, 'Speaker', null, e.target.value)}
+            style={{ ...styles.speakerSelect, ...(isPlayer ? styles.playerSelect : styles.npcSelect) }}
+          >
+            <option value="">Select Speaker...</option>
+            <option value="Player">Player</option>
+            {npcs?.map(npc => (
+              <option key={npc.NPCID} value={npc.NPCID}>
+                {npc.DisplayName?.['en-US'] || npc.NPCID}
+              </option>
+            ))}
+          </select>
+          <button onClick={() => onRemove(index)} style={{ ...styles.bubbleRemoveBtn, color: isPlayer ? 'rgba(255,255,255,0.7)' : '#999' }}>×</button>
         </div>
-        <button onClick={() => onRemove(index)} style={styles.removeBtn}>×</button>
+
+        <textarea
+          value={text['en-US'] || ''}
+          onChange={e => handleTextChange(e, 'en-US')}
+          onFocus={autoResize}
+          ref={el => el && (el.style.height = el.scrollHeight + 'px')}
+          style={{ ...styles.bubbleTextarea, ...(isPlayer ? styles.playerTextarea : styles.npcTextarea) }}
+          placeholder="English..."
+        />
+
+        <textarea
+          value={text['de-DE'] || ''}
+          onChange={e => handleTextChange(e, 'de-DE')}
+          onFocus={autoResize}
+          ref={el => el && (el.style.height = el.scrollHeight + 'px')}
+          style={{ ...styles.bubbleTextarea, ...(isPlayer ? styles.playerTextarea : styles.npcTextarea), marginTop: '4px' }}
+          placeholder="German..."
+        />
       </div>
-
-      <label style={styles.label}>Speaker</label>
-      <select
-        value={speaker}
-        onChange={e => onChange(index, 'Speaker', null, e.target.value)}
-        style={styles.select}
-      >
-        <option value="">Select Speaker...</option>
-        <option value="Player">Player</option>
-        {npcs?.map(npc => (
-          <option key={npc.NPCID} value={npc.NPCID}>
-            {npc.DisplayName?.['en-US'] || npc.NPCID}
-          </option>
-        ))}
-      </select>
-
-      <label style={styles.label}>Text (English)</label>
-      <textarea
-        value={text['en-US'] || ''}
-        onChange={e => onChange(index, 'Text', 'en-US', e.target.value)}
-        style={styles.messageTextarea}
-        placeholder="Message text in English..."
-      />
-
-      <label style={styles.label}>Text (German)</label>
-      <textarea
-        value={text['de-DE'] || ''}
-        onChange={e => onChange(index, 'Text', 'de-DE', e.target.value)}
-        style={styles.messageTextarea}
-        placeholder="Message text in German..."
-      />
+      {isPlayer && (
+        <span {...attributes} {...listeners} style={styles.dragHandle}>⋮⋮</span>
+      )}
     </div>
   );
 }
@@ -547,7 +565,7 @@ const getStyles = (theme) => ({
     padding: '12px',
     textAlign: 'center',
   },
-  // Message styles for Dialog nodes
+  // Message styles for Dialog nodes - chat bubble style
   messagesHeader: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -556,24 +574,74 @@ const getStyles = (theme) => ({
     paddingTop: '16px',
     borderTop: `1px solid ${theme.border}`,
   },
-  messageCard: {
-    backgroundColor: theme.bg,
-    borderRadius: '6px',
-    padding: '12px',
+  messageRow: {
     display: 'flex',
-    flexDirection: 'column',
+    alignItems: 'flex-start',
     gap: '8px',
     marginTop: '8px',
   },
-  messageHeader: {
+  messageBubble: {
+    borderRadius: '16px',
+    padding: '8px 12px',
+    width: '65%',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
+  },
+  playerBubble: {
+    backgroundColor: '#007AFF',
+    borderBottomRightRadius: '4px',
+  },
+  npcBubble: {
+    backgroundColor: '#E5E5EA',
+    borderBottomLeftRadius: '4px',
+  },
+  bubbleHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  dragHandleWrapper: {
-    display: 'flex',
-    alignItems: 'center',
     gap: '8px',
+  },
+  speakerSelect: {
+    padding: '4px 8px',
+    borderRadius: '8px',
+    border: 'none',
+    fontSize: '11px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+  },
+  playerSelect: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    color: '#fff',
+  },
+  npcSelect: {
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    color: '#333',
+  },
+  bubbleRemoveBtn: {
+    background: 'none',
+    border: 'none',
+    fontSize: '16px',
+    cursor: 'pointer',
+    padding: '0 2px',
+    lineHeight: 1,
+  },
+  bubbleTextarea: {
+    padding: '8px',
+    borderRadius: '8px',
+    border: 'none',
+    fontSize: '13px',
+    minHeight: '24px',
+    resize: 'none',
+    overflow: 'hidden',
+  },
+  playerTextarea: {
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    color: '#fff',
+  },
+  npcTextarea: {
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    color: '#333',
   },
   dragHandle: {
     cursor: 'grab',
@@ -581,24 +649,7 @@ const getStyles = (theme) => ({
     fontSize: '14px',
     padding: '4px',
     userSelect: 'none',
-  },
-  messageBadge: {
-    padding: '4px 8px',
-    borderRadius: '4px',
-    fontSize: '11px',
-    fontWeight: 'bold',
-    color: '#fff',
-    minWidth: '20px',
-    textAlign: 'center',
-  },
-  messageTextarea: {
-    padding: '10px',
-    backgroundColor: theme.inputBg,
-    border: `1px solid ${theme.inputBorder}`,
-    borderRadius: '4px',
-    color: theme.text,
-    minHeight: '50px',
-    resize: 'vertical',
+    flexShrink: 0,
   },
   noMessages: {
     color: theme.textDim,
