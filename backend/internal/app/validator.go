@@ -240,9 +240,9 @@ func (v *QuestValidatorService) validateReferences(quest *domain.Quest, result *
 			result.AddNodeError(node.NodeID, "unknown speaker: "+node.Speaker)
 		}
 
-		// Check message speakers
+		// Check message speakers (allow "Player" as a valid speaker)
 		for _, msg := range node.Messages {
-			if !npcIDs[msg.Speaker] {
+			if msg.Speaker != "Player" && !npcIDs[msg.Speaker] {
 				result.AddNodeError(node.NodeID, "unknown speaker in message: "+msg.Speaker)
 			}
 		}

@@ -171,3 +171,25 @@ func TestValidate_UnknownNPC(t *testing.T) {
 		t.Error("expected invalid quest due to unknown NPC")
 	}
 }
+
+func TestValidate_PlayerSpeakerIsValid(t *testing.T) {
+	validator := NewQuestValidatorService(&mockReferenceData{})
+
+	quest := &domain.Quest{
+		QuestID: "TestQuest",
+		QuestNodes: []domain.QuestNode{
+			{NodeID: 0, NodeType: "EntryPoint", NextNodes: []int{1}},
+			{NodeID: 1, NodeType: "Dialog", ConversationPartner: "NPC:Smith", Messages: []domain.DialogMessage{
+				{Speaker: "NPC:Smith", Text: domain.I18nString{EnUS: "Hello!"}},
+				{Speaker: "Player", Text: domain.I18nString{EnUS: "Hi there!"}},
+			}, NextNodes: []int{2}},
+			{NodeID: 2, NodeType: "Actions", Actions: []domain.Action{"CompleteQuest"}},
+		},
+	}
+
+	result := validator.Validate(quest)
+
+	if !result.Valid {
+		t.Errorf("expected valid quest with Player speaker, got errors: %v", result.Errors)
+	}
+}

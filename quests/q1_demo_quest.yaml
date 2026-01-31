@@ -170,6 +170,10 @@ QuestNodes:
               Type: PackOfNails
       ConversationPartner: NPC:Carpenter
       Messages:
+        - Speaker: Player
+          Text:
+            en-US: Hello. I'm supposed to give you this...
+            de-DE: Hallo. Ich soll Dir das hier geben...
         - Speaker: NPC:Carpenter
           Text:
             en-US: Drumin made the nails! Excellent. Now I can finish the loom that Sandres ordered. She'll be happy to hear it. Thank you for the delivery, ${PC_NAME}.
