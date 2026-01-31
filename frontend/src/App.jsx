@@ -185,9 +185,10 @@ function AppContent() {
     const questId = prompt('Enter Quest ID (e.g., PAT_New_Quest):');
     if (!questId) return;
 
-    // Validate quest ID format
-    if (!/^[a-zA-Z0-9_:-]+$/.test(questId)) {
-      alert('Invalid Quest ID. Only alphanumeric characters, underscores, colons, and hyphens are allowed.');
+    // Validate quest ID format per schema: ^[A-Z][A-Za-z0-9.\-_:]*$
+    // Must start with uppercase letter, followed by alphanumeric, dots, hyphens, underscores, or colons
+    if (!/^[A-Z][A-Za-z0-9.\-_:]*$/.test(questId)) {
+      alert('Invalid Quest ID. Must start with an uppercase letter, followed by letters, numbers, dots, hyphens, underscores, or colons (e.g., PAT_My_Quest).');
       return;
     }
     if (questId.length > 100) {

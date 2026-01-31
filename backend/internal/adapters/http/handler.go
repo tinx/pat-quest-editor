@@ -19,10 +19,12 @@ const maxRequestBodySize = 10 * 1024 * 1024
 // maxQuestIDLength is the maximum allowed length for quest IDs
 const maxQuestIDLength = 100
 
-// validQuestIDPattern matches allowed quest ID characters: alphanumeric, underscores, colons, hyphens
-var validQuestIDPattern = regexp.MustCompile(`^[a-zA-Z0-9_:\-]+$`)
+// validQuestIDPattern matches the schema pattern: must start with uppercase letter,
+// followed by alphanumeric, dots, hyphens, underscores, or colons.
+// Schema: ^[A-Z][A-Za-z0-9\.\-_:]*$
+var validQuestIDPattern = regexp.MustCompile(`^[A-Z][A-Za-z0-9.\-_:]*$`)
 
-// validateQuestID checks if a quest ID is valid
+// validateQuestID checks if a quest ID is valid according to the schema
 func validateQuestID(questID string) error {
 	if questID == "" {
 		return fmt.Errorf("quest ID cannot be empty")
@@ -31,7 +33,7 @@ func validateQuestID(questID string) error {
 		return fmt.Errorf("quest ID exceeds maximum length of %d characters", maxQuestIDLength)
 	}
 	if !validQuestIDPattern.MatchString(questID) {
-		return fmt.Errorf("quest ID contains invalid characters (allowed: alphanumeric, underscore, colon, hyphen)")
+		return fmt.Errorf("quest ID must start with uppercase letter, followed by alphanumeric, dots, hyphens, underscores, or colons")
 	}
 	return nil
 }
