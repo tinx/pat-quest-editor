@@ -140,7 +140,6 @@ QuestNodes:
         - 8
       QuestProgressors:
         - NPC:Carpenter
-        - ""
       QuestStageTitle:
         en-US: Deliver nails to Mellis, the carpenter.
         de-DE: Bring Schreiner Mellis Nägel.
@@ -226,3 +225,16 @@ QuestNodes:
             de-DE: Du hast einen Kurier die Lieferung machen lassen statt es selber zu erledigen.
             en-US: You let a courier make the delivery, rather than doing it yourself.
         - CompleteQuest
+    - NodeID: 18
+      NodeType: EntryPoint
+      NextNodes:
+        - 19
+    - NodeID: 19
+      NodeType: ConditionWatcher
+      NextNodes:
+        - 3
+      Conditions:
+        - Variable:
+            Comparison: greater than
+            Value: 1
+            VariableName: Act
