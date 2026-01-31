@@ -22,6 +22,16 @@ func NewSQLiteMetadataRepository(dbPath string) (*SQLiteMetadataRepository, erro
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
 
+	// Configure connection pool for SQLite (single writer, multiple readers)
+	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(1)
+
+	// Verify connection is working
+	if err := db.Ping(); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
+	}
+
 	repo := &SQLiteMetadataRepository{db: db}
 	if err := repo.initSchema(); err != nil {
 		db.Close()

@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -123,7 +124,7 @@ func (h *Handler) listQuests(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) getQuest(w http.ResponseWriter, r *http.Request, questID string) {
 	quest, err := h.quests.Get(questID)
 	if err != nil {
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, domain.ErrNotFound) {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
@@ -146,6 +147,10 @@ func (h *Handler) getQuest(w http.ResponseWriter, r *http.Request, questID strin
 }
 
 func (h *Handler) saveQuest(w http.ResponseWriter, r *http.Request, questID string) {
+	if !requireJSONContentType(w, r) {
+		return
+	}
+
 	var request struct {
 		Quest    domain.Quest          `json:"quest"`
 		Metadata *domain.QuestMetadata `json:"metadata,omitempty"`
@@ -185,7 +190,7 @@ func (h *Handler) saveQuest(w http.ResponseWriter, r *http.Request, questID stri
 
 func (h *Handler) deleteQuest(w http.ResponseWriter, r *http.Request, questID string) {
 	if err := h.quests.Delete(questID); err != nil {
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, domain.ErrNotFound) {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
@@ -272,6 +277,9 @@ func (h *Handler) handleMetadata(w http.ResponseWriter, r *http.Request) {
 		h.writeJSON(w, metadata)
 
 	case http.MethodPut:
+		if !requireJSONContentType(w, r) {
+			return
+		}
 		var metadata domain.QuestMetadata
 		r.Body = http.MaxBytesReader(w, r.Body, maxRequestBodySize)
 		if err := json.NewDecoder(r.Body).Decode(&metadata); err != nil {
@@ -296,6 +304,10 @@ func (h *Handler) handleValidate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !requireJSONContentType(w, r) {
+		return
+	}
+
 	var quest domain.Quest
 	r.Body = http.MaxBytesReader(w, r.Body, maxRequestBodySize)
 	if err := json.NewDecoder(r.Body).Decode(&quest); err != nil {
@@ -309,5 +321,18 @@ func (h *Handler) handleValidate(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) writeJSON(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(data)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		log.Printf("Error encoding JSON response: %v", err)
+	}
+}
+
+// requireJSONContentType validates that the request has application/json content type.
+// Returns true if valid, false if an error response was sent.
+func requireJSONContentType(w http.ResponseWriter, r *http.Request) bool {
+	ct := r.Header.Get("Content-Type")
+	if ct != "" && !strings.HasPrefix(ct, "application/json") {
+		http.Error(w, "Content-Type must be application/json", http.StatusUnsupportedMediaType)
+		return false
+	}
+	return true
 }

@@ -132,7 +132,7 @@ func (r *QuestFileRepository) findQuestFile(questID string) (string, error) {
 	}
 
 	if foundPath == "" {
-		return "", fmt.Errorf("quest not found: %s", questID)
+		return "", fmt.Errorf("%w: quest %s", domain.ErrNotFound, questID)
 	}
 
 	return foundPath, nil
