@@ -58,7 +58,7 @@ QuestNodes:
           en-US: 'Not right now.'
           de-DE: 'Nicht jetzt.'
         DefaultOption: true
-        NextNodes: [ 16 ]
+        NextNodes: [ 17 ]
       - Text:
           en-US: "I'll send someone to do it."
           de-DE: 'Ich schicke jemanden der das erledigt.'
@@ -80,7 +80,7 @@ QuestNodes:
               Comparison: 'greater than'
               Value: 10
         NextNodes: [ 15 ]
-  - NodeID: 16
+  - NodeID: 17
     NodeType: Actions
     Actions:
       - PostponeQuest
@@ -137,7 +137,7 @@ QuestNodes:
           en-US: "You both agreed that it's better to find someone else to do it."
           de-DE: 'Ihr wart euch beide einig dass das jemand anders erledigen sollte.'
   - NodeID: 6
-    NodeType: QuestProgess
+    NodeType: QuestProgress
     QuestProgressors:
       - 'NPC:Carpenter'
     QuestStageTitle:

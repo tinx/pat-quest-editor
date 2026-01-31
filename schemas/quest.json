@@ -157,6 +157,7 @@
 			"required": [ "NodeType", "ConversationPartner", "Speaker", "Text", "Options" ]
 		},
 		"QN_Dialog": {
+			"$ref": "#/$defs/QuestNodeSubschema",
 			"properties": {
 				"NodeType": {
 					"type": "string",
@@ -187,6 +188,10 @@
 		"QN_QuestProgress": {
 			"$ref": "#/$defs/QuestNodeSubschema",
 			"properties": {
+				"NodeType": {
+					"type": "string",
+					"const": "QuestProgress"
+				},
 				"QuestProgressors": {
 					"type": "array",
 					"items": {
@@ -201,7 +206,7 @@
 					"$ref": "#/$defs/i18nString"
 				}
 			},
-			"required": [ "QuestProgressors", "QuestStageTitle", "QuestStageDescription" ]
+			"required": [ "NodeType", "QuestProgressors", "QuestStageTitle", "QuestStageDescription" ]
 		},
 		"QN_QuestAvailable": {
 			"$ref": "#/$defs/QuestNodeSubschema",
