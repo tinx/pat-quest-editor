@@ -371,7 +371,9 @@
 					{ "$ref": "#/$defs/Action_Currency" },
 					{ "$ref": "#/$defs/Action_Experience" },
 					{ "$ref": "#/$defs/Action_JournalEntry" },
-					{ "$ref": "#/$defs/Action_SetVariable" }
+					{ "$ref": "#/$defs/Action_SetVariable" },
+					{ "$ref": "#/$defs/Action_QuestStageTitle" },
+					{ "$ref": "#/$defs/Action_QuestStageDescription" }
 				]
 			}
 		},
@@ -514,6 +516,24 @@
 				}
 			},
 			"required": [ "SetVariable" ]
+		},
+		"Action_QuestStageTitle": {
+			"type": "object",
+			"properties": {
+				"QuestStageTitle": {
+					"$ref": "#/$defs/i18nString"
+				}
+			},
+			"required": [ "QuestStageTitle" ]
+		},
+		"Action_QuestStageDescription": {
+			"type": "object",
+			"properties": {
+				"QuestStageDescription": {
+					"$ref": "#/$defs/i18nString"
+				}
+			},
+			"required": [ "QuestStageDescription" ]
 		}
 	}
 }

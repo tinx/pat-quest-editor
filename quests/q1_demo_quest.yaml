@@ -29,16 +29,9 @@ QuestNodes:
     - NodeID: 2
       NodeType: ConditionWatcher
       NextNodes:
-        - 3
+        - 20
       Conditions:
         - TimePassed: 36h
-    - NodeID: 3
-      NodeType: QuestAvailable
-      NextNodes:
-        - 4
-      QuestStageTitle:
-        en-US: An errand for the blacksmith
-        de-DE: Ein Botengang für den Schmied
     - NodeID: 4
       NodeType: PlayerDecisionDialog
       ConversationPartner: NPC:Smith
@@ -89,13 +82,20 @@ QuestNodes:
     - NodeID: 10
       NodeType: Actions
       NextNodes:
-        - 6
+        - 8
+        - 7
       Actions:
         - AcceptQuest
         - ItemsGained:
             - Count: 1
               QuestItem: true
               Type: PackOfNails
+        - QuestStageTitle:
+            de-DE: Bring Schreiner Mellis Nägel.
+            en-US: Deliver nails to Mellis, the carpenter.
+        - QuestStageDescription:
+            de-DE: Drumin, der Schmied, hat uns beauftragt dem Schreiner Mellis eine Packung Nägel zu bringen.
+            en-US: Drumin, the smith, tasked us with delivering a pack of nails to Mellis, the carpenter.
     - NodeID: 5
       NodeType: Dialog
       NextNodes:
@@ -133,17 +133,6 @@ QuestNodes:
         - JournalEntry:
             de-DE: Ihr wart euch beide einig dass das jemand anders erledigen sollte.
             en-US: You both agreed that it's better to find someone else to do it.
-    - NodeID: 6
-      NodeType: QuestProgress
-      NextNodes:
-        - 7
-        - 8
-      QuestStageTitle:
-        en-US: Deliver nails to Mellis, the carpenter.
-        de-DE: Bring Schreiner Mellis Nägel.
-      QuestStageDescription:
-        en-US: Drumin, the smith, tasked us with delivering a pack of nails to Mellis, the carpenter.
-        de-DE: Drumin, der Schmied, hat uns beauftragt dem Schreiner Mellis eine Packung Nägel zu bringen.
     - NodeID: 7
       NodeType: ConditionWatcher
       NextNodes:
@@ -230,9 +219,17 @@ QuestNodes:
     - NodeID: 19
       NodeType: ConditionWatcher
       NextNodes:
-        - 3
+        - 20
       Conditions:
         - Variable:
             Comparison: greater than
             Value: 1
             VariableName: Act
+    - NodeID: 20
+      NodeType: Actions
+      NextNodes:
+        - 4
+      Actions:
+        - QuestStageTitle:
+            de-DE: Ein Botengang für den Schmied
+            en-US: An errand for the blacksmith
