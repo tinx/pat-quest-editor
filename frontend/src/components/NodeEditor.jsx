@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -346,11 +346,25 @@ const autoResize = (e) => {
 // Sortable message card component styled like a chat messenger
 function SortableMessageCard({ id, index, message, npcs, styles, onRemove, onChange }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const textareaEnRef = useRef(null);
+  const textareaDeRef = useRef(null);
 
   // Support both PascalCase (from file) and camelCase (newly created)
   const speaker = message.Speaker ?? message.speaker ?? '';
   const text = message.Text ?? message.text ?? {};
   const isPlayer = speaker === 'Player';
+
+  // Set initial textarea heights only on mount or when text content changes
+  useEffect(() => {
+    if (textareaEnRef.current) {
+      textareaEnRef.current.style.height = 'auto';
+      textareaEnRef.current.style.height = textareaEnRef.current.scrollHeight + 'px';
+    }
+    if (textareaDeRef.current) {
+      textareaDeRef.current.style.height = 'auto';
+      textareaDeRef.current.style.height = textareaDeRef.current.scrollHeight + 'px';
+    }
+  }, [text['en-US'], text['de-DE']]);
 
   const bubbleStyle = {
     ...styles.messageBubble,
@@ -389,19 +403,19 @@ function SortableMessageCard({ id, index, message, npcs, styles, onRemove, onCha
         </div>
 
         <textarea
+          ref={textareaEnRef}
           value={text['en-US'] || ''}
           onChange={e => handleTextChange(e, 'en-US')}
           onFocus={autoResize}
-          ref={el => el && (el.style.height = el.scrollHeight + 'px')}
           style={{ ...styles.bubbleTextarea, ...(isPlayer ? styles.playerTextarea : styles.npcTextarea) }}
           placeholder="English..."
         />
 
         <textarea
+          ref={textareaDeRef}
           value={text['de-DE'] || ''}
           onChange={e => handleTextChange(e, 'de-DE')}
           onFocus={autoResize}
-          ref={el => el && (el.style.height = el.scrollHeight + 'px')}
           style={{ ...styles.bubbleTextarea, ...(isPlayer ? styles.playerTextarea : styles.npcTextarea), marginTop: '4px' }}
           placeholder="German..."
         />
