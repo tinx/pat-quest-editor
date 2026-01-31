@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { ThemeProvider, useTheme } from './ThemeContext';
 import TopBar from './components/TopBar';
 import Toolbox from './components/Toolbox';
 import Canvas from './components/Canvas';
@@ -6,7 +7,8 @@ import ValidationPanel from './components/ValidationPanel';
 import { useQuests, useReferenceData } from './hooks/useApi';
 import * as api from './api/client';
 
-function App() {
+function AppContent() {
+  const { theme, toggleTheme } = useTheme();
   const { quests, refresh: refreshQuests } = useQuests();
   const referenceData = useReferenceData();
   
@@ -101,7 +103,7 @@ function App() {
   }, []);
 
   return (
-    <div style={styles.app}>
+    <div style={{ ...styles.app, backgroundColor: theme.canvasBg, color: theme.text }}>
       <TopBar
         questId={currentQuestId}
         quests={quests}
@@ -110,6 +112,7 @@ function App() {
         onSave={handleSave}
         validation={validation}
         saving={saving}
+        onToggleTheme={toggleTheme}
       />
       <div style={styles.main}>
         <Toolbox onDragStart={handleDragStart} />
@@ -125,13 +128,19 @@ function App() {
   );
 }
 
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
+  );
+}
+
 const styles = {
   app: {
     display: 'flex',
     flexDirection: 'column',
     height: '100vh',
-    backgroundColor: '#16162a',
-    color: '#fff',
   },
   main: {
     display: 'flex',

@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
+import { useTheme } from '../ThemeContext';
 
 const nodeColors = {
   EntryPoint: '#4caf50',
@@ -14,14 +15,16 @@ const nodeColors = {
 const optionColors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50'];
 
 function QuestNode({ data, selected }) {
+  const { theme } = useTheme();
   const color = nodeColors[data.nodeType] || '#666';
   const isDecisionDialog = data.nodeType === 'PlayerDecisionDialog';
   const options = data.options || [];
+  const styles = getStyles(theme);
   
   return (
     <div style={{
       ...styles.node,
-      borderColor: selected ? '#fff' : color,
+      borderColor: selected ? (theme.name === 'dark' ? '#fff' : '#333') : color,
       boxShadow: selected ? `0 0 10px ${color}` : 'none',
       maxWidth: isDecisionDialog ? '280px' : '200px',
     }}>
@@ -117,15 +120,15 @@ function QuestNode({ data, selected }) {
   );
 }
 
-const styles = {
+const getStyles = (theme) => ({
   node: {
-    backgroundColor: '#2a2a3e',
+    backgroundColor: theme.bgSecondary,
     borderRadius: '6px',
     border: '2px solid',
     minWidth: '150px',
     maxWidth: '200px',
     fontSize: '12px',
-    color: '#fff',
+    color: theme.text,
   },
   header: {
     display: 'flex',
@@ -146,13 +149,13 @@ const styles = {
     padding: '8px 10px',
   },
   label: {
-    color: '#ccc',
+    color: theme.textSecondary,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   },
   dialogText: {
-    color: '#888',
+    color: theme.textMuted,
     fontSize: '10px',
     fontStyle: 'italic',
     marginTop: '4px',
@@ -169,7 +172,7 @@ const styles = {
     alignItems: 'center',
     gap: '6px',
     position: 'relative',
-    backgroundColor: '#1a1a2e',
+    backgroundColor: theme.bg,
     padding: '4px 8px',
     borderRadius: '4px',
     paddingRight: '16px',
@@ -182,7 +185,7 @@ const styles = {
   },
   optionText: {
     fontSize: '10px',
-    color: '#ccc',
+    color: theme.textSecondary,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -194,12 +197,12 @@ const styles = {
     position: 'absolute',
   },
   noOptions: {
-    color: '#666',
+    color: theme.textDim,
     fontSize: '10px',
     fontStyle: 'italic',
   },
   conditions: {
-    color: '#888',
+    color: theme.textMuted,
     fontSize: '10px',
   },
   actions: {
@@ -208,16 +211,16 @@ const styles = {
     gap: '2px',
   },
   action: {
-    backgroundColor: '#1a1a2e',
+    backgroundColor: theme.bg,
     padding: '2px 6px',
     borderRadius: '3px',
     fontSize: '10px',
   },
   handle: {
-    backgroundColor: '#666',
+    backgroundColor: theme.textDim,
     width: '8px',
     height: '8px',
   },
-};
+});
 
 export default memo(QuestNode);

@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useTheme } from '../ThemeContext';
 
-export default function TopBar({ questId, quests, onSelect, onNew, onSave, validation, saving }) {
+export default function TopBar({ questId, quests, onSelect, onNew, onSave, validation, saving, onToggleTheme }) {
+  const { theme, themeName } = useTheme();
   const [search, setSearch] = useState('');
 
   const filteredQuests = quests.filter(q =>
@@ -8,6 +10,8 @@ export default function TopBar({ questId, quests, onSelect, onNew, onSave, valid
   );
 
   const isValid = validation?.valid !== false;
+
+  const styles = getStyles(theme);
 
   return (
     <div style={styles.container}>
@@ -50,6 +54,9 @@ export default function TopBar({ questId, quests, onSelect, onNew, onSave, valid
       </div>
 
       <div style={styles.right}>
+        <button onClick={onToggleTheme} style={styles.themeButton} title="Toggle theme">
+          {themeName === 'dark' ? '☀️' : '🌙'}
+        </button>
         <span style={{ ...styles.status, color: isValid ? '#4caf50' : '#ff9800' }}>
           {isValid ? '✓' : '⚠'}
         </span>
@@ -65,14 +72,14 @@ export default function TopBar({ questId, quests, onSelect, onNew, onSave, valid
   );
 }
 
-const styles = {
+const getStyles = (theme) => ({
   container: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '8px 16px',
-    backgroundColor: '#1a1a2e',
-    borderBottom: '1px solid #333',
+    backgroundColor: theme.bg,
+    borderBottom: `1px solid ${theme.border}`,
     height: '50px',
     boxSizing: 'border-box',
   },
@@ -92,20 +99,29 @@ const styles = {
   },
   button: {
     padding: '6px 12px',
-    backgroundColor: '#333',
-    color: '#fff',
-    border: 'none',
+    backgroundColor: theme.bgTertiary,
+    color: theme.text,
+    border: `1px solid ${theme.border}`,
     borderRadius: '4px',
     cursor: 'pointer',
   },
   saveButton: {
-    backgroundColor: '#4a4a6a',
+    backgroundColor: theme.name === 'dark' ? '#4a4a6a' : '#5c6bc0',
+    color: '#fff',
+  },
+  themeButton: {
+    padding: '4px 8px',
+    backgroundColor: 'transparent',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '18px',
   },
   search: {
     padding: '6px 10px',
-    backgroundColor: '#2a2a3e',
-    color: '#fff',
-    border: '1px solid #444',
+    backgroundColor: theme.inputBg,
+    color: theme.text,
+    border: `1px solid ${theme.inputBorder}`,
     borderRadius: '4px',
     width: '150px',
   },
@@ -117,8 +133,8 @@ const styles = {
     top: '100%',
     left: 0,
     right: 0,
-    backgroundColor: '#2a2a3e',
-    border: '1px solid #444',
+    backgroundColor: theme.bgSecondary,
+    border: `1px solid ${theme.border}`,
     borderRadius: '4px',
     maxHeight: '200px',
     overflowY: 'auto',
@@ -127,20 +143,21 @@ const styles = {
   dropdownItem: {
     padding: '8px 10px',
     cursor: 'pointer',
-    borderBottom: '1px solid #333',
+    borderBottom: `1px solid ${theme.border}`,
+    color: theme.text,
   },
   select: {
     padding: '6px 10px',
-    backgroundColor: '#2a2a3e',
-    color: '#fff',
-    border: '1px solid #444',
+    backgroundColor: theme.inputBg,
+    color: theme.text,
+    border: `1px solid ${theme.inputBorder}`,
     borderRadius: '4px',
   },
   questName: {
-    color: '#aaa',
+    color: theme.textMuted,
     fontSize: '14px',
   },
   status: {
     fontSize: '20px',
   },
-};
+});

@@ -1,3 +1,5 @@
+import { useTheme } from '../ThemeContext';
+
 const nodeTypes = [
   { type: 'EntryPoint', label: 'Entry Point', color: '#4caf50' },
   { type: 'ConditionWatcher', label: 'Condition', color: '#2196f3' },
@@ -9,6 +11,9 @@ const nodeTypes = [
 ];
 
 export default function Toolbox({ onDragStart }) {
+  const { theme } = useTheme();
+  const styles = getStyles(theme);
+
   return (
     <div style={styles.container}>
       <h3 style={styles.title}>Node Types</h3>
@@ -27,16 +32,16 @@ export default function Toolbox({ onDragStart }) {
   );
 }
 
-const styles = {
+const getStyles = (theme) => ({
   container: {
     width: '180px',
-    backgroundColor: '#1a1a2e',
-    borderRight: '1px solid #333',
+    backgroundColor: theme.bg,
+    borderRight: `1px solid ${theme.border}`,
     padding: '12px',
     overflowY: 'auto',
   },
   title: {
-    color: '#888',
+    color: theme.textMuted,
     fontSize: '12px',
     textTransform: 'uppercase',
     marginBottom: '12px',
@@ -47,11 +52,11 @@ const styles = {
     gap: '8px',
     padding: '10px 12px',
     marginBottom: '6px',
-    backgroundColor: '#2a2a3e',
+    backgroundColor: theme.bgSecondary,
     borderRadius: '4px',
     borderLeft: '3px solid',
     cursor: 'grab',
-    color: '#ddd',
+    color: theme.textSecondary,
     fontSize: '13px',
   },
   dot: {
@@ -59,4 +64,4 @@ const styles = {
     height: '8px',
     borderRadius: '50%',
   },
-};
+});

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import ConditionEditor from './ConditionEditor';
+import { useTheme } from '../ThemeContext';
 
 const optionColors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50'];
 
 export default function NodeEditor({ node, npcs, items, factions, resources, onSave, onClose }) {
+  const { theme } = useTheme();
   const [data, setData] = useState(node?.data || {});
 
   useEffect(() => {
@@ -70,6 +72,8 @@ export default function NodeEditor({ node, npcs, items, factions, resources, onS
     onSave({ ...node, data });
     onClose();
   };
+
+  const styles = getStyles(theme);
 
   return (
     <div style={styles.overlay} onClick={onClose}>
@@ -259,39 +263,40 @@ export default function NodeEditor({ node, npcs, items, factions, resources, onS
   );
 }
 
-const styles = {
+const getStyles = (theme) => ({
   overlay: {
     position: 'fixed',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: theme.overlay,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1000,
   },
   modal: {
-    backgroundColor: '#2a2a3e',
+    backgroundColor: theme.bgSecondary,
     borderRadius: '8px',
     width: '600px',
     maxHeight: '85vh',
     display: 'flex',
     flexDirection: 'column',
+    boxShadow: `0 4px 20px ${theme.shadow}`,
   },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '16px 20px',
-    borderBottom: '1px solid #444',
-    color: '#fff',
+    borderBottom: `1px solid ${theme.border}`,
+    color: theme.text,
   },
   closeBtn: {
     background: 'none',
     border: 'none',
-    color: '#888',
+    color: theme.textMuted,
     fontSize: '24px',
     cursor: 'pointer',
   },
@@ -303,32 +308,32 @@ const styles = {
     gap: '12px',
   },
   label: {
-    color: '#888',
+    color: theme.textMuted,
     fontSize: '12px',
     marginBottom: '-8px',
   },
   input: {
     padding: '10px',
-    backgroundColor: '#1a1a2e',
-    border: '1px solid #444',
+    backgroundColor: theme.inputBg,
+    border: `1px solid ${theme.inputBorder}`,
     borderRadius: '4px',
-    color: '#fff',
+    color: theme.text,
   },
   textarea: {
     padding: '10px',
-    backgroundColor: '#1a1a2e',
-    border: '1px solid #444',
+    backgroundColor: theme.inputBg,
+    border: `1px solid ${theme.inputBorder}`,
     borderRadius: '4px',
-    color: '#fff',
+    color: theme.text,
     minHeight: '80px',
     resize: 'vertical',
   },
   select: {
     padding: '10px',
-    backgroundColor: '#1a1a2e',
-    border: '1px solid #444',
+    backgroundColor: theme.inputBg,
+    border: `1px solid ${theme.inputBorder}`,
     borderRadius: '4px',
-    color: '#fff',
+    color: theme.text,
   },
   optionsHeader: {
     display: 'flex',
@@ -336,7 +341,7 @@ const styles = {
     alignItems: 'center',
     marginTop: '16px',
     paddingTop: '16px',
-    borderTop: '1px solid #444',
+    borderTop: `1px solid ${theme.border}`,
   },
   addBtn: {
     padding: '6px 12px',
@@ -348,7 +353,7 @@ const styles = {
     fontSize: '12px',
   },
   optionCard: {
-    backgroundColor: '#1a1a2e',
+    backgroundColor: theme.bg,
     borderRadius: '6px',
     padding: '12px',
     display: 'flex',
@@ -379,17 +384,17 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    color: '#aaa',
+    color: theme.textMuted,
     fontSize: '12px',
     marginTop: '4px',
   },
   connectedTo: {
     fontSize: '10px',
-    color: '#666',
+    color: theme.textDim,
     marginTop: '4px',
   },
   noOptions: {
-    color: '#666',
+    color: theme.textDim,
     fontSize: '12px',
     fontStyle: 'italic',
     padding: '12px',
@@ -400,22 +405,22 @@ const styles = {
     justifyContent: 'flex-end',
     gap: '12px',
     padding: '16px 20px',
-    borderTop: '1px solid #444',
+    borderTop: `1px solid ${theme.border}`,
   },
   cancelBtn: {
     padding: '8px 16px',
-    backgroundColor: '#444',
-    color: '#fff',
-    border: 'none',
+    backgroundColor: theme.bgTertiary,
+    color: theme.text,
+    border: `1px solid ${theme.border}`,
     borderRadius: '4px',
     cursor: 'pointer',
   },
   saveBtn: {
     padding: '8px 16px',
-    backgroundColor: '#4a4a6a',
+    backgroundColor: theme.name === 'dark' ? '#4a4a6a' : '#5c6bc0',
     color: '#fff',
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',
   },
-};
+});

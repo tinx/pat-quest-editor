@@ -12,6 +12,7 @@ import '@xyflow/react/dist/style.css';
 
 import QuestNode from './QuestNode';
 import NodeEditor from './NodeEditor';
+import { useTheme } from '../ThemeContext';
 
 const nodeTypes = { questNode: QuestNode };
 
@@ -155,6 +156,7 @@ function getMetadata(questId, nodes) {
 }
 
 export default function Canvas({ quest, metadata, referenceData, onChange }) {
+  const { theme } = useTheme();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [editingNode, setEditingNode] = useState(null);
@@ -282,9 +284,9 @@ export default function Canvas({ quest, metadata, referenceData, onChange }) {
         panOnDrag={[1, 2]}
         selectNodesOnDrag={false}
         fitView
-        style={{ backgroundColor: '#16162a' }}
+        style={{ backgroundColor: theme.canvasBg }}
       >
-        <Background color="#333" gap={20} />
+        <Background color={theme.canvasGrid} gap={20} />
         <Controls />
       </ReactFlow>
 

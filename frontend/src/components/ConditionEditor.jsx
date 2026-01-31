@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTheme } from '../ThemeContext';
 
 const CONDITION_TYPES = [
   { value: 'QuestCompleted', label: 'Quest Completed' },
@@ -102,7 +103,7 @@ function getConditionSummary(condition, items, factions, resources) {
 }
 
 // Individual condition type editors
-function QuestCompletedEditor({ value, onChange }) {
+function QuestCompletedEditor({ value, onChange, styles }) {
   return (
     <input
       type="text"
@@ -114,7 +115,7 @@ function QuestCompletedEditor({ value, onChange }) {
   );
 }
 
-function ResourceAvailableEditor({ value, onChange, resources }) {
+function ResourceAvailableEditor({ value, onChange, resources, styles }) {
   return (
     <select value={value || ''} onChange={e => onChange(e.target.value)} style={styles.select}>
       <option value="">Select resource...</option>
@@ -127,7 +128,7 @@ function ResourceAvailableEditor({ value, onChange, resources }) {
   );
 }
 
-function FactionStandingEditor({ value, onChange, factions }) {
+function FactionStandingEditor({ value, onChange, factions, styles }) {
   const fs = value || { Faction: '' };
   const update = (field, val) => onChange({ ...fs, [field]: val });
 
@@ -169,7 +170,7 @@ function FactionStandingEditor({ value, onChange, factions }) {
   );
 }
 
-function TimePassedEditor({ value, onChange }) {
+function TimePassedEditor({ value, onChange, styles }) {
   // Parse value like "36h" into number and unit
   const match = (value || '1h').match(/^(\d+)([hdwMy])$/);
   const num = match ? parseInt(match[1]) : 1;
@@ -197,7 +198,7 @@ function TimePassedEditor({ value, onChange }) {
   );
 }
 
-function ItemLostEditor({ value, onChange, items }) {
+function ItemLostEditor({ value, onChange, items, styles }) {
   return (
     <select value={value || ''} onChange={e => onChange(e.target.value)} style={styles.select}>
       <option value="">Select item...</option>
@@ -210,7 +211,7 @@ function ItemLostEditor({ value, onChange, items }) {
   );
 }
 
-function InventoryEditor({ value, onChange, items }) {
+function InventoryEditor({ value, onChange, items, styles }) {
   const inventory = value || [];
 
   const updateItem = (index, field, val) => {
@@ -267,7 +268,7 @@ function InventoryEditor({ value, onChange, items }) {
   );
 }
 
-function VariableEditor({ value, onChange }) {
+function VariableEditor({ value, onChange, styles }) {
   const v = value || { VariableName: '', Comparison: 'equal', Value: 0 };
   const update = (field, val) => onChange({ ...v, [field]: val });
 
@@ -302,7 +303,7 @@ function VariableEditor({ value, onChange }) {
 }
 
 // Single condition editor row
-function ConditionRow({ condition, onChange, onRemove, items, factions, resources, expanded, onToggle }) {
+function ConditionRow({ condition, onChange, onRemove, items, factions, resources, expanded, onToggle, styles }) {
   const type = getConditionType(condition);
   const summary = getConditionSummary(condition, items, factions, resources);
 
@@ -324,25 +325,25 @@ function ConditionRow({ condition, onChange, onRemove, items, factions, resource
       {expanded && (
         <div style={styles.conditionBody}>
           {type === 'QuestCompleted' && (
-            <QuestCompletedEditor value={condition.QuestCompleted} onChange={updateConditionValue} />
+            <QuestCompletedEditor value={condition.QuestCompleted} onChange={updateConditionValue} styles={styles} />
           )}
           {type === 'ResourceAvailable' && (
-            <ResourceAvailableEditor value={condition.ResourceAvailable} onChange={updateConditionValue} resources={resources} />
+            <ResourceAvailableEditor value={condition.ResourceAvailable} onChange={updateConditionValue} resources={resources} styles={styles} />
           )}
           {type === 'FactionStanding' && (
-            <FactionStandingEditor value={condition.FactionStanding} onChange={updateConditionValue} factions={factions} />
+            <FactionStandingEditor value={condition.FactionStanding} onChange={updateConditionValue} factions={factions} styles={styles} />
           )}
           {type === 'TimePassed' && (
-            <TimePassedEditor value={condition.TimePassed} onChange={updateConditionValue} />
+            <TimePassedEditor value={condition.TimePassed} onChange={updateConditionValue} styles={styles} />
           )}
           {type === 'ItemLost' && (
-            <ItemLostEditor value={condition.ItemLost} onChange={updateConditionValue} items={items} />
+            <ItemLostEditor value={condition.ItemLost} onChange={updateConditionValue} items={items} styles={styles} />
           )}
           {type === 'Inventory' && (
-            <InventoryEditor value={condition.Inventory} onChange={updateConditionValue} items={items} />
+            <InventoryEditor value={condition.Inventory} onChange={updateConditionValue} items={items} styles={styles} />
           )}
           {type === 'Variable' && (
-            <VariableEditor value={condition.Variable} onChange={updateConditionValue} />
+            <VariableEditor value={condition.Variable} onChange={updateConditionValue} styles={styles} />
           )}
         </div>
       )}
@@ -363,6 +364,8 @@ export default function ConditionEditor({
   collapsible = false,
   defaultExpanded = true,
 }) {
+  const { theme } = useTheme();
+  const styles = getStyles(theme);
   const [expandedConditions, setExpandedConditions] = useState({});
   const [listExpanded, setListExpanded] = useState(defaultExpanded);
   const [addingType, setAddingType] = useState('');
@@ -428,6 +431,7 @@ export default function ConditionEditor({
           resources={resources}
           expanded={expandedConditions[i] !== false}
           onToggle={() => toggleCondition(i)}
+          styles={styles}
         />
       ))}
 
@@ -471,24 +475,24 @@ export default function ConditionEditor({
   return <div style={styles.container}>{content}</div>;
 }
 
-const styles = {
+const getStyles = (theme) => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
     gap: '8px',
   },
   collapsibleContainer: {
-    backgroundColor: '#1a1a2e',
+    backgroundColor: theme.bg,
     borderRadius: '4px',
     overflow: 'hidden',
   },
   collapsibleHeader: {
     padding: '8px 12px',
     cursor: 'pointer',
-    color: '#aaa',
+    color: theme.textMuted,
     fontSize: '11px',
     fontWeight: 'bold',
-    backgroundColor: '#252540',
+    backgroundColor: theme.bgTertiary,
   },
   collapsibleBody: {
     padding: '8px',
@@ -500,7 +504,7 @@ const styles = {
     marginBottom: '8px',
   },
   conditionRow: {
-    backgroundColor: '#252540',
+    backgroundColor: theme.bgTertiary,
     borderRadius: '4px',
     overflow: 'hidden',
   },
@@ -519,7 +523,7 @@ const styles = {
     flexShrink: 0,
   },
   conditionSummary: {
-    color: '#ccc',
+    color: theme.textSecondary,
     fontSize: '11px',
     flex: 1,
     overflow: 'hidden',
@@ -527,7 +531,7 @@ const styles = {
     whiteSpace: 'nowrap',
   },
   expandIcon: {
-    color: '#666',
+    color: theme.textDim,
     fontSize: '10px',
   },
   removeBtn: {
@@ -541,7 +545,7 @@ const styles = {
   },
   conditionBody: {
     padding: '8px 10px',
-    borderTop: '1px solid #333',
+    borderTop: `1px solid ${theme.border}`,
     display: 'flex',
     flexDirection: 'column',
     gap: '8px',
@@ -563,31 +567,31 @@ const styles = {
     flexWrap: 'wrap',
   },
   smallLabel: {
-    color: '#888',
+    color: theme.textMuted,
     fontSize: '10px',
   },
   input: {
     padding: '6px 8px',
-    backgroundColor: '#1a1a2e',
-    border: '1px solid #444',
+    backgroundColor: theme.inputBg,
+    border: `1px solid ${theme.inputBorder}`,
     borderRadius: '4px',
-    color: '#fff',
+    color: theme.text,
     fontSize: '12px',
   },
   select: {
     padding: '6px 8px',
-    backgroundColor: '#1a1a2e',
-    border: '1px solid #444',
+    backgroundColor: theme.inputBg,
+    border: `1px solid ${theme.inputBorder}`,
     borderRadius: '4px',
-    color: '#fff',
+    color: theme.text,
     fontSize: '12px',
   },
   numberInput: {
     padding: '6px 8px',
-    backgroundColor: '#1a1a2e',
-    border: '1px solid #444',
+    backgroundColor: theme.inputBg,
+    border: `1px solid ${theme.inputBorder}`,
     borderRadius: '4px',
-    color: '#fff',
+    color: theme.text,
     fontSize: '12px',
     width: '60px',
   },
@@ -605,7 +609,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '4px',
-    color: '#aaa',
+    color: theme.textMuted,
     fontSize: '10px',
     flexShrink: 0,
   },
@@ -619,8 +623,8 @@ const styles = {
   },
   addItemBtn: {
     padding: '4px 8px',
-    backgroundColor: '#333',
-    color: '#aaa',
+    backgroundColor: theme.bgTertiary,
+    color: theme.textMuted,
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',
@@ -628,7 +632,7 @@ const styles = {
     alignSelf: 'flex-start',
   },
   noConditions: {
-    color: '#666',
+    color: theme.textDim,
     fontSize: '11px',
     fontStyle: 'italic',
     padding: '8px',
@@ -649,4 +653,4 @@ const styles = {
     fontSize: '11px',
     flexShrink: 0,
   },
-};
+});

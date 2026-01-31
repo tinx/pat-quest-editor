@@ -1,4 +1,9 @@
+import { useTheme } from '../ThemeContext';
+
 export default function ValidationPanel({ validation }) {
+  const { theme } = useTheme();
+  const styles = getStyles(theme);
+
   if (!validation || validation.valid) {
     return (
       <div style={styles.container}>
@@ -25,11 +30,11 @@ export default function ValidationPanel({ validation }) {
   );
 }
 
-const styles = {
+const getStyles = (theme) => ({
   container: {
     width: '250px',
-    backgroundColor: '#1a1a2e',
-    borderLeft: '1px solid #333',
+    backgroundColor: theme.bg,
+    borderLeft: `1px solid ${theme.border}`,
     padding: '12px',
     overflowY: 'auto',
   },
@@ -54,12 +59,12 @@ const styles = {
     alignItems: 'flex-start',
     gap: '8px',
     padding: '8px',
-    backgroundColor: '#2a2a3e',
+    backgroundColor: theme.bgSecondary,
     borderRadius: '4px',
     fontSize: '12px',
-    color: '#ddd',
+    color: theme.textSecondary,
   },
   icon: {
     color: '#ff9800',
   },
-};
+});
