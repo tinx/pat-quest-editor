@@ -12,11 +12,17 @@ const nodeColors = {
 
 const optionColors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50'];
 
+const terminalActions = ['CompleteQuest', 'FailQuest', 'DeclineQuest', 'PostponeQuest'];
+
 function QuestNode({ data, selected }) {
   const { theme } = useTheme();
   const color = nodeColors[data.nodeType] || '#666';
   const isDecisionDialog = data.nodeType === 'PlayerDecisionDialog';
   const isEntryPoint = data.nodeType === 'EntryPoint';
+  const isTerminalAction = data.nodeType === 'Actions' && data.actions?.some(a => {
+    const actionName = typeof a === 'string' ? a : Object.keys(a)[0];
+    return terminalActions.includes(actionName);
+  });
   const options = data.options || [];
   const styles = getStyles(theme);
   const isHighlighted = data.highlighted;
@@ -104,9 +110,12 @@ function QuestNode({ data, selected }) {
         )}
       </div>
       
-      {/* Only show bottom handle for non-decision dialogs */}
-      {!isDecisionDialog && (
+      {/* Only show bottom handle for non-decision dialogs and non-terminal actions */}
+      {!isDecisionDialog && !isTerminalAction && (
         <Handle type="source" position={Position.Bottom} style={styles.handle} />
+      )}
+      {isTerminalAction && (
+        <div style={styles.theEnd}>The End</div>
       )}
     </div>
   );
@@ -219,6 +228,14 @@ const getStyles = (theme) => ({
     backgroundColor: theme.textDim,
     width: '8px',
     height: '8px',
+  },
+  theEnd: {
+    textAlign: 'center',
+    fontSize: '10px',
+    fontStyle: 'italic',
+    color: theme.textMuted,
+    padding: '4px 0',
+    borderTop: `1px solid ${theme.border}`,
   },
 });
 
