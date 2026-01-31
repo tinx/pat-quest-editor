@@ -1,0 +1,46 @@
+# Factions definition file for Potions and Tinctures
+# Reference: schemas/faction.json
+
+- FactionID: NPC:Smith
+  DisplayName:
+    en-US: Drumin the Smith
+    de-DE: Drumin der Schmied
+  Description:
+    en-US: The local blacksmith who crafts tools and weapons.
+    de-DE: Der örtliche Schmied, der Werkzeuge und Waffen herstellt.
+  FactionType: NPC
+  MaxLevel: 100
+  InitialStanding: 0
+
+- FactionID: NPC:Carpenter
+  DisplayName:
+    en-US: Mellis the Carpenter
+    de-DE: Mellis der Schreiner
+  Description:
+    en-US: A skilled carpenter who builds furniture and structures.
+    de-DE: Ein erfahrener Schreiner, der Möbel und Gebäude baut.
+  FactionType: NPC
+  MaxLevel: 100
+  InitialStanding: 0
+
+- FactionID: Org:CourierGuild
+  DisplayName:
+    en-US: Courier Guild
+    de-DE: Kuriergilde
+  Description:
+    en-US: An organization of messengers and delivery specialists.
+    de-DE: Eine Organisation von Boten und Lieferspezialisten.
+  FactionType: Organization
+  MaxLevel: 100
+  InitialStanding: 0
+
+- FactionID: Town
+  DisplayName:
+    en-US: Town Reputation
+    de-DE: Stadtruf
+  Description:
+    en-US: Your general standing with the townspeople.
+    de-DE: Dein allgemeiner Ruf bei den Stadtbewohnern.
+  FactionType: Town
+  MaxLevel: 100
+  InitialStanding: 10

@@ -1,0 +1,28 @@
+# NPCs definition file for Potions and Tinctures
+# Reference: schemas/npc.json
+
+- NPCID: NPC:Smith
+  DisplayName:
+    en-US: Drumin
+    de-DE: Drumin
+  Title:
+    en-US: Blacksmith
+    de-DE: Schmied
+  Description:
+    en-US: The town's blacksmith, known for quality metalwork.
+    de-DE: Der Schmied der Stadt, bekannt für hochwertige Metallarbeiten.
+  Location: Smithy
+  FactionID: NPC:Smith
+
+- NPCID: NPC:Carpenter
+  DisplayName:
+    en-US: Mellis
+    de-DE: Mellis
+  Title:
+    en-US: Carpenter
+    de-DE: Schreiner
+  Description:
+    en-US: A skilled carpenter who takes on various woodworking jobs.
+    de-DE: Ein erfahrener Schreiner, der verschiedene Holzarbeiten übernimmt.
+  Location: Carpentry Workshop
+  FactionID: NPC:Carpenter

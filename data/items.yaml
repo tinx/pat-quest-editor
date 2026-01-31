@@ -1,0 +1,13 @@
+# Items definition file for Potions and Tinctures
+# Reference: schemas/item.json
+
+- ItemID: PackOfNails
+  DisplayName:
+    en-US: Pack of Nails
+    de-DE: Packung Nägel
+  Description:
+    en-US: A small pack of iron nails, useful for carpentry.
+    de-DE: Eine kleine Packung Eisennägel, nützlich für Schreinerarbeiten.
+  Stackable: true
+  MaxStack: 10
+  Category: Material

@@ -1,0 +1,20 @@
+# Resources definition file for Potions and Tinctures
+# Reference: schemas/resource.json
+
+- ResourceID: Coal
+  DisplayName:
+    en-US: Coal
+    de-DE: Kohle
+  Description:
+    en-US: A combustible black rock used for fuel in smithing.
+    de-DE: Ein brennbares schwarzes Gestein, das als Brennstoff beim Schmieden verwendet wird.
+  Category: Ore
+
+- ResourceID: IronOre
+  DisplayName:
+    en-US: Iron Ore
+    de-DE: Eisenerz
+  Description:
+    en-US: Raw iron ore that can be smelted into iron ingots.
+    de-DE: Rohes Eisenerz, das zu Eisenbarren geschmolzen werden kann.
+  Category: Ore

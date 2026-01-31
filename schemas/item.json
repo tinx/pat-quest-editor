@@ -1,0 +1,54 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://potions-and-tinctures.com/schemas/item.json",
+	"title": "Potions and Tinctures Item",
+	"description": "A record describing an item type in the Potions and Tinctures game",
+
+	"type": "object",
+	"properties": {
+		"ItemID": {
+			"description": "A unique identifier for this item type",
+			"type": "string",
+			"pattern": "^[A-Z][A-Za-z0-9\\.\\-_:]*$"
+		},
+		"DisplayName": {
+			"description": "The name shown to players",
+			"$ref": "#/$defs/i18nString"
+		},
+		"Description": {
+			"description": "A short description of the item",
+			"$ref": "#/$defs/i18nString"
+		},
+		"Stackable": {
+			"description": "Whether multiple items can stack in one inventory slot",
+			"type": "boolean",
+			"default": true
+		},
+		"MaxStack": {
+			"description": "Maximum stack size (only relevant if Stackable is true)",
+			"type": "integer",
+			"minimum": 1,
+			"default": 99
+		},
+		"Category": {
+			"description": "Item category for organization and filtering",
+			"type": "string",
+			"enum": [ "Consumable", "Material", "Tool", "Weapon", "Armor", "Accessory", "QuestItem", "Misc" ]
+		}
+	},
+	"required": [ "ItemID", "DisplayName", "Category" ],
+	"$defs": {
+		"i18nString": {
+			"type": "object",
+			"properties": {
+				"en-US": {
+					"type": "string"
+				},
+				"de-DE": {
+					"type": "string"
+				}
+			},
+			"required": [ "en-US", "de-DE" ]
+		}
+	}
+}

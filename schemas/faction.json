@@ -1,0 +1,55 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://potions-and-tinctures.com/schemas/faction.json",
+	"title": "Potions and Tinctures Faction",
+	"description": "A record describing a faction in the Potions and Tinctures game",
+
+	"type": "object",
+	"properties": {
+		"FactionID": {
+			"description": "A unique identifier for this faction",
+			"type": "string",
+			"pattern": "^[A-Z][A-Za-z0-9\\.\\-_:]*$"
+		},
+		"DisplayName": {
+			"description": "The name shown to players",
+			"$ref": "#/$defs/i18nString"
+		},
+		"Description": {
+			"description": "A short description of the faction",
+			"$ref": "#/$defs/i18nString"
+		},
+		"FactionType": {
+			"description": "The type of faction",
+			"type": "string",
+			"enum": [ "NPC", "Organization", "Town", "Region" ]
+		},
+		"MaxLevel": {
+			"description": "Maximum reputation level with this faction",
+			"type": "integer",
+			"minimum": 1,
+			"default": 100
+		},
+		"InitialStanding": {
+			"description": "Starting reputation level for new players",
+			"type": "integer",
+			"minimum": 0,
+			"default": 0
+		}
+	},
+	"required": [ "FactionID", "DisplayName", "FactionType" ],
+	"$defs": {
+		"i18nString": {
+			"type": "object",
+			"properties": {
+				"en-US": {
+					"type": "string"
+				},
+				"de-DE": {
+					"type": "string"
+				}
+			},
+			"required": [ "en-US", "de-DE" ]
+		}
+	}
+}

@@ -1,0 +1,43 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://potions-and-tinctures.com/schemas/resource.json",
+	"title": "Potions and Tinctures Resource",
+	"description": "A record describing a world resource in the Potions and Tinctures game",
+
+	"type": "object",
+	"properties": {
+		"ResourceID": {
+			"description": "A unique identifier for this resource",
+			"type": "string",
+			"pattern": "^[A-Z][A-Za-z0-9\\.\\-_:]*$"
+		},
+		"DisplayName": {
+			"description": "The name shown to players",
+			"$ref": "#/$defs/i18nString"
+		},
+		"Description": {
+			"description": "A short description of the resource",
+			"$ref": "#/$defs/i18nString"
+		},
+		"Category": {
+			"description": "Resource category",
+			"type": "string",
+			"enum": [ "Ore", "Plant", "Animal", "Magical", "Misc" ]
+		}
+	},
+	"required": [ "ResourceID", "DisplayName", "Category" ],
+	"$defs": {
+		"i18nString": {
+			"type": "object",
+			"properties": {
+				"en-US": {
+					"type": "string"
+				},
+				"de-DE": {
+					"type": "string"
+				}
+			},
+			"required": [ "en-US", "de-DE" ]
+		}
+	}
+}

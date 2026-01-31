@@ -1,0 +1,51 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://potions-and-tinctures.com/schemas/npc.json",
+	"title": "Potions and Tinctures NPC",
+	"description": "A record describing an NPC (conversation partner/speaker) in the Potions and Tinctures game",
+
+	"type": "object",
+	"properties": {
+		"NPCID": {
+			"description": "A unique identifier for this NPC (used as conversation partner/speaker reference)",
+			"type": "string",
+			"pattern": "^[A-Z][A-Za-z0-9\\.\\-_:]*$"
+		},
+		"DisplayName": {
+			"description": "The name shown to players",
+			"$ref": "#/$defs/i18nString"
+		},
+		"Title": {
+			"description": "The NPC's title or profession",
+			"$ref": "#/$defs/i18nString"
+		},
+		"Description": {
+			"description": "A short description of the NPC",
+			"$ref": "#/$defs/i18nString"
+		},
+		"Location": {
+			"description": "Where this NPC can typically be found",
+			"type": "string"
+		},
+		"FactionID": {
+			"description": "Associated faction (if this NPC has individual reputation tracking)",
+			"type": "string",
+			"pattern": "^[A-Z][A-Za-z0-9\\.\\-_:]*$"
+		}
+	},
+	"required": [ "NPCID", "DisplayName" ],
+	"$defs": {
+		"i18nString": {
+			"type": "object",
+			"properties": {
+				"en-US": {
+					"type": "string"
+				},
+				"de-DE": {
+					"type": "string"
+				}
+			},
+			"required": [ "en-US", "de-DE" ]
+		}
+	}
+}
