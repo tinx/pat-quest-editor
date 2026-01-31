@@ -16,6 +16,7 @@ function QuestNode({ data, selected }) {
   const { theme } = useTheme();
   const color = nodeColors[data.nodeType] || '#666';
   const isDecisionDialog = data.nodeType === 'PlayerDecisionDialog';
+  const isEntryPoint = data.nodeType === 'EntryPoint';
   const options = data.options || [];
   const styles = getStyles(theme);
   const isHighlighted = data.highlighted;
@@ -27,7 +28,7 @@ function QuestNode({ data, selected }) {
       boxShadow: isHighlighted ? '0 0 15px #ffeb3b, 0 0 30px #ffeb3b' : (selected ? `0 0 10px ${color}` : 'none'),
       maxWidth: isDecisionDialog ? '280px' : '200px',
     }}>
-      <Handle type="target" position={Position.Top} style={styles.handle} />
+      {!isEntryPoint && <Handle type="target" position={Position.Top} style={styles.handle} />}
       
       <div style={{ ...styles.header, backgroundColor: color }}>
         <span style={styles.type}>{data.nodeType}</span>
