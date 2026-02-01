@@ -558,7 +558,7 @@ export default function NodeEditor({ node, npcs, items, factions, resources, onS
         </div>
         
         <div style={styles.body}>
-          {(data.nodeType === 'Dialog' || data.nodeType === 'PlayerDecisionDialog') && (
+          {(data.nodeType === 'Dialog' || data.nodeType === 'Decision') && (
             <>
               <label style={styles.label}>Conversation Partner</label>
               <select
@@ -608,7 +608,7 @@ export default function NodeEditor({ node, npcs, items, factions, resources, onS
             </>
           )}
 
-          {data.nodeType === 'PlayerDecisionDialog' && (
+          {data.nodeType === 'Decision' && (
             <>
               <label style={styles.label}>Speaker</label>
               <select
@@ -670,15 +670,6 @@ export default function NodeEditor({ node, npcs, items, factions, resources, onS
                     placeholder="Option text in German..."
                   />
                   
-                  <label style={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      checked={opt.DefaultOption || false}
-                      onChange={e => handleOptionChange(i, 'DefaultOption', null, e.target.checked)}
-                    />
-                    Default Option (used if player exits dialog early)
-                  </label>
-
                   {opt.NextNodes?.length > 0 && (
                     <div style={styles.connectedTo}>
                       Connected to: Node {opt.NextNodes.join(', ')}

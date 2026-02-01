@@ -26,7 +26,7 @@ func (v *QuestValidatorService) Validate(quest *domain.Quest) *domain.Validation
 	v.validateNodeConnections(quest, result)
 	v.validateEntryPoints(quest, result)
 	v.validateTerminalNodes(quest, result)
-	v.validatePlayerDecisionDialogs(quest, result)
+	v.validateDecisions(quest, result)
 	v.validateNoCycles(quest, result)
 	v.validateReferences(quest, result)
 
@@ -132,15 +132,15 @@ func (v *QuestValidatorService) validateTerminalNodes(quest *domain.Quest, resul
 	}
 }
 
-func (v *QuestValidatorService) validatePlayerDecisionDialogs(quest *domain.Quest, result *domain.ValidationResult) {
+func (v *QuestValidatorService) validateDecisions(quest *domain.Quest, result *domain.ValidationResult) {
 	for _, node := range quest.QuestNodes {
-		if node.NodeType != "PlayerDecisionDialog" {
+		if node.NodeType != "Decision" {
 			continue
 		}
 
-		// PlayerDecisionDialog must not have top-level NextNodes
+		// Decision must not have top-level NextNodes
 		if len(node.NextNodes) > 0 {
-			result.AddNodeError(node.NodeID, "PlayerDecisionDialog must not have top-level NextNodes; use NextNodes in each option instead")
+			result.AddNodeError(node.NodeID, "Decision must not have top-level NextNodes; use NextNodes in each option instead")
 		}
 
 		// Every option must have NextNodes

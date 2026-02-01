@@ -45,7 +45,7 @@
 					{ "$ref": "#/$defs/QN_ConditionWatcher" },
 					{ "$ref": "#/$defs/QN_Actions" },
 					{ "$ref": "#/$defs/QN_Dialog" },
-					{ "$ref": "#/$defs/QN_PlayerDecisionDialog" }
+					{ "$ref": "#/$defs/QN_Decision" }
 				]
 			}
 		}
@@ -110,12 +110,12 @@
 			},
 			"required": [ "NodeType", "Conditions" ]
 		},
-		"QN_PlayerDecisionDialog": {
+		"QN_Decision": {
 			"type": "object",
 			"properties": {
 				"NodeType": {
 					"type": "string",
-					"const": "PlayerDecisionDialog"
+					"const": "Decision"
 				},
 				"ConversationPartner": {
 					"type": "string"
@@ -133,9 +133,6 @@
 						"properties": {
 							"Text": {
 								"$ref": "#/$defs/i18nString"
-							},
-							"DefaultOption": {
-								"type": "boolean"
 							},
 							"Conditions": {
 								"$ref": "#/$defs/Conditions"

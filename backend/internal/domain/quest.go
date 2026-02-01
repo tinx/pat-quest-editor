@@ -40,10 +40,9 @@ type Action interface{}
 
 // DialogOption represents a player dialog choice.
 type DialogOption struct {
-	Text          I18nString  `yaml:"Text" json:"Text"`
-	DefaultOption bool        `yaml:"DefaultOption,omitempty" json:"DefaultOption,omitempty"`
-	Conditions    []Condition `yaml:"Conditions,omitempty" json:"Conditions,omitempty"`
-	NextNodes     []int       `yaml:"NextNodes,omitempty" json:"NextNodes,omitempty"`
+	Text       I18nString  `yaml:"Text" json:"Text"`
+	Conditions []Condition `yaml:"Conditions,omitempty" json:"Conditions,omitempty"`
+	NextNodes  []int       `yaml:"NextNodes,omitempty" json:"NextNodes,omitempty"`
 }
 
 // DialogMessage represents a message in a dialog sequence.

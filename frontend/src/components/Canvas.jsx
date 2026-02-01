@@ -51,8 +51,8 @@ function questToFlow(quest, metadata) {
 
   const edges = [];
   (quest?.QuestNodes || []).forEach(qn => {
-    // For PlayerDecisionDialog, edges come from options only
-    if (qn.NodeType === 'PlayerDecisionDialog') {
+    // For Decision, edges come from options only
+    if (qn.NodeType === 'Decision') {
       (qn.Options || []).forEach((opt, i) => {
         (opt.NextNodes || []).forEach(nextId => {
           edges.push({
@@ -111,8 +111,8 @@ function flowToQuest(nodes, edges, originalQuest) {
       NodeType: d.nodeType,
     };
 
-    // PlayerDecisionDialog: NextNodes go in options, not top-level
-    if (d.nodeType === 'PlayerDecisionDialog') {
+    // Decision: NextNodes go in options, not top-level
+    if (d.nodeType === 'Decision') {
       const options = (d.options || []).map((opt, i) => {
         const optEdges = optionEdgeMap[n.id]?.[i] || [];
         return {

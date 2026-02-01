@@ -40,7 +40,7 @@ QuestNodes:
       Conditions:
         - QuestCompleted: PAT_MASTER_SELLER
     - NodeID: 5
-      NodeType: PlayerDecisionDialog
+      NodeType: Decision
       ConversationPartner: NPC:Smith
       Speaker: NPC:Smith
       Text:

@@ -4,7 +4,7 @@ const nodeTypes = [
   { type: 'EntryPoint', label: 'Entry Point', color: '#4caf50' },
   { type: 'ConditionWatcher', label: 'Condition', color: '#2196f3' },
   { type: 'Dialog', label: 'Dialog', color: '#9c27b0' },
-  { type: 'PlayerDecisionDialog', label: 'Decision', color: '#e91e63' },
+  { type: 'Decision', label: 'Decision', color: '#e91e63' },
   { type: 'Actions', label: 'Actions', color: '#f44336' },
 ];
 

@@ -30,7 +30,7 @@ QuestNodes:
       Conditions:
         - TimePassed: 36h
     - NodeID: 4
-      NodeType: PlayerDecisionDialog
+      NodeType: Decision
       ConversationPartner: NPC:Smith
       Speaker: NPC:Smith
       Text:

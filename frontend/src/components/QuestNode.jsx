@@ -6,7 +6,7 @@ const nodeColors = {
   EntryPoint: '#4caf50',
   ConditionWatcher: '#2196f3',
   Dialog: '#9c27b0',
-  PlayerDecisionDialog: '#e91e63',
+  Decision: '#e91e63',
   Actions: '#f44336',
 };
 
@@ -17,7 +17,7 @@ const terminalActions = ['CompleteQuest', 'FailQuest', 'DeclineQuest'];
 function QuestNode({ data, selected }) {
   const { theme } = useTheme();
   const color = nodeColors[data.nodeType] || '#666';
-  const isDecisionDialog = data.nodeType === 'PlayerDecisionDialog';
+  const isDecisionDialog = data.nodeType === 'Decision';
   const isEntryPoint = data.nodeType === 'EntryPoint';
   const isTerminalAction = data.nodeType === 'Actions' && data.actions?.some(a => {
     const actionName = typeof a === 'string' ? a : Object.keys(a)[0];
