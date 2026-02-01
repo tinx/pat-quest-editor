@@ -265,18 +265,10 @@ export default forwardRef(function Canvas({ quest, metadata, questVersion, refer
   }, []);
 
   const onNodeSave = useCallback((updatedNode) => {
-    setNodes(nds => {
-      const newNodes = nds.map(n => n.id === updatedNode.id ? updatedNode : n);
-      // Notify parent of changes to trigger validation
-      setEdges(currentEdges => {
-        const updatedQuest = flowToQuest(newNodes, currentEdges, quest);
-        const updatedMetadata = getMetadata(quest.QuestID, newNodes);
-        onChange(updatedQuest, updatedMetadata);
-        return currentEdges;
-      });
-      return newNodes;
-    });
-  }, [setNodes, setEdges, quest, onChange]);
+    setNodes(nds => nds.map(n => n.id === updatedNode.id ? updatedNode : n));
+    // Use the same notifyChange mechanism as canvas changes
+    notifyChange();
+  }, [setNodes, notifyChange]);
 
   const onDragOver = useCallback((e) => {
     e.preventDefault();

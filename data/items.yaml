@@ -11,3 +11,13 @@
   Stackable: true
   MaxStack: 10
   Category: Material
+
+- ItemID: Horseshoes
+  DisplayName:
+    en-US: Set of Horseshoes
+    de-DE: Ein Satz Hufeisen
+  Description:
+    en-US: Four new horseshoes, ready to be used.
+    de-DE: Vier neue Hufeisen, bereit für den Einsatz.
+  Stackable: false
+  Category: Material
