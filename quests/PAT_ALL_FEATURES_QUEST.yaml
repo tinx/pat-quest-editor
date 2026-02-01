@@ -16,6 +16,7 @@ QuestNodes:
       NextNodes:
         - 12
         - 13
+        - 27
       Actions:
         - AcceptQuest
         - QuestStageDescription:
@@ -26,7 +27,6 @@ QuestNodes:
             en-US: Drumin sent you out to sell horseshoes, and you decided to try your luck with the couriers.
         - ItemsGained:
             - Count: 1
-              QuestItem: true
               Type: Horseshoes
     - NodeID: 2
       NodeType: ConditionWatcher
@@ -94,6 +94,7 @@ QuestNodes:
       NodeType: Actions
       NextNodes:
         - 14
+        - 33
       Actions:
         - AcceptQuest
         - QuestStageDescription:
@@ -104,12 +105,12 @@ QuestNodes:
             en-US: Drumin asked you to sell horseshoes, and you decided to try your luck at the farm.
         - ItemsGained:
             - Count: 1
-              QuestItem: true
               Type: Horseshoes
     - NodeID: 8
       NodeType: Actions
       NextNodes:
         - 11
+        - 31
       Actions:
         - AcceptQuest
         - QuestStageDescription:
@@ -124,12 +125,12 @@ QuestNodes:
             VariableName: Q_PAT_ALL_FEATURES_QUEST_Chose_Firebridgade
         - ItemsGained:
             - Count: 1
-              QuestItem: true
               Type: Horseshoes
     - NodeID: 9
       NodeType: Actions
       NextNodes:
         - 15
+        - 29
       Actions:
         - AcceptQuest
         - QuestStageDescription:
@@ -140,7 +141,6 @@ QuestNodes:
             en-US: Drumin asked you to see the horseshoes he forged, and you realized that this is exactly what Levora needs to get the mine going.
         - ItemsGained:
             - Count: 1
-              QuestItem: true
               Type: Horseshoes
     - NodeID: 10
       NodeType: Actions
@@ -157,16 +157,50 @@ QuestNodes:
             Points: -1
     - NodeID: 11
       NodeType: Dialog
+      NextNodes:
+        - 42
       ConversationPartner: NPC:FireBrigadeCaptain
+      Messages:
+        - Speaker: NPC:FireBrigadeCaptain
+          Text:
+            en-US: You're selling horseshoes? You've come to the right place.
+            de-DE: Du verkaufst Hufeisen? Dann bist Du hier richtig.
     - NodeID: 12
       NodeType: Dialog
+      NextNodes:
+        - 24
       ConversationPartner: NPC:FalconCourier
+      Messages:
+        - Speaker: NPC:FalconCourier
+          Text:
+            en-US: |-
+                Horseshoes? I am a falconer. What would I do with horseshows?
+
+                Ah well, I can take them and pass them to Tihat, I guess.
+            de-DE: |-
+                Hufeisen? Ich bin Falkner, was soll ich mit Hufeisen?
+
+                Ach was soll's. Ich kann sie nehmen und dann an Tihat weitergeben, schätze ich.
     - NodeID: 13
       NodeType: Dialog
+      NextNodes:
+        - 25
       ConversationPartner: NPC:HorsebackCourier
+      Messages:
+        - Speaker: NPC:HorsebackCourier
+          Text:
+            en-US: Horsehoes! Exactly what I was looking for! You are a life saver! Thank you!
+            de-DE: Hufeisen! Das ist genau wonach ich gesucht habe. Du bist ein Lebensretter! Danke!
     - NodeID: 14
       NodeType: Dialog
+      NextNodes:
+        - 35
       ConversationPartner: NPC:Farmer
+      Messages:
+        - Speaker: NPC:Farmer
+          Text:
+            en-US: Yeah, I'll take the horseshoes. But while you're here, help me catch the kittens real quick!
+            de-DE: Ja, ich nehme die Hufeisen. Aber wo Du grad da bist hilf mir schnell die Kätzchen einzufangen!
     - NodeID: 15
       NodeType: Dialog
       NextNodes:
@@ -246,6 +280,8 @@ QuestNodes:
             VariableName: Q_ALL_FEATURE_QUEST_Horse_fed
     - NodeID: 23
       NodeType: ConditionWatcher
+      NextNodes:
+        - 47
       Conditions:
         - Variable:
             Comparison: equal
@@ -260,3 +296,242 @@ QuestNodes:
             Value: 1
             VariableName: Q_PAT_ALL_FEATURE_Lorry_Oiled
       ConditionsRequired: "2"
+    - NodeID: 24
+      NodeType: Actions
+      NextNodes:
+        - 26
+      Actions:
+        - ItemsLost:
+            - Count: 1
+              Type: Horseshoes
+        - Currency: 10
+        - FactionStanding:
+            Faction: Org:CourierGuild
+            Points: 2
+        - JournalEntry:
+            de-DE: Du hast die Hufeisen für einen moderaten Preis an die Falknerin verkauft. Sie braucht sie zwar nicht, meinte aber dass sie sie an Tihat weiterreichen würde.
+            en-US: You sold the horseshoes to the falconer for a moderate price. She didn't need them, but said she would pass them on to Tihat.
+    - NodeID: 25
+      NodeType: Actions
+      NextNodes:
+        - 26
+      Actions:
+        - ItemsLost:
+            - Count: 1
+              Type: Horseshoes
+        - Currency: 25
+        - FactionStanding:
+            Faction: Org:CourierGuild
+            Points: 3
+        - JournalEntry:
+            de-DE: Du hast die Hufeisen für einen sehr guten Preis an Tihat verkauft. Er hat sich gefreut sie Dir abnehmen zu können.
+            en-US: You sold the horseshoes to Tihat for a very good price. He was happy to take them off your hands.
+    - NodeID: 26
+      NodeType: Actions
+      Actions:
+        - CompleteQuest
+    - NodeID: 27
+      NodeType: ConditionWatcher
+      NextNodes:
+        - 28
+      Conditions:
+        - ItemLost: Horseshoes
+    - NodeID: 28
+      NodeType: Actions
+      Actions:
+        - FailQuest
+        - JournalEntry:
+            de-DE: Du hast die Hufeisen verloren.
+            en-US: You lost the horsehoes.
+        - FactionStanding:
+            Faction: NPC:Smith
+            Points: -1
+    - NodeID: 29
+      NodeType: ConditionWatcher
+      NextNodes:
+        - 30
+      Conditions:
+        - ItemLost: Horseshoes
+    - NodeID: 30
+      NodeType: Actions
+      Actions:
+        - FailQuest
+        - JournalEntry:
+            de-DE: Du hast die Hufeisen verloren.
+            en-US: You lost the horseshoes.
+        - FactionStanding:
+            Faction: NPC:Smith
+            Points: -1
+    - NodeID: 31
+      NodeType: ConditionWatcher
+      NextNodes:
+        - 32
+      Conditions:
+        - ItemLost: Horseshoes
+    - NodeID: 32
+      NodeType: Actions
+      Actions:
+        - FailQuest
+        - JournalEntry:
+            de-DE: Du hast die Hufeisen verloren.
+            en-US: You lost the horseshoes.
+        - FactionStanding:
+            Faction: NPC:Smith
+            Points: -1
+    - NodeID: 33
+      NodeType: ConditionWatcher
+      NextNodes:
+        - 34
+      Conditions:
+        - ItemLost: Horseshoes
+    - NodeID: 34
+      NodeType: Actions
+      Actions:
+        - FailQuest
+        - JournalEntry:
+            de-DE: Du hast die Hufeisen verloren.
+            en-US: You lost the horseshoes.
+    - NodeID: 35
+      NodeType: Actions
+      NextNodes:
+        - 36
+      Actions:
+        - SetVariable:
+            Operation: set to
+            Value: 1
+            VariableName: Q_PAT_ALL_FEATURE_QUEST_Spawn_Kittens
+    - NodeID: 36
+      NodeType: ConditionWatcher
+      NextNodes:
+        - 39
+      Conditions:
+        - EventTriggered:
+            Count: 5
+            Event: Collected:Kitten
+    - NodeID: 37
+      NodeType: Dialog
+      NextNodes:
+        - 38
+      ConversationPartner: NPC:Farmer
+      Messages:
+        - Speaker: NPC:Farmer
+          Text:
+            en-US: |-
+                Thank you. The kittnes really are a handful. True escape artists.
+
+                Here, for your troubles. The horseshoes are needed, you've come at a good time.
+            de-DE: |-
+                Danke. Die Kätzchen sind wirklich anstrengend. Echte Ausbruchs-Spezialisten.
+
+                Hier, für Deine Mühen. Die Hufeisen werden gebraucht, Du bist zu einem günstigen Zeitpunkt hergekommen.
+    - NodeID: 38
+      NodeType: Actions
+      Actions:
+        - CompleteQuest
+        - Currency: 30
+        - JournalEntry:
+            de-DE: Du hast die Hufeisen an Jessi verkauft und ihr dabei geholfen die Kätzchen wieder einzufangen.
+            en-US: You sold the horseshoes to Jessi and helped her catch the kittens.
+    - NodeID: 39
+      NodeType: Actions
+      NextNodes:
+        - 37
+      Actions:
+        - SetVariable:
+            Operation: set to
+            Value: 0
+            VariableName: Q_PAT_ALL_FEATURE_QUEST_Spawn_Kittens
+    - NodeID: 40
+      NodeType: EntryPoint
+      NextNodes:
+        - 41
+    - NodeID: 41
+      NodeType: ConditionWatcher
+      NextNodes:
+        - 13
+      Conditions:
+        - Inventory:
+            - MinCount: 1
+              Type: Horseshoes
+    - NodeID: 42
+      NodeType: ConditionBranch
+      NextNodesIfTrue:
+        - 44
+      NextNodesIfFalse:
+        - 43
+      Conditions:
+        - FactionStanding:
+            Faction: Town
+            MinimumLevel: 10
+    - NodeID: 43
+      NodeType: Dialog
+      NextNodes:
+        - 45
+      ConversationPartner: NPC:FireBrigadeCaptain
+      Messages:
+        - Speaker: NPC:FireBrigadeCaptain
+          Text:
+            en-US: They seem to be alright quality, just like Drumin makes them. Oh, he did make them? Why didn't you say so! I'll take them. Here's your coin.
+            de-DE: Die sehen an angemessener Qualität aus, genau so wie Drumin sie macht. Oh, Drumin hat sie geschmiedet? Warum hast Du das nicht gleich gesagt? Ich nehm' sie. Hier ist Dein Geld.
+    - NodeID: 44
+      NodeType: Dialog
+      NextNodes:
+        - 46
+      ConversationPartner: NPC:FireBrigadeCaptain
+      Messages:
+        - Speaker: NPC:FireBrigadeCaptain
+          Text:
+            en-US: Just put them over there and take your coin from the lock box.
+            de-DE: Leg sie einfach dahinten hin und nimm Dir das Geld aus der Kasse.
+    - NodeID: 45
+      NodeType: Actions
+      Actions:
+        - CompleteQuest
+        - ItemsLost:
+            - Count: 1
+              Type: Horseshoes
+        - JournalEntry:
+            de-DE: Du hast die Hufeisen an den Kapitän der Feuerwache verkauft. Er hat sie erfreut genommen nachdem er erfahren hat dass Drumin sie geschmiedet hat.
+            en-US: You sold the horseshoes to the captain of the Fire Brigade. He was happy to take them after he learned that Drumin made them.
+        - Currency: 20
+        - FactionStanding:
+            Faction: Town
+            Points: 1
+    - NodeID: 46
+      NodeType: Actions
+      Actions:
+        - CompleteQuest
+        - ItemsLost:
+            - Count: 1
+              Type: Horseshoes
+        - JournalEntry:
+            de-DE: Du hast die Hufeisen an den Kapitän der Feuerwache verkauft. Er hat darauf vertraut dass Du Dir eine angemessene Entlohnung aus der Kasse entnimmst.
+            en-US: You sold the horseshoes to the captain of the Fire Bridgade. He trusted you to take a reasonable reward from the lock box.
+        - Currency: 30
+        - FactionStanding:
+            Faction: Town
+            Points: 1
+    - NodeID: 47
+      NodeType: Dialog
+      NextNodes:
+        - 48
+      ConversationPartner: NPC:Miner
+      Messages:
+        - Speaker: NPC:Miner
+          Text:
+            en-US: 'Thanks for the help. And also: thanks for the horseshoes. Of course I will take them. Barwinkle needs new ones anyway.'
+            de-DE: 'Danke für die Hilfe. Und außerdem: danke für die Hufeisen. Natürlich nehme ich sie. Barwinkle brauch sowieso neue.'
+    - NodeID: 48
+      NodeType: Actions
+      Actions:
+        - CompleteQuest
+        - ItemsLost:
+            - Count: 1
+              Type: Horseshoes
+        - JournalEntry:
+            de-DE: Du hast die Hufeisen an Levora, die Bergarbeiterin, für ihr Pferd Barwinkle verkauft, nachdem Du ihr bei ein paar Kleinigkeiten geholfen hast.
+            en-US: You sold the horseshoes Levora, to the miner, for her horse Barwinkle, after helping her with a few chores.
+        - FactionStanding:
+            Faction: Town
+            Points: 1
+        - Currency: 30

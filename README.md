@@ -36,7 +36,6 @@ For PAT, we implemented these features:
  - Per-quest journal entries, such as status updates and post-quest summaries
  - Quests with steps that can be accomplished before the quest was accepted
  - Quests involving quest items, which can't be traded or sold
- - Dialogs with 'default options', used if the player quits the dialog early
  - Dialog options that are only available under certain conditions
  - Quest progression options that are only available under certain conditions
  - Quest versions, enabling migrations from older to newer states in savegames
