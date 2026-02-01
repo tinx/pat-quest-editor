@@ -6,6 +6,7 @@ import Canvas from './components/Canvas';
 import ValidationPanel from './components/ValidationPanel';
 import QuestPropertiesEditor from './components/QuestPropertiesEditor';
 import { useQuests, useReferenceData } from './hooks/useApi';
+import { useUndoHistory } from './hooks/useUndoHistory';
 import * as api from './api/client';
 
 // Error Boundary to catch React rendering errors
@@ -99,15 +100,23 @@ function AppContent() {
   const { quests, refresh: refreshQuests } = useQuests();
   const referenceData = useReferenceData();
   const canvasRef = useRef(null);
+  const { pushState, undo, clear: clearHistory, canUndo } = useUndoHistory();
   
   const [currentQuestId, setCurrentQuestId] = useState(null);
   const [quest, setQuest] = useState(null);
   const [metadata, setMetadata] = useState(null);
+  const [questVersion, setQuestVersion] = useState(0); // Incremented on undo to force Canvas reload
   const [validation, setValidation] = useState(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [highlightedNodeId, setHighlightedNodeId] = useState(null);
   const [showQuestEditor, setShowQuestEditor] = useState(false);
+
+  // Refs to access current state in callbacks
+  const questRef = useRef(quest);
+  const metadataRef = useRef(metadata);
+  useEffect(() => { questRef.current = quest; }, [quest]);
+  useEffect(() => { metadataRef.current = metadata; }, [metadata]);
 
   // Load quest when selected
   const loadQuest = useCallback(async (questId) => {
@@ -117,6 +126,7 @@ function AppContent() {
       setMetadata(null);
       setValidation(null);
       setSaveError(null);
+      clearHistory();
       return;
     }
 
@@ -126,6 +136,7 @@ function AppContent() {
       setQuest(data.quest);
       setMetadata(data.metadata);
       setSaveError(null);
+      clearHistory();
       
       // Validate on load
       const result = await api.validateQuest(data.quest);
@@ -134,10 +145,15 @@ function AppContent() {
       console.error('Failed to load quest:', e);
       setSaveError(`Failed to load quest: ${e.message}`);
     }
-  }, []);
+  }, [clearHistory]);
 
   // Handle quest changes from canvas
   const handleQuestChange = useCallback(async (updatedQuest, updatedMetadata) => {
+    // Save current state to history before applying changes
+    if (questRef.current) {
+      pushState({ quest: questRef.current, metadata: metadataRef.current });
+    }
+
     setQuest(updatedQuest);
     setMetadata(updatedMetadata);
     setSaveError(null); // Clear save error on edit
@@ -156,7 +172,37 @@ function AppContent() {
     } catch (e) {
       console.error('Validation failed:', e);
     }
-  }, []);
+  }, [pushState]);
+
+  // Undo handler
+  const handleUndo = useCallback(async () => {
+    const previous = undo();
+    if (!previous) return;
+
+    setQuest(previous.quest);
+    setMetadata(previous.metadata);
+    setQuestVersion(v => v + 1); // Force Canvas to reload
+
+    // Re-validate after undo
+    try {
+      const result = await api.validateQuest(previous.quest);
+      setValidation(result);
+    } catch (e) {
+      console.error('Validation failed:', e);
+    }
+  }, [undo]);
+
+  // Keyboard shortcut for undo (Ctrl+Z / Cmd+Z)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        handleUndo();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleUndo]);
 
   // Save quest
   const handleSave = useCallback(async () => {
@@ -219,7 +265,8 @@ function AppContent() {
     setQuest(newQuest);
     setMetadata({ questId, nodePositions: {} });
     setValidation({ valid: true });
-  }, [quests]);
+    clearHistory();
+  }, [quests, clearHistory]);
 
   // Drag start handler for toolbox
   const handleDragStart = useCallback((event, nodeType) => {
@@ -245,6 +292,11 @@ function AppContent() {
   }, []);
 
   const handleSaveQuestProperties = useCallback(async (updatedQuest) => {
+    // Save current state to history before applying changes
+    if (questRef.current) {
+      pushState({ quest: questRef.current, metadata: metadataRef.current });
+    }
+
     setQuest(updatedQuest);
     // Validate the updated quest
     try {
@@ -253,7 +305,7 @@ function AppContent() {
     } catch (e) {
       console.error('Validation failed:', e);
     }
-  }, []);
+  }, [pushState]);
 
   return (
     <div style={{ ...styles.app, backgroundColor: theme.canvasBg, color: theme.text }}>
@@ -278,6 +330,7 @@ function AppContent() {
           ref={canvasRef}
           quest={quest}
           metadata={metadata}
+          questVersion={questVersion}
           referenceData={referenceData}
           onChange={handleQuestChange}
           highlightedNodeId={highlightedNodeId}

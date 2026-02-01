@@ -154,7 +154,7 @@ function getMetadata(questId, nodes) {
   return { questId, nodePositions };
 }
 
-export default forwardRef(function Canvas({ quest, metadata, referenceData, onChange, highlightedNodeId }, ref) {
+export default forwardRef(function Canvas({ quest, metadata, questVersion, referenceData, onChange, highlightedNodeId }, ref) {
   const { theme } = useTheme();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -163,6 +163,7 @@ export default forwardRef(function Canvas({ quest, metadata, referenceData, onCh
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const isInitialLoad = useRef(false);
   const questIdRef = useRef(null);
+  const questVersionRef = useRef(questVersion);
   const questRef = useRef(quest);
   const changeTimeoutRef = useRef(null);
 
@@ -189,10 +190,14 @@ export default forwardRef(function Canvas({ quest, metadata, referenceData, onCh
     },
   }), [reactFlowInstance, nodes]);
 
-  // Load quest into canvas (only when quest ID changes)
+  // Load quest into canvas (when quest ID or version changes)
   useEffect(() => {
-    if (quest && quest.QuestID !== questIdRef.current) {
+    const questIdChanged = quest && quest.QuestID !== questIdRef.current;
+    const versionChanged = questVersion !== questVersionRef.current;
+    
+    if (quest && (questIdChanged || versionChanged)) {
       questIdRef.current = quest.QuestID;
+      questVersionRef.current = questVersion;
       isInitialLoad.current = true;
       const { nodes: n, edges: e } = questToFlow(quest, metadata);
       setNodes(n);
@@ -204,7 +209,7 @@ export default forwardRef(function Canvas({ quest, metadata, referenceData, onCh
       setNodes([]);
       setEdges([]);
     }
-  }, [quest, metadata, setNodes, setEdges]);
+  }, [quest, metadata, questVersion, setNodes, setEdges]);
 
   // Update node highlighting when highlightedNodeId changes
   useEffect(() => {
