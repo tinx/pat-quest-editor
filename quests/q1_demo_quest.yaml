@@ -81,9 +81,6 @@ QuestNodes:
             - Count: 1
               QuestItem: true
               Type: PackOfNails
-        - QuestStageTitle:
-            de-DE: Ein Botengang für den Schmied
-            en-US: An errand for the blacksmith
         - QuestStageDescription:
             de-DE: Drumin, der Schmied, hat uns beauftragt dem Schreiner Mellis eine Packung Nägel zu bringen.
             en-US: Drumin, the smith, tasked us with delivering a pack of nails to Mellis, the carpenter.

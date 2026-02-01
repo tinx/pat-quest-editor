@@ -43,7 +43,6 @@ function questToFlow(quest, metadata) {
         options: qn.Options,
         messages: qn.Messages,
         actions: qn.Actions,
-        questStageTitle: qn.QuestStageTitle,
         questStageDescription: qn.QuestStageDescription,
       },
     };
@@ -175,7 +174,6 @@ function flowToQuest(nodes, edges, originalQuest) {
     if (d.text) node.Text = d.text;
     if (d.messages?.length) node.Messages = d.messages;
     if (d.actions?.length) node.Actions = d.actions;
-    if (d.questStageTitle) node.QuestStageTitle = d.questStageTitle;
     if (d.questStageDescription) node.QuestStageDescription = d.questStageDescription;
 
     return node;

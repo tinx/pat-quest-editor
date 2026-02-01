@@ -23,7 +23,6 @@ const ACTION_TYPES = [
   { value: 'FactionStanding', label: 'Faction Standing' },
   { value: 'JournalEntry', label: 'Journal Entry' },
   { value: 'SetVariable', label: 'Set Variable' },
-  { value: 'QuestStageTitle', label: 'Quest Stage Title' },
   { value: 'QuestStageDescription', label: 'Quest Stage Description' },
 ];
 
@@ -49,8 +48,6 @@ const createAction = (type) => {
       return { FactionStanding: { Faction: '', Points: 0 } };
     case 'JournalEntry':
       return { JournalEntry: { 'en-US': '', 'de-DE': '' } };
-    case 'QuestStageTitle':
-      return { QuestStageTitle: { 'en-US': '', 'de-DE': '' } };
     case 'QuestStageDescription':
       return { QuestStageDescription: { 'en-US': '', 'de-DE': '' } };
     case 'SetVariable':
@@ -194,24 +191,6 @@ function ActionFields({ action, actionType, onChange, items, factions, styles })
           <textarea
             value={action.JournalEntry?.['de-DE'] || ''}
             onChange={e => onChange({ JournalEntry: { ...action.JournalEntry, 'de-DE': e.target.value } })}
-            style={styles.textarea}
-          />
-        </div>
-      );
-
-    case 'QuestStageTitle':
-      return (
-        <div style={styles.actionField}>
-          <label style={styles.label}>Quest Stage Title (English)</label>
-          <textarea
-            value={action.QuestStageTitle?.['en-US'] || ''}
-            onChange={e => onChange({ QuestStageTitle: { ...action.QuestStageTitle, 'en-US': e.target.value } })}
-            style={styles.textarea}
-          />
-          <label style={styles.label}>Quest Stage Title (German)</label>
-          <textarea
-            value={action.QuestStageTitle?.['de-DE'] || ''}
-            onChange={e => onChange({ QuestStageTitle: { ...action.QuestStageTitle, 'de-DE': e.target.value } })}
             style={styles.textarea}
           />
         </div>

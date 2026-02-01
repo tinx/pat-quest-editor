@@ -17,7 +17,7 @@ QuestNodes:
         - 11
       Actions:
         - AcceptQuest
-        - QuestStageTitle:
+        - QuestStageDescription:
             de-DE: Hufeisen an die Boten verkaufen
             en-US: Selling horseshoes to the couriers
         - JournalEntry:
@@ -93,7 +93,7 @@ QuestNodes:
       NodeType: Actions
       Actions:
         - AcceptQuest
-        - QuestStageTitle:
+        - QuestStageDescription:
             de-DE: Hufeisen für Jessi
             en-US: Horseshoes for Jessi
         - JournalEntry:
@@ -103,7 +103,7 @@ QuestNodes:
       NodeType: Actions
       Actions:
         - AcceptQuest
-        - QuestStageTitle:
+        - QuestStageDescription:
             de-DE: Vorsicht ist besser als Nachsicht
             en-US: Best to be prepared
         - JournalEntry:
@@ -113,7 +113,7 @@ QuestNodes:
       NodeType: Actions
       Actions:
         - AcceptQuest
-        - QuestStageTitle:
+        - QuestStageDescription:
             de-DE: Die Schmach des Bergmanns
             en-US: Miner inconvenience
         - JournalEntry:
@@ -123,7 +123,7 @@ QuestNodes:
       NodeType: Actions
       Actions:
         - DeclineQuest
-        - QuestStageTitle:
+        - QuestStageDescription:
             de-DE: Ich kann nicht helfen. Tut mir leid.
             en-US: Sorry, can't help.
         - JournalEntry:
