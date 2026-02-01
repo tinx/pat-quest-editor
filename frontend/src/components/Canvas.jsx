@@ -33,6 +33,8 @@ function questToFlow(quest, metadata) {
         nodeId: qn.NodeID,
         nodeType: qn.NodeType,
         nextNodes: qn.NextNodes,
+        nextNodesIfTrue: qn.NextNodesIfTrue,
+        nextNodesIfFalse: qn.NextNodesIfFalse,
         conditions: qn.Conditions,
         conditionsRequired: qn.ConditionsRequired,
         conversationPartner: qn.ConversationPartner,
@@ -66,6 +68,30 @@ function questToFlow(quest, metadata) {
           });
         });
       });
+    } else if (qn.NodeType === 'ConditionBranch') {
+      // ConditionBranch has two branches: true and false
+      (qn.NextNodesIfTrue || []).forEach(nextId => {
+        edges.push({
+          id: `${qn.NodeID}-true-${nextId}`,
+          source: String(qn.NodeID),
+          sourceHandle: 'branch-true',
+          target: String(nextId),
+          animated: true,
+          style: { stroke: '#4caf50', strokeWidth: 2 },
+          interactionWidth: 20,
+        });
+      });
+      (qn.NextNodesIfFalse || []).forEach(nextId => {
+        edges.push({
+          id: `${qn.NodeID}-false-${nextId}`,
+          source: String(qn.NodeID),
+          sourceHandle: 'branch-false',
+          target: String(nextId),
+          animated: true,
+          style: { stroke: '#f44336', strokeWidth: 2 },
+          interactionWidth: 20,
+        });
+      });
     } else {
       // Regular nodes use top-level NextNodes
       (qn.NextNodes || []).forEach(nextId => {
@@ -91,12 +117,22 @@ function flowToQuest(nodes, edges, originalQuest) {
   // Build map of option edges (with sourceHandle like "option-0")
   const optionEdgeMap = {}; // nodeId -> { optionIndex -> [targets] }
   
+  // Build map of branch edges (with sourceHandle like "branch-true" or "branch-false")
+  const branchTrueMap = {}; // nodeId -> [targets]
+  const branchFalseMap = {}; // nodeId -> [targets]
+  
   edges.forEach(e => {
     if (e.sourceHandle && e.sourceHandle.startsWith('option-')) {
       const optIndex = parseInt(e.sourceHandle.split('-')[1], 10);
       if (!optionEdgeMap[e.source]) optionEdgeMap[e.source] = {};
       if (!optionEdgeMap[e.source][optIndex]) optionEdgeMap[e.source][optIndex] = [];
       optionEdgeMap[e.source][optIndex].push(parseInt(e.target, 10));
+    } else if (e.sourceHandle === 'branch-true') {
+      if (!branchTrueMap[e.source]) branchTrueMap[e.source] = [];
+      branchTrueMap[e.source].push(parseInt(e.target, 10));
+    } else if (e.sourceHandle === 'branch-false') {
+      if (!branchFalseMap[e.source]) branchFalseMap[e.source] = [];
+      branchFalseMap[e.source].push(parseInt(e.target, 10));
     } else {
       if (nodeMap[e.source]) {
         nodeMap[e.source].push(parseInt(e.target, 10));
@@ -121,6 +157,12 @@ function flowToQuest(nodes, edges, originalQuest) {
         };
       });
       if (options.length > 0) node.Options = options;
+    } else if (d.nodeType === 'ConditionBranch') {
+      // ConditionBranch uses NextNodesIfTrue and NextNodesIfFalse
+      const trueEdges = branchTrueMap[n.id] || [];
+      const falseEdges = branchFalseMap[n.id] || [];
+      if (trueEdges.length > 0) node.NextNodesIfTrue = trueEdges;
+      if (falseEdges.length > 0) node.NextNodesIfFalse = falseEdges;
     } else {
       if (nodeMap[n.id]?.length > 0) node.NextNodes = nodeMap[n.id];
       if (d.options?.length) node.Options = d.options;

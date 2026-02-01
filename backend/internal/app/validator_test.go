@@ -193,3 +193,232 @@ func TestValidate_PlayerSpeakerIsValid(t *testing.T) {
 		t.Errorf("expected valid quest with Player speaker, got errors: %v", result.Errors)
 	}
 }
+
+func TestValidate_ConditionBranch_Valid(t *testing.T) {
+	validator := NewQuestValidatorService(&mockReferenceData{})
+
+	quest := &domain.Quest{
+		QuestID: "TestQuest",
+		QuestNodes: []domain.QuestNode{
+			{NodeID: 0, NodeType: "EntryPoint", NextNodes: []int{1}},
+			{NodeID: 1, NodeType: "ConditionBranch",
+				Conditions:       []domain.Condition{{"QuestCompleted": "SomeQuest"}},
+				NextNodesIfTrue:  []int{2},
+				NextNodesIfFalse: []int{3},
+			},
+			{NodeID: 2, NodeType: "Actions", Actions: []domain.Action{"CompleteQuest"}},
+			{NodeID: 3, NodeType: "Actions", Actions: []domain.Action{"FailQuest"}},
+		},
+	}
+
+	result := validator.Validate(quest)
+
+	if !result.Valid {
+		t.Errorf("expected valid quest with ConditionBranch, got errors: %v", result.Errors)
+	}
+}
+
+func TestValidate_ConditionBranch_OnlyTrueBranch(t *testing.T) {
+	validator := NewQuestValidatorService(&mockReferenceData{})
+
+	quest := &domain.Quest{
+		QuestID: "TestQuest",
+		QuestNodes: []domain.QuestNode{
+			{NodeID: 0, NodeType: "EntryPoint", NextNodes: []int{1}},
+			{NodeID: 1, NodeType: "ConditionBranch",
+				Conditions:      []domain.Condition{{"QuestCompleted": "SomeQuest"}},
+				NextNodesIfTrue: []int{2},
+			},
+			{NodeID: 2, NodeType: "Actions", Actions: []domain.Action{"CompleteQuest"}},
+		},
+	}
+
+	result := validator.Validate(quest)
+
+	if !result.Valid {
+		t.Errorf("expected valid quest with only true branch, got errors: %v", result.Errors)
+	}
+}
+
+func TestValidate_ConditionBranch_OnlyFalseBranch(t *testing.T) {
+	validator := NewQuestValidatorService(&mockReferenceData{})
+
+	quest := &domain.Quest{
+		QuestID: "TestQuest",
+		QuestNodes: []domain.QuestNode{
+			{NodeID: 0, NodeType: "EntryPoint", NextNodes: []int{1}},
+			{NodeID: 1, NodeType: "ConditionBranch",
+				Conditions:       []domain.Condition{{"QuestCompleted": "SomeQuest"}},
+				NextNodesIfFalse: []int{2},
+			},
+			{NodeID: 2, NodeType: "Actions", Actions: []domain.Action{"CompleteQuest"}},
+		},
+	}
+
+	result := validator.Validate(quest)
+
+	if !result.Valid {
+		t.Errorf("expected valid quest with only false branch, got errors: %v", result.Errors)
+	}
+}
+
+func TestValidate_ConditionBranch_NoBranches(t *testing.T) {
+	validator := NewQuestValidatorService(&mockReferenceData{})
+
+	quest := &domain.Quest{
+		QuestID: "TestQuest",
+		QuestNodes: []domain.QuestNode{
+			{NodeID: 0, NodeType: "EntryPoint", NextNodes: []int{1}},
+			{NodeID: 1, NodeType: "ConditionBranch",
+				Conditions: []domain.Condition{{"QuestCompleted": "SomeQuest"}},
+			},
+		},
+	}
+
+	result := validator.Validate(quest)
+
+	if result.Valid {
+		t.Error("expected invalid quest: ConditionBranch with no branches")
+	}
+
+	found := false
+	for _, err := range result.Errors {
+		if err.Message == "ConditionBranch must have at least one of NextNodesIfTrue or NextNodesIfFalse" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("expected error about missing branches, got: %v", result.Errors)
+	}
+}
+
+func TestValidate_ConditionBranch_NoConditions(t *testing.T) {
+	validator := NewQuestValidatorService(&mockReferenceData{})
+
+	quest := &domain.Quest{
+		QuestID: "TestQuest",
+		QuestNodes: []domain.QuestNode{
+			{NodeID: 0, NodeType: "EntryPoint", NextNodes: []int{1}},
+			{NodeID: 1, NodeType: "ConditionBranch",
+				NextNodesIfTrue: []int{2},
+			},
+			{NodeID: 2, NodeType: "Actions", Actions: []domain.Action{"CompleteQuest"}},
+		},
+	}
+
+	result := validator.Validate(quest)
+
+	if result.Valid {
+		t.Error("expected invalid quest: ConditionBranch with no conditions")
+	}
+
+	found := false
+	for _, err := range result.Errors {
+		if err.Message == "ConditionBranch must have at least one condition" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("expected error about missing conditions, got: %v", result.Errors)
+	}
+}
+
+func TestValidate_ConditionBranch_NoTopLevelNextNodes(t *testing.T) {
+	validator := NewQuestValidatorService(&mockReferenceData{})
+
+	quest := &domain.Quest{
+		QuestID: "TestQuest",
+		QuestNodes: []domain.QuestNode{
+			{NodeID: 0, NodeType: "EntryPoint", NextNodes: []int{1}},
+			{NodeID: 1, NodeType: "ConditionBranch",
+				Conditions:      []domain.Condition{{"QuestCompleted": "SomeQuest"}},
+				NextNodes:       []int{2}, // Should not use top-level NextNodes
+				NextNodesIfTrue: []int{2},
+			},
+			{NodeID: 2, NodeType: "Actions", Actions: []domain.Action{"CompleteQuest"}},
+		},
+	}
+
+	result := validator.Validate(quest)
+
+	if result.Valid {
+		t.Error("expected invalid quest: ConditionBranch with top-level NextNodes")
+	}
+
+	found := false
+	for _, err := range result.Errors {
+		if err.Message == "ConditionBranch must not have top-level NextNodes; use NextNodesIfTrue and NextNodesIfFalse instead" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("expected error about top-level NextNodes, got: %v", result.Errors)
+	}
+}
+
+func TestValidate_ConditionBranch_InvalidReference(t *testing.T) {
+	validator := NewQuestValidatorService(&mockReferenceData{})
+
+	quest := &domain.Quest{
+		QuestID: "TestQuest",
+		QuestNodes: []domain.QuestNode{
+			{NodeID: 0, NodeType: "EntryPoint", NextNodes: []int{1}},
+			{NodeID: 1, NodeType: "ConditionBranch",
+				Conditions:      []domain.Condition{{"QuestCompleted": "SomeQuest"}},
+				NextNodesIfTrue: []int{99}, // Non-existent node
+			},
+		},
+	}
+
+	result := validator.Validate(quest)
+
+	if result.Valid {
+		t.Error("expected invalid quest: ConditionBranch referencing non-existent node")
+	}
+
+	found := false
+	for _, err := range result.Errors {
+		if err.Message == "NextNodesIfTrue references non-existent NodeID" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("expected error about non-existent NodeID, got: %v", result.Errors)
+	}
+}
+
+func TestValidate_ConditionBranch_CycleDetection(t *testing.T) {
+	validator := NewQuestValidatorService(&mockReferenceData{})
+
+	quest := &domain.Quest{
+		QuestID: "TestQuest",
+		QuestNodes: []domain.QuestNode{
+			{NodeID: 0, NodeType: "EntryPoint", NextNodes: []int{1}},
+			{NodeID: 1, NodeType: "ConditionBranch",
+				Conditions:      []domain.Condition{{"QuestCompleted": "SomeQuest"}},
+				NextNodesIfTrue: []int{1}, // Cycle back to self
+			},
+		},
+	}
+
+	result := validator.Validate(quest)
+
+	if result.Valid {
+		t.Error("expected invalid quest: ConditionBranch with cycle")
+	}
+
+	found := false
+	for _, err := range result.Errors {
+		if err.Message == "quest contains a cycle (loops are not allowed)" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("expected cycle detection error, got: %v", result.Errors)
+	}
+}

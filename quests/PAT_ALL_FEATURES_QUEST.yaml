@@ -13,6 +13,8 @@ QuestNodes:
         - 2
     - NodeID: 1
       NodeType: Actions
+      NextNodes:
+        - 11
       Actions:
         - AcceptQuest
         - QuestStageTitle:
@@ -21,6 +23,10 @@ QuestNodes:
         - JournalEntry:
             de-DE: Drumin hat Dich losgeschickt um Hufeisen zu verkaufen, und Du hast Dich entschlossen es bei den Boten zu versuchen.
             en-US: Drumin sent you out to sell horseshoes, and you decided to try your luck with the couriers.
+        - ItemsGained:
+            - Count: 1
+              QuestItem: true
+              Type: Horseshoes
     - NodeID: 2
       NodeType: ConditionWatcher
       NextNodes:
@@ -123,3 +129,21 @@ QuestNodes:
         - FactionStanding:
             Faction: NPC:Smith
             Points: -1
+    - NodeID: 11
+      NodeType: ConditionBranch
+      NextNodesIfTrue:
+        - 13
+      NextNodesIfFalse:
+        - 12
+      Conditions:
+        - FactionStanding:
+            Faction: NPC:Smith
+            MinimumLevel: 10
+    - NodeID: 12
+      NodeType: Actions
+      Actions:
+        - Currency: 10
+    - NodeID: 13
+      NodeType: Actions
+      Actions:
+        - Currency: 30

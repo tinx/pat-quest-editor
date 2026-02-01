@@ -43,6 +43,7 @@
 				"oneOf": [
 					{ "$ref": "#/$defs/QN_EntryPoint" },
 					{ "$ref": "#/$defs/QN_ConditionWatcher" },
+					{ "$ref": "#/$defs/QN_ConditionBranch" },
 					{ "$ref": "#/$defs/QN_Actions" },
 					{ "$ref": "#/$defs/QN_Dialog" },
 					{ "$ref": "#/$defs/QN_Decision" }
@@ -109,6 +110,43 @@
 				}
 			},
 			"required": [ "NodeType", "Conditions" ]
+		},
+		"QN_ConditionBranch": {
+			"type": "object",
+			"properties": {
+				"NodeID": {
+					"type": "integer",
+					"minimum": 0
+				},
+				"NodeType": {
+					"type": "string",
+					"const": "ConditionBranch"
+				},
+				"Conditions": {
+					"$ref": "#/$defs/ConditionBranchConditions"
+				},
+				"ConditionsRequired": {
+					"type": "string",
+					"pattern": "^(all|[1-9][0-9]*)$"
+				},
+				"NextNodesIfTrue": {
+					"type": "array",
+					"uniqueItems": true,
+					"items": {
+						"type": "integer",
+						"minimum": 0
+					}
+				},
+				"NextNodesIfFalse": {
+					"type": "array",
+					"uniqueItems": true,
+					"items": {
+						"type": "integer",
+						"minimum": 0
+					}
+				}
+			},
+			"required": [ "NodeID", "NodeType", "Conditions" ]
 		},
 		"QN_Decision": {
 			"type": "object",
@@ -200,6 +238,20 @@
 					{ "$ref": "#/$defs/Cond_FactionStanding" },
 					{ "$ref": "#/$defs/Cond_TimePassed" },
 					{ "$ref": "#/$defs/Cond_ItemLost" },
+					{ "$ref": "#/$defs/Cond_Inventory" },
+					{ "$ref": "#/$defs/Cond_Variable" }
+				]
+			}
+		},
+		"ConditionBranchConditions": {
+			"type": "array",
+			"minItems": 1,
+			"uniqueItems": true,
+			"items": {
+				"oneOf": [
+					{ "$ref": "#/$defs/Cond_QuestCompleted" },
+					{ "$ref": "#/$defs/Cond_ResourceAvailable" },
+					{ "$ref": "#/$defs/Cond_FactionStanding" },
 					{ "$ref": "#/$defs/Cond_Inventory" },
 					{ "$ref": "#/$defs/Cond_Variable" }
 				]

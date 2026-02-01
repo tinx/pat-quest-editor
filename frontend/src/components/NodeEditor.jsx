@@ -712,6 +712,31 @@ export default function NodeEditor({ node, npcs, items, factions, resources, onS
             </>
           )}
 
+          {data.nodeType === 'ConditionBranch' && (
+            <>
+              <label style={styles.label}>Conditions</label>
+              <ConditionEditor
+                conditions={data.conditions}
+                onChange={(conds) => handleChange('conditions', conds?.length ? conds : undefined)}
+                items={items}
+                factions={factions}
+                resources={resources}
+                showConditionsRequired={true}
+                conditionsRequired={data.conditionsRequired}
+                onConditionsRequiredChange={(val) => handleChange('conditionsRequired', val)}
+                excludeConditionTypes={['TimePassed', 'ItemLost']}
+              />
+              <div style={styles.branchInfo}>
+                <p style={styles.branchHint}>
+                  Connect the <span style={{ color: '#4caf50', fontWeight: 'bold' }}>True</span> handle to nodes that should execute when conditions are met.
+                </p>
+                <p style={styles.branchHint}>
+                  Connect the <span style={{ color: '#f44336', fontWeight: 'bold' }}>False</span> handle to nodes that should execute when conditions are not met.
+                </p>
+              </div>
+            </>
+          )}
+
           {data.nodeType === 'Actions' && (
             <ActionsEditor
               actions={data.actions}
@@ -780,6 +805,17 @@ const getStyles = (theme) => ({
     color: theme.textMuted,
     fontSize: '12px',
     marginBottom: '-8px',
+  },
+  branchInfo: {
+    backgroundColor: theme.bg,
+    padding: '12px',
+    borderRadius: '4px',
+    marginTop: '8px',
+  },
+  branchHint: {
+    color: theme.textSecondary,
+    fontSize: '11px',
+    margin: '4px 0',
   },
   input: {
     padding: '10px',

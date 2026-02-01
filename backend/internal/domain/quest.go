@@ -22,6 +22,8 @@ type QuestNode struct {
 	NodeID              int                  `yaml:"NodeID" json:"NodeID"`
 	NodeType            string               `yaml:"NodeType" json:"NodeType"`
 	NextNodes           []int                `yaml:"NextNodes,omitempty" json:"NextNodes,omitempty"`
+	NextNodesIfTrue     []int                `yaml:"NextNodesIfTrue,omitempty" json:"NextNodesIfTrue,omitempty"`
+	NextNodesIfFalse    []int                `yaml:"NextNodesIfFalse,omitempty" json:"NextNodesIfFalse,omitempty"`
 	Conditions          []Condition          `yaml:"Conditions,omitempty" json:"Conditions,omitempty"`
 	ConditionsRequired  string               `yaml:"ConditionsRequired,omitempty" json:"ConditionsRequired,omitempty"`
 	ConversationPartner string               `yaml:"ConversationPartner,omitempty" json:"ConversationPartner,omitempty"`

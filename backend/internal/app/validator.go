@@ -27,6 +27,7 @@ func (v *QuestValidatorService) Validate(quest *domain.Quest) *domain.Validation
 	v.validateEntryPoints(quest, result)
 	v.validateTerminalNodes(quest, result)
 	v.validateDecisions(quest, result)
+	v.validateConditionBranches(quest, result)
 	v.validateNoCycles(quest, result)
 	v.validateReferences(quest, result)
 
@@ -56,6 +57,17 @@ func (v *QuestValidatorService) validateNodeConnections(quest *domain.Quest, res
 				result.AddNodeError(node.NodeID, "NextNodes references non-existent NodeID")
 			}
 		}
+		// Check ConditionBranch edges
+		for _, nextID := range node.NextNodesIfTrue {
+			if !nodeIDs[nextID] {
+				result.AddNodeError(node.NodeID, "NextNodesIfTrue references non-existent NodeID")
+			}
+		}
+		for _, nextID := range node.NextNodesIfFalse {
+			if !nodeIDs[nextID] {
+				result.AddNodeError(node.NodeID, "NextNodesIfFalse references non-existent NodeID")
+			}
+		}
 		// Also check dialog options
 		for _, opt := range node.Options {
 			for _, nextID := range opt.NextNodes {
@@ -70,6 +82,12 @@ func (v *QuestValidatorService) validateNodeConnections(quest *domain.Quest, res
 	hasIncoming := make(map[int]bool)
 	for _, node := range quest.QuestNodes {
 		for _, nextID := range node.NextNodes {
+			hasIncoming[nextID] = true
+		}
+		for _, nextID := range node.NextNodesIfTrue {
+			hasIncoming[nextID] = true
+		}
+		for _, nextID := range node.NextNodesIfFalse {
 			hasIncoming[nextID] = true
 		}
 		for _, opt := range node.Options {
@@ -152,11 +170,36 @@ func (v *QuestValidatorService) validateDecisions(quest *domain.Quest, result *d
 	}
 }
 
+func (v *QuestValidatorService) validateConditionBranches(quest *domain.Quest, result *domain.ValidationResult) {
+	for _, node := range quest.QuestNodes {
+		if node.NodeType != "ConditionBranch" {
+			continue
+		}
+
+		// ConditionBranch must not have top-level NextNodes
+		if len(node.NextNodes) > 0 {
+			result.AddNodeError(node.NodeID, "ConditionBranch must not have top-level NextNodes; use NextNodesIfTrue and NextNodesIfFalse instead")
+		}
+
+		// ConditionBranch must have at least one condition
+		if len(node.Conditions) == 0 {
+			result.AddNodeError(node.NodeID, "ConditionBranch must have at least one condition")
+		}
+
+		// At least one of NextNodesIfTrue or NextNodesIfFalse must be non-empty
+		if len(node.NextNodesIfTrue) == 0 && len(node.NextNodesIfFalse) == 0 {
+			result.AddNodeError(node.NodeID, "ConditionBranch must have at least one of NextNodesIfTrue or NextNodesIfFalse")
+		}
+	}
+}
+
 func (v *QuestValidatorService) validateNoCycles(quest *domain.Quest, result *domain.ValidationResult) {
 	// Build adjacency list
 	adj := make(map[int][]int)
 	for _, node := range quest.QuestNodes {
 		adj[node.NodeID] = append(adj[node.NodeID], node.NextNodes...)
+		adj[node.NodeID] = append(adj[node.NodeID], node.NextNodesIfTrue...)
+		adj[node.NodeID] = append(adj[node.NodeID], node.NextNodesIfFalse...)
 		for _, opt := range node.Options {
 			adj[node.NodeID] = append(adj[node.NodeID], opt.NextNodes...)
 		}

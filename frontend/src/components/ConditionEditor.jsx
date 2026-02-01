@@ -363,12 +363,18 @@ export default function ConditionEditor({
   showConditionsRequired = false,
   collapsible = false,
   defaultExpanded = true,
+  excludeConditionTypes = [],
 }) {
   const { theme } = useTheme();
   const styles = getStyles(theme);
   const [expandedConditions, setExpandedConditions] = useState({});
   const [listExpanded, setListExpanded] = useState(defaultExpanded);
   const [addingType, setAddingType] = useState('');
+
+  // Filter condition types based on excludeConditionTypes prop
+  const availableConditionTypes = CONDITION_TYPES.filter(
+    ct => !excludeConditionTypes.includes(ct.value)
+  );
 
   const toggleCondition = (index) => {
     setExpandedConditions(prev => ({ ...prev, [index]: !prev[index] }));
@@ -446,7 +452,7 @@ export default function ConditionEditor({
           style={{ ...styles.select, flex: 1 }}
         >
           <option value="">Select condition type...</option>
-          {CONDITION_TYPES.map(ct => (
+          {availableConditionTypes.map(ct => (
             <option key={ct.value} value={ct.value}>{ct.label}</option>
           ))}
         </select>

@@ -5,6 +5,7 @@ import { useTheme } from '../ThemeContext';
 const nodeColors = {
   EntryPoint: '#4caf50',
   ConditionWatcher: '#2196f3',
+  ConditionBranch: '#fbbb25',
   Dialog: '#9c27b0',
   Decision: '#e91e63',
   Actions: '#f44336',
@@ -18,6 +19,7 @@ function QuestNode({ data, selected }) {
   const { theme } = useTheme();
   const color = nodeColors[data.nodeType] || '#666';
   const isDecisionDialog = data.nodeType === 'Decision';
+  const isConditionBranch = data.nodeType === 'ConditionBranch';
   const isEntryPoint = data.nodeType === 'EntryPoint';
   const isTerminalAction = data.nodeType === 'Actions' && data.actions?.some(a => {
     const actionName = typeof a === 'string' ? a : Object.keys(a)[0];
@@ -26,6 +28,8 @@ function QuestNode({ data, selected }) {
   const options = data.options || [];
   const styles = getStyles(theme);
   const isHighlighted = data.highlighted;
+  // For ConditionBranch, use dark text on yellow background
+  const headerTextColor = isConditionBranch ? '#333' : undefined;
   
   return (
     <div style={{
@@ -36,9 +40,9 @@ function QuestNode({ data, selected }) {
     }}>
       {!isEntryPoint && <Handle type="target" position={Position.Top} style={styles.handle} />}
       
-      <div style={{ ...styles.header, backgroundColor: color }}>
+      <div style={{ ...styles.header, backgroundColor: color, color: headerTextColor }}>
         <span style={styles.type}>{data.nodeType}</span>
-        <span style={styles.id}>#{data.nodeId}</span>
+        <span style={{ ...styles.id, color: headerTextColor ? 'rgba(0,0,0,0.6)' : undefined }}>#{data.nodeId}</span>
       </div>
       
       <div style={styles.body}>
@@ -99,6 +103,46 @@ function QuestNode({ data, selected }) {
           </div>
         )}
         
+        {isConditionBranch && (
+          <>
+            {data.conditions?.length > 0 && (
+              <div style={styles.conditions}>
+                {data.conditions.map((c, i) => (
+                  <div key={i} style={styles.condition}>
+                    {Object.keys(c)[0]}
+                  </div>
+                ))}
+              </div>
+            )}
+            <div style={styles.branchOutputs}>
+              <div style={styles.branchRow}>
+                <span style={{ ...styles.branchLabel, color: '#4caf50' }}>True</span>
+                <Handle
+                  type="source"
+                  position={Position.Right}
+                  id="branch-true"
+                  style={{
+                    ...styles.branchHandle,
+                    backgroundColor: '#4caf50',
+                  }}
+                />
+              </div>
+              <div style={styles.branchRow}>
+                <span style={{ ...styles.branchLabel, color: '#f44336' }}>False</span>
+                <Handle
+                  type="source"
+                  position={Position.Right}
+                  id="branch-false"
+                  style={{
+                    ...styles.branchHandle,
+                    backgroundColor: '#f44336',
+                  }}
+                />
+              </div>
+            </div>
+          </>
+        )}
+        
         {data.nodeType === 'Actions' && data.actions?.length > 0 && (
           <div style={styles.actions}>
             {data.actions.map((a, i) => (
@@ -110,8 +154,8 @@ function QuestNode({ data, selected }) {
         )}
       </div>
       
-      {/* Only show bottom handle for non-decision dialogs and non-terminal actions */}
-      {!isDecisionDialog && !isTerminalAction && (
+      {/* Only show bottom handle for non-decision dialogs, non-condition branches, and non-terminal actions */}
+      {!isDecisionDialog && !isConditionBranch && !isTerminalAction && (
         <Handle type="source" position={Position.Bottom} style={styles.handle} />
       )}
       {isTerminalAction && (
@@ -212,6 +256,34 @@ const getStyles = (theme) => ({
     padding: '2px 6px',
     borderRadius: '3px',
     fontSize: '10px',
+  },
+  branchOutputs: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+    marginTop: '8px',
+  },
+  branchRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: '6px',
+    position: 'relative',
+    backgroundColor: theme.bg,
+    padding: '4px 8px',
+    borderRadius: '4px',
+    paddingRight: '16px',
+  },
+  branchLabel: {
+    fontSize: '10px',
+    fontWeight: 'bold',
+  },
+  branchHandle: {
+    width: '10px',
+    height: '10px',
+    position: 'absolute',
+    top: 'auto',
+    right: '-6px',
   },
   actions: {
     display: 'flex',
