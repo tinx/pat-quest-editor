@@ -371,9 +371,9 @@ function SortableMessageCard({ id, index, message, npcs, styles, onRemove, onCha
           >
             <option value="">Select Speaker...</option>
             <option value="Player">Player</option>
-            {npcs?.map(npc => (
+            {npcs?.toSorted((a, b) => (a.DisplayName?.['en-US'] || a.NPCID).localeCompare(b.DisplayName?.['en-US'] || b.NPCID)).map(npc => (
               <option key={npc.NPCID} value={npc.NPCID}>
-                {npc.DisplayName?.['en-US'] || npc.NPCID}
+                {npc.DisplayName?.['en-US'] || npc.NPCID}{npc.Title?.['en-US'] ? ` (${npc.Title['en-US']})` : ''}
               </option>
             ))}
           </select>
@@ -477,13 +477,32 @@ export default function NodeEditor({ node, npcs, items, factions, resources, onS
 
   // Message handlers for Dialog nodes
   const addMessage = () => {
-    setData(prev => ({
-      ...prev,
-      messages: [
-        ...(prev.messages || []),
-        { Speaker: '', Text: { 'en-US': '', 'de-DE': '' } },
-      ],
-    }));
+    setData(prev => {
+      const messages = prev.messages || [];
+      let defaultSpeaker = '';
+      
+      if (messages.length === 0) {
+        // First message: use conversation partner
+        defaultSpeaker = prev.conversationPartner || '';
+      } else {
+        // Subsequent messages: alternate between Player and last non-player speaker
+        const lastSpeaker = messages[messages.length - 1]?.Speaker || '';
+        if (lastSpeaker === 'Player') {
+          // Find the last non-player speaker
+          defaultSpeaker = [...messages].reverse().find(m => m.Speaker && m.Speaker !== 'Player')?.Speaker || prev.conversationPartner || '';
+        } else {
+          defaultSpeaker = 'Player';
+        }
+      }
+      
+      return {
+        ...prev,
+        messages: [
+          ...messages,
+          { Speaker: defaultSpeaker, Text: { 'en-US': '', 'de-DE': '' } },
+        ],
+      };
+    });
   };
 
   const removeMessage = (index) => {
@@ -546,9 +565,9 @@ export default function NodeEditor({ node, npcs, items, factions, resources, onS
                 style={styles.select}
               >
                 <option value="">Select NPC...</option>
-                {npcs?.map(npc => (
+                {npcs?.toSorted((a, b) => (a.DisplayName?.['en-US'] || a.NPCID).localeCompare(b.DisplayName?.['en-US'] || b.NPCID)).map(npc => (
                   <option key={npc.NPCID} value={npc.NPCID}>
-                    {npc.DisplayName?.['en-US'] || npc.NPCID}
+                    {npc.DisplayName?.['en-US'] || npc.NPCID}{npc.Title?.['en-US'] ? ` (${npc.Title['en-US']})` : ''}
                   </option>
                 ))}
               </select>
@@ -596,9 +615,9 @@ export default function NodeEditor({ node, npcs, items, factions, resources, onS
                 style={styles.select}
               >
                 <option value="">Select Speaker...</option>
-                {npcs?.map(npc => (
+                {npcs?.toSorted((a, b) => (a.DisplayName?.['en-US'] || a.NPCID).localeCompare(b.DisplayName?.['en-US'] || b.NPCID)).map(npc => (
                   <option key={npc.NPCID} value={npc.NPCID}>
-                    {npc.DisplayName?.['en-US'] || npc.NPCID}
+                    {npc.DisplayName?.['en-US'] || npc.NPCID}{npc.Title?.['en-US'] ? ` (${npc.Title['en-US']})` : ''}
                   </option>
                 ))}
               </select>

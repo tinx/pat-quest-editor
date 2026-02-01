@@ -3,8 +3,8 @@ QuestVersion: 1
 QuestID: PAT_ALL_FEATURES_QUEST
 QuestType: SideQuest
 DisplayName:
-    en-US: The Weekly Grind
-    de-DE: Die wöchentliche Plackerei
+    en-US: The Weekly Sales Offer
+    de-DE: Das wöchentliche Sonderangebot
 Repeatable: weekly
 QuestNodes:
     - NodeID: 0
@@ -14,7 +14,8 @@ QuestNodes:
     - NodeID: 1
       NodeType: Actions
       NextNodes:
-        - 11
+        - 12
+        - 13
       Actions:
         - AcceptQuest
         - QuestStageDescription:
@@ -91,6 +92,8 @@ QuestNodes:
         - TimePassed: 1d
     - NodeID: 7
       NodeType: Actions
+      NextNodes:
+        - 14
       Actions:
         - AcceptQuest
         - QuestStageDescription:
@@ -99,8 +102,14 @@ QuestNodes:
         - JournalEntry:
             de-DE: Drumin hat Dich gebeten Hufeisen zu verkaufen und Du hast Dich entschieden Dein Glück auf dem Bauernhof zu versuchen.
             en-US: Drumin asked you to sell horseshoes, and you decided to try your luck at the farm.
+        - ItemsGained:
+            - Count: 1
+              QuestItem: true
+              Type: Horseshoes
     - NodeID: 8
       NodeType: Actions
+      NextNodes:
+        - 11
       Actions:
         - AcceptQuest
         - QuestStageDescription:
@@ -109,8 +118,18 @@ QuestNodes:
         - JournalEntry:
             de-DE: Drumin hat Dich beten die Hufeisen zu verkaufen die er geschmiedet hat, und Du dachtest es wäre am Besten sie der Feuerwache anzubieten.
             en-US: Drumin asked you to sell the horseshoes he made, and you thought it best to offer them to the fire brigade.
+        - SetVariable:
+            Operation: set to
+            Value: 1
+            VariableName: Q_PAT_ALL_FEATURES_QUEST_Chose_Firebridgade
+        - ItemsGained:
+            - Count: 1
+              QuestItem: true
+              Type: Horseshoes
     - NodeID: 9
       NodeType: Actions
+      NextNodes:
+        - 15
       Actions:
         - AcceptQuest
         - QuestStageDescription:
@@ -119,6 +138,10 @@ QuestNodes:
         - JournalEntry:
             de-DE: Drumin bat Dich die Hufeisen zu verkaufen die er geschmiedet hat, und Dir fiel ein, dass das genau das ist was Levora braucht um die Mine an's Laufen zu kriegen.
             en-US: Drumin asked you to see the horseshoes he forged, and you realized that this is exactly what Levora needs to get the mine going.
+        - ItemsGained:
+            - Count: 1
+              QuestItem: true
+              Type: Horseshoes
     - NodeID: 10
       NodeType: Actions
       Actions:
@@ -133,20 +156,26 @@ QuestNodes:
             Faction: NPC:Smith
             Points: -1
     - NodeID: 11
-      NodeType: ConditionBranch
-      NextNodesIfTrue:
-        - 13
-      NextNodesIfFalse:
-        - 12
-      Conditions:
-        - FactionStanding:
-            Faction: NPC:Smith
-            MinimumLevel: 10
+      NodeType: Dialog
+      ConversationPartner: NPC:FireBrigadeCaptain
     - NodeID: 12
-      NodeType: Actions
-      Actions:
-        - Currency: 10
+      NodeType: Dialog
+      ConversationPartner: NPC:FalconCourier
     - NodeID: 13
-      NodeType: Actions
-      Actions:
-        - Currency: 30
+      NodeType: Dialog
+      ConversationPartner: NPC:HorsebackCourier
+    - NodeID: 14
+      NodeType: Dialog
+      ConversationPartner: NPC:Farmer
+    - NodeID: 15
+      NodeType: Dialog
+      ConversationPartner: NPC:Miner
+      Messages:
+        - Speaker: NPC:Miner
+          Text:
+            en-US: Hey, you haven't dropped by since the bronze age. Nice to see you.
+            de-DE: Hi. Ich hab' Dich ja seit der Bronzezeit nicht mehr gesehen. Schön Dich zu sehen.
+        - Speaker: Player
+          Text:
+            en-US: Same.
+            de-DE: Finde ich auch.

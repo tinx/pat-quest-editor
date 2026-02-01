@@ -26,3 +26,68 @@
     de-DE: Ein erfahrener Schreiner, der verschiedene Holzarbeiten übernimmt.
   Location: Carpentry Workshop
   FactionID: NPC:Carpenter
+
+- NPCID: NPC:FireBrigadeCaptain
+  DisplayName:
+    en-US: Thuomanis
+    de-DE: Thuomanis
+  Title:
+    en-US: Captain of Fire Brigade
+    de-DE: Kapitän der Feuerwache
+  Description:
+    en-US: Hero of many big and small emergencies, competent and always prepared.
+    de-DE: Der Held vieler kleiner und großer Notfälle, kompetent und stets vorbereitet.
+  Location: Fire Brigade
+  FactionID: NPC:FireBrigadeCaptain
+
+- NPCID: NPC:Farmer
+  DisplayName:
+    en-US: Jessi
+    de-DE: Jessi
+  Title:
+    en-US: Farmer
+    de-DE: Bäuerin
+  Description:
+    en-US: She runs the biggest farm around town. Never afraid to try something new.
+    de-DE: Sie schmeisst den größten Bauernhof der Gegend. Nie verlegen etwas Neues auszuprobieren.
+  Location: Farm
+  FactionID: NPC:Farmer
+
+- NPCID: NPC:HorsebackCourier
+  DisplayName:
+    en-US: Tihat
+    de-DE: Tihat
+  Title:
+    en-US: Courier
+    de-DE: Bote
+  Description:
+    en-US: Reliable and discrete traditionalist. Trustworthy and a little boring.
+    de-DE: Zuverlässiger und disktreter Traditionalist. Vertrauenswürdig und etwas langweilig.
+  Location: CourierGuild
+  FactionID: NPC:HorsebackCourier
+
+- NPCID: NPC:FalconCourier
+  DisplayName:
+    en-US: Mikah
+    de-DE: Mikah
+  Title:
+    en-US: Courier
+    de-DE: Bote
+  Description:
+    en-US: Quick witted, fast, nible and addicted to speed. Whatever it is, she gets it done by yesterday, latest.
+    de-DE: Schlagfertig, schnell, flink und geschwindigkeitssüchtig. Worum es auch geht, sie erledigt es bis spätestens gestern.
+  Location: CourierGuild
+  FactionID: NPC:FalconCourier
+
+- NPCID: NPC:Miner
+  DisplayName:
+    en-US: Levora
+    de-DE: Levora
+  Title:
+    en-US: Miner
+    de-DE: Bergarbeiterin
+  Description:
+    en-US: Always full of dust, irony and kindness. She has seen things.
+    de-DE: Immer voller Staub, Ironie und Herzlichkeit. Sie hat schon viel erlebt.
+  Location: Mine
+  FactionID: NPC:Miner
