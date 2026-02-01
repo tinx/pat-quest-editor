@@ -45,6 +45,9 @@ QuestNodes:
         - 6
       Conditions:
         - QuestCompleted: PAT_MASTER_SELLER
+        - EventTriggered:
+            Count: 1
+            Event: Shortage:Horseshoe
     - NodeID: 5
       NodeType: Decision
       ConversationPartner: NPC:Smith

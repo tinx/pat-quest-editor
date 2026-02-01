@@ -239,7 +239,8 @@
 					{ "$ref": "#/$defs/Cond_TimePassed" },
 					{ "$ref": "#/$defs/Cond_ItemLost" },
 					{ "$ref": "#/$defs/Cond_Inventory" },
-					{ "$ref": "#/$defs/Cond_Variable" }
+					{ "$ref": "#/$defs/Cond_Variable" },
+					{ "$ref": "#/$defs/Cond_EventTriggered" }
 				]
 			}
 		},
@@ -375,6 +376,26 @@
 				}
 			},
 			"required": [ "Variable" ]
+		},
+		"Cond_EventTriggered": {
+			"type": "object",
+			"properties": {
+				"EventTriggered": {
+					"type": "object",
+					"properties": {
+						"Event": {
+							"type": "string",
+							"pattern": "^[A-Z][A-Za-z0-9\\.\\-_:]*$"
+						},
+						"Count": {
+							"type": "integer",
+							"minimum": 1
+						}
+					},
+					"required": [ "Event", "Count" ]
+				}
+			},
+			"required": [ "EventTriggered" ]
 		},
 		"Actions": {
 			"type": "array",

@@ -9,6 +9,7 @@ const CONDITION_TYPES = [
   { value: 'ItemLost', label: 'Item Lost' },
   { value: 'Inventory', label: 'Inventory Has Items' },
   { value: 'Variable', label: 'Variable Check' },
+  { value: 'EventTriggered', label: 'Event Triggered' },
 ];
 
 const TIME_UNITS = [
@@ -50,6 +51,8 @@ function createEmptyCondition(type) {
       return { Inventory: [{ Type: '' }] };
     case 'Variable':
       return { Variable: { VariableName: '', Comparison: 'equal', Value: 0 } };
+    case 'EventTriggered':
+      return { EventTriggered: { Event: '', Count: 1 } };
     default:
       return {};
   }
@@ -99,6 +102,10 @@ function getConditionSummary(condition, items, factions, resources) {
       const v = condition.Variable;
       const comp = COMPARISONS.find(c => c.value === v?.Comparison)?.label || v?.Comparison;
       return `${v?.VariableName || '?'} ${comp} ${v?.Value ?? '?'}`;
+    }
+    case 'EventTriggered': {
+      const et = condition.EventTriggered;
+      return `Event: ${et?.Event || '(not set)'} ×${et?.Count ?? '?'}`;
     }
     default:
       return 'Unknown';
@@ -318,6 +325,34 @@ function VariableEditor({ value, onChange, styles }) {
   );
 }
 
+function EventTriggeredEditor({ value, onChange, styles }) {
+  const et = value || { Event: '', Count: 1 };
+  const update = (field, val) => onChange({ ...et, [field]: val });
+
+  return (
+    <div style={styles.fieldGroup}>
+      <input
+        type="text"
+        value={et.Event || ''}
+        onChange={e => update('Event', e.target.value)}
+        placeholder="Event name (e.g., Harvested:Rose)"
+        style={styles.input}
+      />
+      <div style={styles.inlineGroup}>
+        <label style={styles.smallLabel}>At least</label>
+        <input
+          type="number"
+          min="1"
+          value={et.Count || 1}
+          onChange={e => update('Count', parseInt(e.target.value) || 1)}
+          style={styles.numberInput}
+        />
+        <label style={styles.smallLabel}>times</label>
+      </div>
+    </div>
+  );
+}
+
 // Single condition editor row
 function ConditionRow({ condition, onChange, onRemove, items, factions, resources, expanded, onToggle, styles }) {
   const type = getConditionType(condition);
@@ -360,6 +395,9 @@ function ConditionRow({ condition, onChange, onRemove, items, factions, resource
           )}
           {type === 'Variable' && (
             <VariableEditor value={condition.Variable} onChange={updateConditionValue} styles={styles} />
+          )}
+          {type === 'EventTriggered' && (
+            <EventTriggeredEditor value={condition.EventTriggered} onChange={updateConditionValue} styles={styles} />
           )}
         </div>
       )}
