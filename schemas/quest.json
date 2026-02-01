@@ -234,7 +234,7 @@
 			"items": {
 				"oneOf": [
 					{ "$ref": "#/$defs/Cond_QuestCompleted" },
-					{ "$ref": "#/$defs/Cond_ResourceAvailable" },
+					{ "$ref": "#/$defs/Cond_ResourceAvailability" },
 					{ "$ref": "#/$defs/Cond_FactionStanding" },
 					{ "$ref": "#/$defs/Cond_TimePassed" },
 					{ "$ref": "#/$defs/Cond_ItemLost" },
@@ -250,7 +250,7 @@
 			"items": {
 				"oneOf": [
 					{ "$ref": "#/$defs/Cond_QuestCompleted" },
-					{ "$ref": "#/$defs/Cond_ResourceAvailable" },
+					{ "$ref": "#/$defs/Cond_ResourceAvailability" },
 					{ "$ref": "#/$defs/Cond_FactionStanding" },
 					{ "$ref": "#/$defs/Cond_Inventory" },
 					{ "$ref": "#/$defs/Cond_Variable" }
@@ -267,15 +267,23 @@
 			},
 			"required": [ "QuestCompleted" ]
 		},
-		"Cond_ResourceAvailable": {
+		"Cond_ResourceAvailability": {
 			"type": "object",
 			"properties": {
-				"ResourceAvailable": {
-					"type": "string",
-					"enum": [ "Coal", "IronOre" ]
+				"ResourceAvailability": {
+					"type": "object",
+					"properties": {
+						"Resource": {
+							"type": "string"
+						},
+						"Available": {
+							"type": "boolean"
+						}
+					},
+					"required": [ "Resource", "Available" ]
 				}
 			},
-			"required": [ "ResourceAvailable" ]
+			"required": [ "ResourceAvailability" ]
 		},
 		"Cond_FactionStanding": {
 			"type": "object",

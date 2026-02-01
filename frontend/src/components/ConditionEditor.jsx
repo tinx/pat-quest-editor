@@ -3,7 +3,7 @@ import { useTheme } from '../ThemeContext';
 
 const CONDITION_TYPES = [
   { value: 'QuestCompleted', label: 'Quest Completed' },
-  { value: 'ResourceAvailable', label: 'Resource Available' },
+  { value: 'ResourceAvailability', label: 'Resource Availability' },
   { value: 'FactionStanding', label: 'Faction Standing' },
   { value: 'TimePassed', label: 'Time Passed' },
   { value: 'ItemLost', label: 'Item Lost' },
@@ -38,8 +38,8 @@ function createEmptyCondition(type) {
   switch (type) {
     case 'QuestCompleted':
       return { QuestCompleted: '' };
-    case 'ResourceAvailable':
-      return { ResourceAvailable: '' };
+    case 'ResourceAvailability':
+      return { ResourceAvailability: { Resource: '', Available: true } };
     case 'FactionStanding':
       return { FactionStanding: { Faction: '' } };
     case 'TimePassed':
@@ -63,9 +63,12 @@ function getConditionSummary(condition, items, factions, resources) {
   switch (type) {
     case 'QuestCompleted':
       return `Quest: ${condition.QuestCompleted || '(not set)'}`;
-    case 'ResourceAvailable': {
-      const res = resources?.find(r => r.ResourceID === condition.ResourceAvailable);
-      return `Resource: ${res?.DisplayName?.['en-US'] || condition.ResourceAvailable || '(not set)'}`;
+    case 'ResourceAvailability': {
+      const ra = condition.ResourceAvailability;
+      const res = resources?.find(r => r.ResourceID === ra?.Resource);
+      const name = res?.DisplayName?.['en-US'] || ra?.Resource || '(not set)';
+      const status = ra?.Available !== false ? 'available' : 'unavailable';
+      return `Resource: ${name} (${status})`;
     }
     case 'FactionStanding': {
       const fs = condition.FactionStanding;
@@ -115,16 +118,29 @@ function QuestCompletedEditor({ value, onChange, styles }) {
   );
 }
 
-function ResourceAvailableEditor({ value, onChange, resources, styles }) {
+function ResourceAvailabilityEditor({ value, onChange, resources, styles }) {
+  const ra = value || { Resource: '', Available: true };
+  const update = (field, val) => onChange({ ...ra, [field]: val });
+
   return (
-    <select value={value || ''} onChange={e => onChange(e.target.value)} style={styles.select}>
-      <option value="">Select resource...</option>
-      {resources?.map(r => (
-        <option key={r.ResourceID} value={r.ResourceID}>
-          {r.DisplayName?.['en-US'] || r.ResourceID}
-        </option>
-      ))}
-    </select>
+    <div style={styles.fieldGroup}>
+      <select value={ra.Resource || ''} onChange={e => update('Resource', e.target.value)} style={styles.select}>
+        <option value="">Select resource...</option>
+        {resources?.map(r => (
+          <option key={r.ResourceID} value={r.ResourceID}>
+            {r.DisplayName?.['en-US'] || r.ResourceID}
+          </option>
+        ))}
+      </select>
+      <label style={styles.checkboxLabel}>
+        <input
+          type="checkbox"
+          checked={ra.Available !== false}
+          onChange={e => update('Available', e.target.checked)}
+        />
+        Available
+      </label>
+    </div>
   );
 }
 
@@ -327,8 +343,8 @@ function ConditionRow({ condition, onChange, onRemove, items, factions, resource
           {type === 'QuestCompleted' && (
             <QuestCompletedEditor value={condition.QuestCompleted} onChange={updateConditionValue} styles={styles} />
           )}
-          {type === 'ResourceAvailable' && (
-            <ResourceAvailableEditor value={condition.ResourceAvailable} onChange={updateConditionValue} resources={resources} styles={styles} />
+          {type === 'ResourceAvailability' && (
+            <ResourceAvailabilityEditor value={condition.ResourceAvailability} onChange={updateConditionValue} resources={resources} styles={styles} />
           )}
           {type === 'FactionStanding' && (
             <FactionStandingEditor value={condition.FactionStanding} onChange={updateConditionValue} factions={factions} styles={styles} />

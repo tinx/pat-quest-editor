@@ -301,5 +301,16 @@ func (v *QuestValidatorService) validateReferences(quest *domain.Quest, result *
 				result.AddNodeError(node.NodeID, "unknown speaker in message: "+msg.Speaker)
 			}
 		}
+
+		// Check ResourceAvailability conditions
+		for _, cond := range node.Conditions {
+			if ra, ok := cond["ResourceAvailability"].(map[string]interface{}); ok {
+				if resource, ok := ra["Resource"].(string); ok && resource != "" {
+					if !resourceIDs[resource] {
+						result.AddNodeError(node.NodeID, "unknown resource in ResourceAvailability: "+resource)
+					}
+				}
+			}
+		}
 	}
 }

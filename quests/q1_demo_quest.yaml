@@ -17,8 +17,12 @@ QuestNodes:
         - 2
       Conditions:
         - QuestCompleted: PAT_Tutorial:Navigation
-        - ResourceAvailable: Coal
-        - ResourceAvailable: IronOre
+        - ResourceAvailability:
+            Resource: Coal
+            Available: true
+        - ResourceAvailability:
+            Resource: IronOre
+            Available: true
         - FactionStanding:
             Faction: NPC:Smith
             MinimumLevel: 5
