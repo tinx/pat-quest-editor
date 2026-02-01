@@ -240,7 +240,9 @@
 					{ "$ref": "#/$defs/Cond_ItemLost" },
 					{ "$ref": "#/$defs/Cond_Inventory" },
 					{ "$ref": "#/$defs/Cond_Variable" },
-					{ "$ref": "#/$defs/Cond_EventTriggered" }
+					{ "$ref": "#/$defs/Cond_EventTriggered" },
+					{ "$ref": "#/$defs/Cond_ItemUsedOnObject" },
+					{ "$ref": "#/$defs/Cond_ItemUsedOnNPC" }
 				]
 			}
 		},
@@ -396,6 +398,50 @@
 				}
 			},
 			"required": [ "EventTriggered" ]
+		},
+		"Cond_ItemUsedOnObject": {
+			"type": "object",
+			"properties": {
+				"ItemUsedOnObject": {
+					"type": "object",
+					"properties": {
+						"Item": {
+							"description": "The item that must be used",
+							"type": "string",
+							"pattern": "^[A-Z][A-Za-z0-9\\.\\-_:]*$"
+						},
+						"Object": {
+							"description": "The world object the item is used on",
+							"type": "string",
+							"pattern": "^[A-Z][A-Za-z0-9\\.\\-_:]*$"
+						}
+					},
+					"required": [ "Item", "Object" ]
+				}
+			},
+			"required": [ "ItemUsedOnObject" ]
+		},
+		"Cond_ItemUsedOnNPC": {
+			"type": "object",
+			"properties": {
+				"ItemUsedOnNPC": {
+					"type": "object",
+					"properties": {
+						"Item": {
+							"description": "The item that must be used",
+							"type": "string",
+							"pattern": "^[A-Z][A-Za-z0-9\\.\\-_:]*$"
+						},
+						"NPC": {
+							"description": "The NPC the item is used on",
+							"type": "string",
+							"pattern": "^[A-Z][A-Za-z0-9\\.\\-_:]*$"
+						}
+					},
+					"required": [ "Item", "NPC" ]
+				}
+			},
+			"required": [ "ItemUsedOnNPC" ]
 		},
 		"Actions": {
 			"type": "array",

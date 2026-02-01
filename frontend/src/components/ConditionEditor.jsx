@@ -10,6 +10,8 @@ const CONDITION_TYPES = [
   { value: 'Inventory', label: 'Inventory Has Items' },
   { value: 'Variable', label: 'Variable Check' },
   { value: 'EventTriggered', label: 'Event Triggered' },
+  { value: 'ItemUsedOnObject', label: 'Item Used On Object' },
+  { value: 'ItemUsedOnNPC', label: 'Item Used On NPC' },
 ];
 
 const TIME_UNITS = [
@@ -53,13 +55,17 @@ function createEmptyCondition(type) {
       return { Variable: { VariableName: '', Comparison: 'equal', Value: 0 } };
     case 'EventTriggered':
       return { EventTriggered: { Event: '', Count: 1 } };
+    case 'ItemUsedOnObject':
+      return { ItemUsedOnObject: { Item: '', Object: '' } };
+    case 'ItemUsedOnNPC':
+      return { ItemUsedOnNPC: { Item: '', NPC: '' } };
     default:
       return {};
   }
 }
 
 // Render summary text for a condition
-function getConditionSummary(condition, items, factions, resources) {
+function getConditionSummary(condition, items, factions, resources, npcs, objects) {
   const type = getConditionType(condition);
   if (!type) return 'Unknown condition';
 
@@ -106,6 +112,22 @@ function getConditionSummary(condition, items, factions, resources) {
     case 'EventTriggered': {
       const et = condition.EventTriggered;
       return `Event: ${et?.Event || '(not set)'} ×${et?.Count ?? '?'}`;
+    }
+    case 'ItemUsedOnObject': {
+      const iuo = condition.ItemUsedOnObject;
+      const item = items?.find(i => i.ItemID === iuo?.Item);
+      const obj = objects?.find(o => o.ObjectID === iuo?.Object);
+      const itemName = item?.DisplayName?.['en-US'] || iuo?.Item || '(not set)';
+      const objName = obj?.DisplayName?.['en-US'] || iuo?.Object || '(not set)';
+      return `${itemName} → ${objName}`;
+    }
+    case 'ItemUsedOnNPC': {
+      const iun = condition.ItemUsedOnNPC;
+      const item = items?.find(i => i.ItemID === iun?.Item);
+      const npc = npcs?.find(n => n.NPCID === iun?.NPC);
+      const itemName = item?.DisplayName?.['en-US'] || iun?.Item || '(not set)';
+      const npcName = npc?.DisplayName?.['en-US'] || iun?.NPC || '(not set)';
+      return `${itemName} → ${npcName}`;
     }
     default:
       return 'Unknown';
@@ -353,10 +375,68 @@ function EventTriggeredEditor({ value, onChange, styles }) {
   );
 }
 
+function ItemUsedOnObjectEditor({ value, onChange, items, objects, styles }) {
+  const iuo = value || { Item: '', Object: '' };
+  const update = (field, val) => onChange({ ...iuo, [field]: val });
+
+  return (
+    <div style={styles.fieldGroup}>
+      <select value={iuo.Item || ''} onChange={e => update('Item', e.target.value)} style={styles.select}>
+        <option value="">Select item...</option>
+        {items?.map(i => (
+          <option key={i.ItemID} value={i.ItemID}>
+            {i.DisplayName?.['en-US'] || i.ItemID}
+          </option>
+        ))}
+      </select>
+      <div style={styles.inlineGroup}>
+        <label style={styles.smallLabel}>used on</label>
+      </div>
+      <select value={iuo.Object || ''} onChange={e => update('Object', e.target.value)} style={styles.select}>
+        <option value="">Select object...</option>
+        {objects?.map(o => (
+          <option key={o.ObjectID} value={o.ObjectID}>
+            {o.DisplayName?.['en-US'] || o.ObjectID}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+function ItemUsedOnNPCEditor({ value, onChange, items, npcs, styles }) {
+  const iun = value || { Item: '', NPC: '' };
+  const update = (field, val) => onChange({ ...iun, [field]: val });
+
+  return (
+    <div style={styles.fieldGroup}>
+      <select value={iun.Item || ''} onChange={e => update('Item', e.target.value)} style={styles.select}>
+        <option value="">Select item...</option>
+        {items?.map(i => (
+          <option key={i.ItemID} value={i.ItemID}>
+            {i.DisplayName?.['en-US'] || i.ItemID}
+          </option>
+        ))}
+      </select>
+      <div style={styles.inlineGroup}>
+        <label style={styles.smallLabel}>used on</label>
+      </div>
+      <select value={iun.NPC || ''} onChange={e => update('NPC', e.target.value)} style={styles.select}>
+        <option value="">Select NPC...</option>
+        {npcs?.map(n => (
+          <option key={n.NPCID} value={n.NPCID}>
+            {n.DisplayName?.['en-US'] || n.NPCID}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 // Single condition editor row
-function ConditionRow({ condition, onChange, onRemove, items, factions, resources, expanded, onToggle, styles }) {
+function ConditionRow({ condition, onChange, onRemove, items, factions, resources, npcs, objects, expanded, onToggle, styles }) {
   const type = getConditionType(condition);
-  const summary = getConditionSummary(condition, items, factions, resources);
+  const summary = getConditionSummary(condition, items, factions, resources, npcs, objects);
 
   const updateConditionValue = (newValue) => {
     onChange({ [type]: newValue });
@@ -399,6 +479,12 @@ function ConditionRow({ condition, onChange, onRemove, items, factions, resource
           {type === 'EventTriggered' && (
             <EventTriggeredEditor value={condition.EventTriggered} onChange={updateConditionValue} styles={styles} />
           )}
+          {type === 'ItemUsedOnObject' && (
+            <ItemUsedOnObjectEditor value={condition.ItemUsedOnObject} onChange={updateConditionValue} items={items} objects={objects} styles={styles} />
+          )}
+          {type === 'ItemUsedOnNPC' && (
+            <ItemUsedOnNPCEditor value={condition.ItemUsedOnNPC} onChange={updateConditionValue} items={items} npcs={npcs} styles={styles} />
+          )}
         </div>
       )}
     </div>
@@ -412,6 +498,8 @@ export default function ConditionEditor({
   items, 
   factions, 
   resources,
+  npcs,
+  objects,
   conditionsRequired,
   onConditionsRequiredChange,
   showConditionsRequired = false,
@@ -489,6 +577,8 @@ export default function ConditionEditor({
           items={items}
           factions={factions}
           resources={resources}
+          npcs={npcs}
+          objects={objects}
           expanded={expandedConditions[i] !== false}
           onToggle={() => toggleCondition(i)}
           styles={styles}

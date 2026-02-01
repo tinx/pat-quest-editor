@@ -388,6 +388,7 @@ export default forwardRef(function Canvas({ quest, metadata, questVersion, refer
           items={referenceData.items}
           factions={referenceData.factions}
           resources={referenceData.resources}
+          objects={referenceData.objects}
           onSave={onNodeSave}
           onClose={() => setEditingNode(null)}
         />

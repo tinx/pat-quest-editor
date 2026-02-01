@@ -62,3 +62,9 @@ export async function fetchNPCs() {
   if (!res.ok) throw new Error('Failed to fetch NPCs');
   return res.json();
 }
+
+export async function fetchObjects() {
+  const res = await fetch(`${API_BASE}/objects`);
+  if (!res.ok) throw new Error('Failed to fetch objects');
+  return res.json();
+}

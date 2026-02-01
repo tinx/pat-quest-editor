@@ -405,7 +405,7 @@ function SortableMessageCard({ id, index, message, npcs, styles, onRemove, onCha
   );
 }
 
-export default function NodeEditor({ node, npcs, items, factions, resources, onSave, onClose }) {
+export default function NodeEditor({ node, npcs, items, factions, resources, objects, onSave, onClose }) {
   const { theme } = useTheme();
   const [data, setData] = useState(node?.data || {});
 
@@ -680,6 +680,8 @@ export default function NodeEditor({ node, npcs, items, factions, resources, onS
                     items={items}
                     factions={factions}
                     resources={resources}
+                    npcs={npcs}
+                    objects={objects}
                     collapsible={true}
                     defaultExpanded={false}
                   />
@@ -703,6 +705,8 @@ export default function NodeEditor({ node, npcs, items, factions, resources, onS
                 items={items}
                 factions={factions}
                 resources={resources}
+                npcs={npcs}
+                objects={objects}
                 showConditionsRequired={true}
                 conditionsRequired={data.conditionsRequired}
                 onConditionsRequiredChange={(val) => handleChange('conditionsRequired', val)}
@@ -719,10 +723,12 @@ export default function NodeEditor({ node, npcs, items, factions, resources, onS
                 items={items}
                 factions={factions}
                 resources={resources}
+                npcs={npcs}
+                objects={objects}
                 showConditionsRequired={true}
                 conditionsRequired={data.conditionsRequired}
                 onConditionsRequiredChange={(val) => handleChange('conditionsRequired', val)}
-                excludeConditionTypes={['TimePassed', 'ItemLost']}
+                excludeConditionTypes={['TimePassed', 'ItemLost', 'ItemUsedOnObject', 'ItemUsedOnNPC']}
               />
               <div style={styles.branchInfo}>
                 <p style={styles.branchHint}>

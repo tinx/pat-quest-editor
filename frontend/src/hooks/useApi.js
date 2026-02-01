@@ -25,7 +25,7 @@ export function useQuests() {
 }
 
 export function useReferenceData() {
-  const [data, setData] = useState({ items: [], factions: [], resources: [], npcs: [] });
+  const [data, setData] = useState({ items: [], factions: [], resources: [], npcs: [], objects: [] });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,8 +34,9 @@ export function useReferenceData() {
       api.fetchFactions(),
       api.fetchResources(),
       api.fetchNPCs(),
-    ]).then(([items, factions, resources, npcs]) => {
-      setData({ items: items || [], factions: factions || [], resources: resources || [], npcs: npcs || [] });
+      api.fetchObjects(),
+    ]).then(([items, factions, resources, npcs, objects]) => {
+      setData({ items: items || [], factions: factions || [], resources: resources || [], npcs: npcs || [], objects: objects || [] });
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);

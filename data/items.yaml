@@ -21,3 +21,23 @@
     de-DE: Vier neue Hufeisen, bereit für den Einsatz.
   Stackable: false
   Category: Material
+
+- ItemID: BaleOfHay
+  DisplayName:
+    en-US: A Bale of Hay
+    de-DE: Ein Heuballen
+  Description:
+    en-US: A bale of hay. Dry, fresh and tasty for horses.
+    de-DE: Ein Heuballen. Trocken, frisch und lecker für Pferde.
+  Stackable: false
+  Category: Material
+
+- ItemID: OilCan
+  DisplayName:
+    en-US: Oil Can
+    de-DE: Ölkanne
+  Description:
+    en-US: A can of oil. Can be used to grease or to burn.
+    de-DE: Eine Ölkanne. Das Öl kann zum Schmieren oder als Brennstoff verwendet werden.
+  Stackable: false
+  Category: Material

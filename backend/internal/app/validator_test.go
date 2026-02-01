@@ -39,6 +39,13 @@ func (m *mockReferenceData) GetItem(itemID string) (*domain.Item, error)       {
 func (m *mockReferenceData) GetFaction(factionID string) (*domain.Faction, error) { return nil, nil }
 func (m *mockReferenceData) GetResource(resourceID string) (*domain.Resource, error) { return nil, nil }
 func (m *mockReferenceData) GetNPC(npcID string) (*domain.NPC, error)           { return nil, nil }
+func (m *mockReferenceData) ListObjects() ([]domain.Object, error) {
+	return []domain.Object{
+		{ObjectID: "Object:Lorry"},
+		{ObjectID: "Object:StableLamp"},
+	}, nil
+}
+func (m *mockReferenceData) GetObject(objectID string) (*domain.Object, error) { return nil, nil }
 
 func TestValidate_ValidQuest(t *testing.T) {
 	validator := NewQuestValidatorService(&mockReferenceData{})

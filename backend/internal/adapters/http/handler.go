@@ -72,6 +72,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/factions", h.handleFactions)
 	mux.HandleFunc("/api/resources", h.handleResources)
 	mux.HandleFunc("/api/npcs", h.handleNPCs)
+	mux.HandleFunc("/api/objects", h.handleObjects)
 
 	// Metadata endpoints
 	mux.HandleFunc("/api/metadata/", h.handleMetadata)
@@ -265,6 +266,20 @@ func (h *Handler) handleNPCs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.writeJSON(w, npcs)
+}
+
+func (h *Handler) handleObjects(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	objects, err := h.refData.ListObjects()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	h.writeJSON(w, objects)
 }
 
 func (h *Handler) handleMetadata(w http.ResponseWriter, r *http.Request) {

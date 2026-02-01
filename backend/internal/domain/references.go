@@ -37,3 +37,11 @@ type NPC struct {
 	Location    string      `yaml:"Location,omitempty" json:"Location,omitempty"`
 	FactionID   string      `yaml:"FactionID,omitempty" json:"FactionID,omitempty"`
 }
+
+// Object represents a world object that can be interacted with.
+type Object struct {
+	ObjectID    string      `yaml:"ObjectID" json:"ObjectID"`
+	DisplayName I18nString  `yaml:"DisplayName" json:"DisplayName"`
+	Description *I18nString `yaml:"Description,omitempty" json:"Description,omitempty"`
+	Location    string      `yaml:"Location,omitempty" json:"Location,omitempty"`
+}

@@ -17,6 +17,7 @@ type ReferenceDataFileRepository struct {
 	factionsPath  string
 	resourcesPath string
 	npcsPath      string
+	objectsPath   string
 }
 
 // NewReferenceDataFileRepository creates a new filesystem-based reference data repository.
@@ -32,6 +33,7 @@ func NewReferenceDataFileRepository(dataPath string) (*ReferenceDataFileReposito
 	factionsPath := filepath.Join(absBase, "factions.yaml")
 	resourcesPath := filepath.Join(absBase, "resources.yaml")
 	npcsPath := filepath.Join(absBase, "npcs.yaml")
+	objectsPath := filepath.Join(absBase, "objects.yaml")
 
 	// Validate all paths are within base directory
 	for name, path := range map[string]string{
@@ -39,6 +41,7 @@ func NewReferenceDataFileRepository(dataPath string) (*ReferenceDataFileReposito
 		"factions":  factionsPath,
 		"resources": resourcesPath,
 		"npcs":      npcsPath,
+		"objects":   objectsPath,
 	} {
 		if err := validatePathWithinBase(absBase, path); err != nil {
 			return nil, fmt.Errorf("invalid %s path: %w", name, err)
@@ -51,6 +54,7 @@ func NewReferenceDataFileRepository(dataPath string) (*ReferenceDataFileReposito
 		factionsPath:  factionsPath,
 		resourcesPath: resourcesPath,
 		npcsPath:      npcsPath,
+		objectsPath:   objectsPath,
 	}, nil
 }
 
@@ -144,6 +148,29 @@ func (r *ReferenceDataFileRepository) GetNPC(npcID string) (*domain.NPC, error) 
 		}
 	}
 	return nil, fmt.Errorf("NPC not found: %s", npcID)
+}
+
+// ListObjects returns all defined world objects.
+func (r *ReferenceDataFileRepository) ListObjects() ([]domain.Object, error) {
+	var objects []domain.Object
+	if err := r.loadYAMLFile(r.objectsPath, &objects); err != nil {
+		return nil, fmt.Errorf("failed to load objects: %w", err)
+	}
+	return objects, nil
+}
+
+// GetObject retrieves a world object by ID.
+func (r *ReferenceDataFileRepository) GetObject(objectID string) (*domain.Object, error) {
+	objects, err := r.ListObjects()
+	if err != nil {
+		return nil, err
+	}
+	for _, obj := range objects {
+		if obj.ObjectID == objectID {
+			return &obj, nil
+		}
+	}
+	return nil, fmt.Errorf("object not found: %s", objectID)
 }
 
 func (r *ReferenceDataFileRepository) loadYAMLFile(path string, v interface{}) error {

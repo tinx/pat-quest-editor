@@ -1,0 +1,42 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://potions-and-tinctures.com/schemas/object.json",
+	"title": "Potions and Tinctures Object",
+	"description": "A record describing a world object that can be interacted with (e.g., items can be used on it)",
+
+	"type": "object",
+	"properties": {
+		"ObjectID": {
+			"description": "A unique identifier for this object",
+			"type": "string",
+			"pattern": "^[A-Z][A-Za-z0-9\\.\\-_:]*$"
+		},
+		"DisplayName": {
+			"description": "The name shown to players",
+			"$ref": "#/$defs/i18nString"
+		},
+		"Description": {
+			"description": "A short description of the object",
+			"$ref": "#/$defs/i18nString"
+		},
+		"Location": {
+			"description": "Where this object can be found",
+			"type": "string"
+		}
+	},
+	"required": [ "ObjectID", "DisplayName" ],
+	"$defs": {
+		"i18nString": {
+			"type": "object",
+			"properties": {
+				"en-US": {
+					"type": "string"
+				},
+				"de-DE": {
+					"type": "string"
+				}
+			},
+			"required": [ "en-US", "de-DE" ]
+		}
+	}
+}

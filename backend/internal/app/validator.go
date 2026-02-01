@@ -265,6 +265,10 @@ func (v *QuestValidatorService) validateReferences(quest *domain.Quest, result *
 	if err != nil {
 		log.Printf("Warning: failed to load resources for validation: %v", err)
 	}
+	objects, err := v.refData.ListObjects()
+	if err != nil {
+		log.Printf("Warning: failed to load objects for validation: %v", err)
+	}
 
 	npcIDs := make(map[string]bool)
 	for _, npc := range npcs {
@@ -286,6 +290,11 @@ func (v *QuestValidatorService) validateReferences(quest *domain.Quest, result *
 		resourceIDs[resource.ResourceID] = true
 	}
 
+	objectIDs := make(map[string]bool)
+	for _, obj := range objects {
+		objectIDs[obj.ObjectID] = true
+	}
+
 	for _, node := range quest.QuestNodes {
 		// Check conversation partners and speakers
 		if node.ConversationPartner != "" && !npcIDs[node.ConversationPartner] {
@@ -302,12 +311,41 @@ func (v *QuestValidatorService) validateReferences(quest *domain.Quest, result *
 			}
 		}
 
-		// Check ResourceAvailability conditions
+		// Check conditions
 		for _, cond := range node.Conditions {
+			// Check ResourceAvailability conditions
 			if ra, ok := cond["ResourceAvailability"].(map[string]interface{}); ok {
 				if resource, ok := ra["Resource"].(string); ok && resource != "" {
 					if !resourceIDs[resource] {
 						result.AddNodeError(node.NodeID, "unknown resource in ResourceAvailability: "+resource)
+					}
+				}
+			}
+
+			// Check ItemUsedOnObject conditions
+			if iuo, ok := cond["ItemUsedOnObject"].(map[string]interface{}); ok {
+				if item, ok := iuo["Item"].(string); ok && item != "" {
+					if !itemIDs[item] {
+						result.AddNodeError(node.NodeID, "unknown item in ItemUsedOnObject: "+item)
+					}
+				}
+				if obj, ok := iuo["Object"].(string); ok && obj != "" {
+					if !objectIDs[obj] {
+						result.AddNodeError(node.NodeID, "unknown object in ItemUsedOnObject: "+obj)
+					}
+				}
+			}
+
+			// Check ItemUsedOnNPC conditions
+			if iun, ok := cond["ItemUsedOnNPC"].(map[string]interface{}); ok {
+				if item, ok := iun["Item"].(string); ok && item != "" {
+					if !itemIDs[item] {
+						result.AddNodeError(node.NodeID, "unknown item in ItemUsedOnNPC: "+item)
+					}
+				}
+				if npc, ok := iun["NPC"].(string); ok && npc != "" {
+					if !npcIDs[npc] {
+						result.AddNodeError(node.NodeID, "unknown NPC in ItemUsedOnNPC: "+npc)
 					}
 				}
 			}

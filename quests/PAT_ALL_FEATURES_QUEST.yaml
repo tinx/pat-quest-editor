@@ -83,7 +83,7 @@ QuestNodes:
             en-US: I'm sorry, that's not my cup of tea.
             de-DE: Tut mir leid, aber das ist nicht so mein Fall.
           NextNodes:
-            - 10
+            - 16
     - NodeID: 6
       NodeType: ConditionWatcher
       NextNodes:
@@ -169,13 +169,94 @@ QuestNodes:
       ConversationPartner: NPC:Farmer
     - NodeID: 15
       NodeType: Dialog
+      NextNodes:
+        - 18
+        - 17
+        - 19
       ConversationPartner: NPC:Miner
       Messages:
         - Speaker: NPC:Miner
           Text:
             en-US: Hey, you haven't dropped by since the bronze age. Nice to see you.
             de-DE: Hi. Ich hab' Dich ja seit der Bronzezeit nicht mehr gesehen. Schön Dich zu sehen.
-        - Speaker: Player
+        - Speaker: NPC:Miner
           Text:
-            en-US: Same.
-            de-DE: Finde ich auch.
+            en-US: Listen, hon, I can´t talk right now. I need to oil the lorry, feed Barwinkle and refill the lamps before nightfall. Now, I can talk and do one of them, but if you want to chat you'll have to do the other two.
+            de-DE: "Hör mal, ich kann grad nicht quasseln. Ich muss die Lohre ölen, Barwinkle füttern und die Lampen nachhfüllen bevor es dunkel wird.\n\nIch kann eines davon machen während wir reden, aber wenn Du quasseln willst wirst Du die anderen beiden erledigen müssen. "
+    - NodeID: 16
+      NodeType: Dialog
+      NextNodes:
+        - 10
+      ConversationPartner: NPC:Smith
+      Messages:
+        - Speaker: NPC:Smith
+          Text:
+            en-US: Oh-ho. Someone is too important to help out us little folk, it would seem. Well, good day then, your Highness.
+            de-DE: Oha. Da ist wohl jemand zu wichtig um uns kleinen Leuten zu helfen. Na dann mal noch einen schönen Tag, euer Hochwohlgebohren.
+    - NodeID: 17
+      NodeType: ConditionWatcher
+      NextNodes:
+        - 21
+      Conditions:
+        - ItemUsedOnObject:
+            Item: OilCan
+            Object: Object:StableLamp
+    - NodeID: 18
+      NodeType: ConditionWatcher
+      NextNodes:
+        - 20
+      Conditions:
+        - ItemUsedOnObject:
+            Item: OilCan
+            Object: Object:Lorry
+    - NodeID: 19
+      NodeType: ConditionWatcher
+      NextNodes:
+        - 22
+      Conditions:
+        - ItemUsedOnObject:
+            Item: BaleOfHay
+            Object: Object:HorseFeeder
+    - NodeID: 20
+      NodeType: Actions
+      NextNodes:
+        - 23
+      Actions:
+        - SetVariable:
+            Operation: set to
+            Value: 1
+            VariableName: Q_PAT_ALL_FEATURE_Lorry_Oiled
+    - NodeID: 21
+      NodeType: Actions
+      NextNodes:
+        - 23
+      Actions:
+        - SetVariable:
+            Operation: set to
+            Value: 1
+            VariableName: Q_PAT_ALL_FEATURE_QUEST_Refilled_Lamp
+    - NodeID: 22
+      NodeType: Actions
+      NextNodes:
+        - 23
+      Actions:
+        - SetVariable:
+            Operation: set to
+            Value: 1
+            VariableName: Q_ALL_FEATURE_QUEST_Horse_fed
+    - NodeID: 23
+      NodeType: ConditionWatcher
+      Conditions:
+        - Variable:
+            Comparison: equal
+            Value: 1
+            VariableName: Q_ALL_FEATURE_QUEST_Horse_fed
+        - Variable:
+            Comparison: equal
+            Value: 1
+            VariableName: Q_PAT_ALL_FEATURE_QUEST_Refilled_Lamp
+        - Variable:
+            Comparison: equal
+            Value: 1
+            VariableName: Q_PAT_ALL_FEATURE_Lorry_Oiled
+      ConditionsRequired: "2"

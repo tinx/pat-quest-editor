@@ -34,6 +34,9 @@ type ReferenceDataRepository interface {
 	// ListNPCs returns all defined NPCs.
 	ListNPCs() ([]domain.NPC, error)
 	
+	// ListObjects returns all defined world objects.
+	ListObjects() ([]domain.Object, error)
+	
 	// GetItem retrieves an item by ID.
 	GetItem(itemID string) (*domain.Item, error)
 	
@@ -45,6 +48,9 @@ type ReferenceDataRepository interface {
 	
 	// GetNPC retrieves an NPC by ID.
 	GetNPC(npcID string) (*domain.NPC, error)
+	
+	// GetObject retrieves a world object by ID.
+	GetObject(objectID string) (*domain.Object, error)
 }
 
 // MetadataRepository defines operations for editor metadata storage.

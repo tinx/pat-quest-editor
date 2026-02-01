@@ -1,0 +1,38 @@
+# Objects definition file for Potions and Tinctures
+# Reference: schemas/object.json
+
+- ObjectID: Object:Lorry
+  DisplayName:
+    en-US: Lorry
+    de-DE: Lore
+  Description:
+    en-US: A sturdy mining lorry used to transport ore. Requires regular oiling.
+    de-DE: Eine stabile Grubenlore zum Transport von Erz. Braucht regelmäßiges Ölen.
+  Location: Mine
+
+- ObjectID: Object:StableLamp
+  DisplayName:
+    en-US: Stable Lamp
+    de-DE: Stalllaterne
+  Description:
+    en-US: An oil lamp hanging in the stable. Provides light for the horses.
+    de-DE: Eine Öllampe, die im Stall hängt. Spendet Licht für die Pferde.
+  Location: Stable
+
+- ObjectID: Object:WorkshopForge
+  DisplayName:
+    en-US: Workshop Forge
+    de-DE: Werkstattschmiede
+  Description:
+    en-US: The blacksmith's forge. Needs coal to keep burning.
+    de-DE: Die Schmiede des Schmieds. Braucht Kohle um zu brennen.
+  Location: Smithy
+
+- ObjectID: Object:HorseFeeder
+  DisplayName:
+    en-US: Horse Feeder
+    de-DE: Pferdetrog
+  Description:
+    en-US: A feeding trough for horses. Keep it filled with hay.
+    de-DE: Ein Futtertrog für Pferde. Halte ihn mit Heu gefüllt.
+  Location: Stable
