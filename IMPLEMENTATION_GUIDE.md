@@ -95,4 +95,6 @@ clicking on the node opens an overlay window with the approriate options.
  - The checker has a non-zero exit code if any issues were found.
  - The checker uses the same data source for the lists of known NPCs,
    resource types, items and so on as the backend.
+ - The checker should be a independent implemenation and should not share
+   code with other parts of the project.
 
