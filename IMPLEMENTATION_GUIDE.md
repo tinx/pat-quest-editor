@@ -4,15 +4,15 @@
 
  - Quest YAML files are stored in a configurable folder on the server.
  - Sub-folders are used to categorize and manage the quest files.
- - The editor should remember the positions or quest nodes on the
+ - The editor should remember the positions of quest nodes on the
    canvas, so that when the quest is edited again the user doesn't
    need to rearrange the nodes.
 
 ## Implementation Requirements
 
  - Keep external dependencies to a minimum.
- - Don't add huge external dependencies for small amounts of functionality. Instead,
-   implemented the functionality within this project.
+ - Don't add huge external dependencies for small amounts of functionality.
+   Instead, implemented the functionality within this project.
  - Code should be readable and understandable by human developers.
  - Keep function sizes small enough for humans to understand them.
  - Unit tests are mandatory for business logic.
@@ -80,4 +80,19 @@ node instances.
 
 Each node type comes with different parameters and options. To edit these,
 clicking on the node opens an overlay window with the approriate options.
+
+## Validator
+
+ - The validator is to be implemented in GoLang.
+ - The validator is a command line utility for quest validation.
+ - The validator validates every quest individually, and also checks for
+   cross-quest concerns. The file "QUEST_VALIDATION.md" and the quest
+   JSON schema explain what to look for.
+ - If the validator finds an issue, it prints one line per finding,
+   starting with the quest (or quests) involved, a node ID (if applicable)
+   and a short concise explanation of the issue. Just enough to understand
+   what to fix.
+ - The validator has a non-zero exit code if any issues were found.
+ - The validator uses the same data source for the lists of known NPCs,
+   resource types, items and so on as the backend.
 
