@@ -204,9 +204,7 @@ QuestNodes:
     - NodeID: 15
       NodeType: Dialog
       NextNodes:
-        - 18
-        - 17
-        - 19
+        - 49
       ConversationPartner: NPC:Miner
       Messages:
         - Speaker: NPC:Miner
@@ -324,8 +322,8 @@ QuestNodes:
             Faction: Org:CourierGuild
             Points: 3
         - JournalEntry:
-            de-DE: Du hast die Hufeisen für einen sehr guten Preis an Tihat verkauft. Er hat sich gefreut sie Dir abnehmen zu können.
-            en-US: You sold the horseshoes to Tihat for a very good price. He was happy to take them off your hands.
+            de-DE: Du hast Hufeisen für einen sehr guten Preis an Tihat verkauft. Er hat sich gefreut sie Dir abnehmen zu können.
+            en-US: You sold horseshoes to Tihat for a very good price. He was happy to take them off your hands.
     - NodeID: 26
       NodeType: Actions
       Actions:
@@ -400,6 +398,12 @@ QuestNodes:
             Operation: set to
             Value: 1
             VariableName: Q_PAT_ALL_FEATURE_QUEST_Spawn_Kittens
+        - JournalEntry:
+            de-DE: Jessi hat Dich gebeten ihr beim Fangen der entflohenen Kätzchen zu helfen.
+            en-US: Jessi asked you to help her catch the escaped kittens.
+        - QuestStageDescription:
+            de-DE: Katzen hüten
+            en-US: Herding cats
     - NodeID: 36
       NodeType: ConditionWatcher
       NextNodes:
@@ -535,3 +539,16 @@ QuestNodes:
             Faction: Town
             Points: 1
         - Currency: 30
+    - NodeID: 49
+      NodeType: Actions
+      NextNodes:
+        - 18
+        - 17
+        - 19
+      Actions:
+        - QuestStageDescription:
+            de-DE: Geteiltes Leid...
+            en-US: A burden shared...
+        - JournalEntry:
+            de-DE: Levora hat Dich gebeten ihr bei ihren Erledigungen zu helfen.
+            en-US: Levora asked you to help her with her chores.
