@@ -71,3 +71,49 @@ Ultimately, one quest is edited at a time, and the result is reflected in
 the quest YAML file. This file can then be checked into version control such
 as git.
 
+## Quest Checker CLI
+
+The checker is a standalone command-line utility that validates all quest files.
+It performs both single-quest validation and cross-quest checks.
+
+### Building
+
+```bash
+cd checker
+go build .
+```
+
+### Usage
+
+```bash
+./checker -quests ../quests -data ../data
+```
+
+Options:
+- `-quests` - Path to quests directory (default: `./quests`)
+- `-data` - Path to reference data directory (default: `./data`)
+- `-quiet` - Only output errors, no summary
+
+Exit codes:
+- `0` - All quests valid
+- `1` - Validation issues found
+- `2` - Fatal error (e.g., can't read files)
+
+### Validation Rules
+
+Single-quest:
+- Unique NodeIDs within quest
+- Valid node connections (no non-existent, self-referencing, or duplicate edges)
+- Non-EntryPoint nodes have incoming connections
+- At least one EntryPoint exists
+- No cycles (DAG only)
+- Terminal nodes have no outgoing edges
+- Non-terminal nodes have outgoing edges
+- References to NPCs, items, factions, resources, objects exist
+
+Cross-quest:
+- Unique QuestIDs across all quests
+- Unique DisplayNames per language
+- Unique QuestStageDescriptions per language
+- QuestCompleted conditions reference existing quests
+

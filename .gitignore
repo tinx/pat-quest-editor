@@ -1,3 +1,5 @@
 backend/editor.db
 backend/go.sum
 backend/server
+checker/go.sum
+checker/checker

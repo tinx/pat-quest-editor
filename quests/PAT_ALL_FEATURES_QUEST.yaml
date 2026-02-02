@@ -504,7 +504,6 @@ QuestNodes:
     - NodeID: 46
       NodeType: Actions
       Actions:
-        - CompleteQuest
         - ItemsLost:
             - Count: 1
               Type: Horseshoes
@@ -515,6 +514,7 @@ QuestNodes:
         - FactionStanding:
             Faction: Town
             Points: 1
+        - CompleteQuest
     - NodeID: 47
       NodeType: Dialog
       NextNodes:
