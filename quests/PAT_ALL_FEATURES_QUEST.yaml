@@ -324,6 +324,9 @@ QuestNodes:
         - JournalEntry:
             de-DE: Du hast Hufeisen für einen sehr guten Preis an Tihat verkauft. Er hat sich gefreut sie Dir abnehmen zu können.
             en-US: You sold horseshoes to Tihat for a very good price. He was happy to take them off your hands.
+        - QuestStageDescription:
+            de-DE: Hufeisen an den Kurier verkaufen
+            en-US: Selling horseshoes to the courier
     - NodeID: 26
       NodeType: Actions
       Actions:

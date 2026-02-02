@@ -30,6 +30,9 @@ func (v *QuestValidatorService) Validate(quest *domain.Quest) *domain.Validation
 	v.validateConditionBranches(quest, result)
 	v.validateNoCycles(quest, result)
 	v.validateReferences(quest, result)
+	v.validateNoUnreferencedNodes(quest, result)
+	v.validateJournalAtFlowStart(quest, result)
+	v.validateJournalAtFlowEnd(quest, result)
 
 	return result
 }
@@ -50,31 +53,32 @@ func (v *QuestValidatorService) validateNodeConnections(quest *domain.Quest, res
 		nodeIDs[node.NodeID] = true
 	}
 
-	// Check that all NextNodes references exist
+	// Helper to check a single NextNodes list for duplicates, self-references, and invalid references
+	checkNextNodesList := func(nodeID int, list []int, listName string) {
+		seen := make(map[int]bool)
+		for _, nextID := range list {
+			if !nodeIDs[nextID] {
+				result.AddNodeError(nodeID, fmt.Sprintf("%s references non-existent NodeID", listName))
+			}
+			if nextID == nodeID {
+				result.AddNodeError(nodeID, fmt.Sprintf("node references itself in %s", listName))
+			}
+			if seen[nextID] {
+				result.AddNodeError(nodeID, fmt.Sprintf("duplicate edge to NodeID %d", nextID))
+			}
+			seen[nextID] = true
+		}
+	}
+
+	// Check that all NextNodes references exist, no duplicates, and no self-references
 	for _, node := range quest.QuestNodes {
-		for _, nextID := range node.NextNodes {
-			if !nodeIDs[nextID] {
-				result.AddNodeError(node.NodeID, "NextNodes references non-existent NodeID")
-			}
-		}
-		// Check ConditionBranch edges
-		for _, nextID := range node.NextNodesIfTrue {
-			if !nodeIDs[nextID] {
-				result.AddNodeError(node.NodeID, "NextNodesIfTrue references non-existent NodeID")
-			}
-		}
-		for _, nextID := range node.NextNodesIfFalse {
-			if !nodeIDs[nextID] {
-				result.AddNodeError(node.NodeID, "NextNodesIfFalse references non-existent NodeID")
-			}
-		}
-		// Also check dialog options
-		for _, opt := range node.Options {
-			for _, nextID := range opt.NextNodes {
-				if !nodeIDs[nextID] {
-					result.AddNodeError(node.NodeID, "dialog option NextNodes references non-existent NodeID")
-				}
-			}
+		checkNextNodesList(node.NodeID, node.NextNodes, "NextNodes")
+		checkNextNodesList(node.NodeID, node.NextNodesIfTrue, "NextNodesIfTrue")
+		checkNextNodesList(node.NodeID, node.NextNodesIfFalse, "NextNodesIfFalse")
+
+		// Check dialog options - each option's NextNodes is checked independently
+		for i, opt := range node.Options {
+			checkNextNodesList(node.NodeID, opt.NextNodes, fmt.Sprintf("option %d NextNodes", i+1))
 		}
 	}
 
@@ -138,9 +142,17 @@ func (v *QuestValidatorService) validateTerminalNodes(quest *domain.Quest, resul
 			}
 		}
 
+		isTerminal := terminalCount > 0
+		hasOutgoingEdges := len(node.NextNodes) > 0
+
 		// Check: terminal action nodes should not have NextNodes
-		if terminalCount > 0 && len(node.NextNodes) > 0 {
+		if isTerminal && hasOutgoingEdges {
 			result.AddNodeError(node.NodeID, "terminal action node should not have NextNodes")
+		}
+
+		// Check: non-terminal action nodes must have NextNodes
+		if !isTerminal && !hasOutgoingEdges {
+			result.AddNodeError(node.NodeID, "non-terminal Actions node must have NextNodes (quest flow ends with unspecified behaviour)")
 		}
 
 		// Check: at most one terminal action per node
@@ -349,6 +361,195 @@ func (v *QuestValidatorService) validateReferences(quest *domain.Quest, result *
 					}
 				}
 			}
+		}
+	}
+}
+
+func (v *QuestValidatorService) validateNoUnreferencedNodes(quest *domain.Quest, result *domain.ValidationResult) {
+	// Collect all referenced NodeIDs (nodes that appear in any NextNodes list)
+	referenced := make(map[int]bool)
+	for _, node := range quest.QuestNodes {
+		for _, nextID := range node.NextNodes {
+			referenced[nextID] = true
+		}
+		for _, nextID := range node.NextNodesIfTrue {
+			referenced[nextID] = true
+		}
+		for _, nextID := range node.NextNodesIfFalse {
+			referenced[nextID] = true
+		}
+		for _, opt := range node.Options {
+			for _, nextID := range opt.NextNodes {
+				referenced[nextID] = true
+			}
+		}
+	}
+
+	// Check that every non-EntryPoint node is referenced
+	for _, node := range quest.QuestNodes {
+		if node.NodeType == "EntryPoint" {
+			continue
+		}
+		if !referenced[node.NodeID] {
+			result.AddNodeError(node.NodeID, "NodeID is never referenced by any other node")
+		}
+	}
+}
+
+// getOutgoingEdges returns all nodes that a given node can transition to.
+func getOutgoingEdges(node *domain.QuestNode) []int {
+	edges := make([]int, 0)
+	edges = append(edges, node.NextNodes...)
+	edges = append(edges, node.NextNodesIfTrue...)
+	edges = append(edges, node.NextNodesIfFalse...)
+	for _, opt := range node.Options {
+		edges = append(edges, opt.NextNodes...)
+	}
+	return edges
+}
+
+// nodeHasAction checks if an Actions node contains a specific action type.
+func nodeHasAction(node *domain.QuestNode, actionName string) bool {
+	for _, action := range node.Actions {
+		if actionStr, ok := action.(string); ok && actionStr == actionName {
+			return true
+		}
+		if actionMap, ok := action.(map[string]interface{}); ok {
+			if _, exists := actionMap[actionName]; exists {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// isTerminalNode checks if a node is a terminal Actions node.
+func isTerminalNode(node *domain.QuestNode) bool {
+	if node.NodeType != "Actions" {
+		return false
+	}
+	return nodeHasAction(node, "CompleteQuest") ||
+		nodeHasAction(node, "FailQuest") ||
+		nodeHasAction(node, "DeclineQuest")
+}
+
+func (v *QuestValidatorService) validateJournalAtFlowStart(quest *domain.Quest, result *domain.ValidationResult) {
+	// Build node lookup map
+	nodeByID := make(map[int]*domain.QuestNode)
+	for i := range quest.QuestNodes {
+		nodeByID[quest.QuestNodes[i].NodeID] = &quest.QuestNodes[i]
+	}
+
+	// For each EntryPoint, find the first Actions node in the flow
+	for _, node := range quest.QuestNodes {
+		if node.NodeType != "EntryPoint" {
+			continue
+		}
+
+		// BFS to find first Actions node
+		visited := make(map[int]bool)
+		queue := getOutgoingEdges(&node)
+		var firstActionsNode *domain.QuestNode
+
+		for len(queue) > 0 && firstActionsNode == nil {
+			currentID := queue[0]
+			queue = queue[1:]
+
+			if visited[currentID] {
+				continue
+			}
+			visited[currentID] = true
+
+			current, exists := nodeByID[currentID]
+			if !exists {
+				continue
+			}
+
+			if current.NodeType == "Actions" {
+				firstActionsNode = current
+				break
+			}
+
+			// Add outgoing edges to queue
+			queue = append(queue, getOutgoingEdges(current)...)
+		}
+
+		if firstActionsNode == nil {
+			result.AddNodeError(node.NodeID, "EntryPoint flow has no Actions node")
+			continue
+		}
+
+		// Check that first Actions node has both JournalEntry and QuestStageDescription
+		hasJournalEntry := nodeHasAction(firstActionsNode, "JournalEntry")
+		hasQuestStageDescription := nodeHasAction(firstActionsNode, "QuestStageDescription")
+
+		if !hasJournalEntry {
+			result.AddNodeError(firstActionsNode.NodeID, "first Actions node in flow must have JournalEntry action")
+		}
+		if !hasQuestStageDescription {
+			result.AddNodeError(firstActionsNode.NodeID, "first Actions node in flow must have QuestStageDescription action")
+		}
+	}
+}
+
+func (v *QuestValidatorService) validateJournalAtFlowEnd(quest *domain.Quest, result *domain.ValidationResult) {
+	// Build node lookup map and incoming edges map
+	nodeByID := make(map[int]*domain.QuestNode)
+	incomingFrom := make(map[int][]int) // nodeID -> list of nodes that point to it
+	for i := range quest.QuestNodes {
+		node := &quest.QuestNodes[i]
+		nodeByID[node.NodeID] = node
+		for _, nextID := range getOutgoingEdges(node) {
+			incomingFrom[nextID] = append(incomingFrom[nextID], node.NodeID)
+		}
+	}
+
+	// Find all terminal nodes and check their Actions chains
+	for _, node := range quest.QuestNodes {
+		if !isTerminalNode(&node) {
+			continue
+		}
+
+		// Trace backwards to find the Actions chain
+		// The chain includes the terminal node and all consecutive Actions nodes before it
+		actionsChain := []*domain.QuestNode{&node}
+		visited := make(map[int]bool)
+		visited[node.NodeID] = true
+
+		// BFS backwards, but only follow Actions nodes
+		toCheck := []int{node.NodeID}
+		for len(toCheck) > 0 {
+			currentID := toCheck[0]
+			toCheck = toCheck[1:]
+
+			for _, prevID := range incomingFrom[currentID] {
+				if visited[prevID] {
+					continue
+				}
+				prevNode, exists := nodeByID[prevID]
+				if !exists {
+					continue
+				}
+				// Only include Actions nodes in the chain
+				if prevNode.NodeType == "Actions" {
+					visited[prevID] = true
+					actionsChain = append(actionsChain, prevNode)
+					toCheck = append(toCheck, prevID)
+				}
+			}
+		}
+
+		// Check if any node in the chain has JournalEntry
+		hasJournalEntry := false
+		for _, chainNode := range actionsChain {
+			if nodeHasAction(chainNode, "JournalEntry") {
+				hasJournalEntry = true
+				break
+			}
+		}
+
+		if !hasJournalEntry {
+			result.AddNodeError(node.NodeID, "terminal Actions chain must contain a JournalEntry action")
 		}
 	}
 }
